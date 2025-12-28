@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     // Basic validation
-    if (!body.name || !body.price || !body.slug) {
+    if (!body.name || !body.silverWeight || !body.slug) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -44,11 +44,13 @@ export async function POST(request: NextRequest) {
         name: body.name,
         slug: body.slug,
         description: body.description || "",
-        price: body.price,
+        silverWeight: body.silverWeight,
+        makingCharges: body.makingCharges || 0,
+        profitPercent: body.profitPercent || 20.0,
+        fixedPrice: body.fixedPrice || null,
         category: body.category,
         images: body.images || [],
         stock: body.stock || 0,
-        weight: body.weight,
         material: body.material || "925 Silver",
         featured: body.featured || false,
         bestseller: body.bestseller || false,
