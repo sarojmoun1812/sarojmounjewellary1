@@ -46,13 +46,16 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4 text-gray-700 text-lg">
                 <p>
-                  Saroj Moun Jewellery was born from a passion for creating exquisite silver ornaments that tell a story. Founded by Saroj Moun, our brand represents years of dedication to the art of silver craftsmanship.
+                  From the heart of Sherkhan Kheri, Kaithal, Saroj Moun has become a symbol of inspiration and empowerment. As the elected Sarpanch of her village and a certified expert in cutting, tailoring, and beauty, Saroj’s journey is a testament to resilience, vision, and relentless hard work.
                 </p>
                 <p>
-                  With over 2 years of experience in the jewellery industry, we've built a reputation for quality, authenticity, and timeless designs that resonate with modern women while honoring traditional craftsmanship.
+                  Starting with humble beginnings, Saroj transformed her skills into a thriving business in Jind, now serving customers all across India. Her keen eye for fashion and her signature designs have made her a trendsetter—her style and suggestions are celebrated throughout Jind and beyond. In a traditional Jaat family, she has balanced the roles of a devoted mother, a dynamic entrepreneur, and a respected community leader.
                 </p>
                 <p>
-                  What started as a small venture has grown into a trusted name, serving customers across India with beautiful, handcrafted silver jewellery that celebrates every occasion and milestone.
+                  Saroj’s achievements are not hers alone—her journey is powered by the unwavering support of her husband, a dedicated police officer who stands by her side in every challenge, and her two children—a son and a daughter, with her daughter being an IIT Madras graduate and a lead developer at top firms. Together, they prove that with courage, unity, and determination, no dream is too big.
+                </p>
+                <p>
+                  Saroj Moun’s story inspires women everywhere to break barriers, embrace their uniqueness, and lead with kindness and strength. Her legacy is not just in the beautiful designs she creates, but in the lives she touches and the example she sets for future generations.
                 </p>
               </div>
             </motion.div>
