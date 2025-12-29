@@ -68,10 +68,13 @@ export default function AboutPage() {
               className="relative h-[500px] rounded-3xl overflow-hidden shadow-2xl"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-powder-600/20 to-powder-400/20 z-10"></div>
-              {/* Placeholder for founder image */}
-              <div className="w-full h-full bg-gradient-to-br from-powder-200 to-powder-300 flex items-center justify-center">
-                <Users className="h-32 w-32 text-powder-600/40" />
-              </div>
+              <Image
+                src="/saroj%20.jpeg"
+                alt="Saroj Moun - Founder"
+                fill
+                className="object-cover object-center z-0"
+                priority
+              />
             </motion.div>
           </div>
         </div>
