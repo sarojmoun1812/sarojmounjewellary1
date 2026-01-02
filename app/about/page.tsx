@@ -69,7 +69,7 @@ export default function AboutPage() {
             >
               <div className="absolute inset-0 bg-gradient-to-br from-powder-600/20 to-powder-400/20 z-10"></div>
               <Image
-                src="/saroj%20.jpeg"
+                src="/saroj.jpeg"
                 alt="Saroj Moun - Founder"
                 fill
                 className="object-cover object-center z-0"
