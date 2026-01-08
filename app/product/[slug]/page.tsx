@@ -16,10 +16,13 @@ import {
   ChevronRight,
   Minus,
   Plus,
-  Zap
+  Zap,
+  MessageCircle,
+  Phone
 } from "lucide-react";
 import { useSilverRate } from "@/lib/use-silver-rate";
 import { calculateProductPrice, formatPrice } from "@/lib/pricing";
+import { ProductInquiryForm } from "@/components/product-inquiry-form";
 
 // Mock product data - will be replaced with actual API call
 const mockProduct = {
@@ -49,6 +52,7 @@ export default function ProductDetailPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [showInquiryForm, setShowInquiryForm] = useState(false);
 
   // Calculate price
   const priceBreakdown = calculateProductPrice(
@@ -284,6 +288,27 @@ export default function ProductDetailPage() {
                   Share
                 </button>
               </div>
+
+              {/* Inquiry & WhatsApp Buttons */}
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => setShowInquiryForm(true)}
+                  className="bg-gradient-to-r from-powder-500 to-powder-600 text-white py-3 rounded-xl font-semibold hover:from-powder-600 hover:to-powder-700 transition-all shadow-lg shadow-powder-500/20 flex items-center justify-center gap-2"
+                >
+                  <MessageCircle className="h-5 w-5" />
+                  Inquire Now
+                </button>
+
+                <a
+                  href={`https://wa.me/919876543210?text=Hi! I'm interested in "${mockProduct.name}" (₹${priceBreakdown.finalPrice.toLocaleString()}). Please share more details.`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Phone className="h-5 w-5" />
+                  WhatsApp
+                </a>
+              </div>
             </div>
 
             {/* Trust Indicators */}
@@ -368,6 +393,14 @@ export default function ProductDetailPage() {
           </div>
         </motion.div>
       </div>
+
+      {/* Product Inquiry Modal */}
+      <ProductInquiryForm
+        productId={mockProduct.id}
+        productName={mockProduct.name}
+        isOpen={showInquiryForm}
+        onClose={() => setShowInquiryForm(false)}
+      />
     </div>
   );
 }

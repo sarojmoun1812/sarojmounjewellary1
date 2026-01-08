@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Clock, Send, MessageCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, Send, MessageCircle, CheckCircle } from "lucide-react";
 import { useState } from "react";
 
 export default function ContactPage() {
@@ -15,19 +15,37 @@ export default function ContactPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMessage("");
 
-    // TODO: Implement actual form submission logic
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to send message");
+      }
+
       setSubmitStatus("success");
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
       
-      setTimeout(() => setSubmitStatus("idle"), 3000);
-    }, 1500);
+      setTimeout(() => setSubmitStatus("idle"), 5000);
+    } catch (err) {
+      setSubmitStatus("error");
+      setErrorMessage(err instanceof Error ? err.message : "Something went wrong");
+      setTimeout(() => setSubmitStatus("idle"), 5000);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,8 @@ import { ProductCard } from "@/components/product-card";
 import { ArrowRight, Shield, Truck, RefreshCw, Sparkles, Star, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { TestimonialsSection } from "@/components/testimonials";
+import { NewsletterSignup } from "@/components/newsletter-signup";
+import { LeadCapturePopup } from "@/components/lead-capture-popup";
 
 // Premium silver jewellery images
 const featuredProducts = [
@@ -43,6 +46,20 @@ const featuredProducts = [
 ];
 
 export default function HomePage() {
+  const [showLeadPopup, setShowLeadPopup] = useState(false);
+
+  // Show lead capture popup after 10 seconds if not already captured
+  useEffect(() => {
+    const alreadyCaptured = localStorage.getItem("lead_captured");
+    if (alreadyCaptured) return;
+
+    const timer = setTimeout(() => {
+      setShowLeadPopup(true);
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="overflow-hidden">
       {/* Hero Section - Split Layout */}
@@ -652,6 +669,13 @@ export default function HomePage() {
       {/* Testimonials Section */}
       <TestimonialsSection />
 
+      {/* Newsletter Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <NewsletterSignup />
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 bg-primary text-primary-foreground">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -671,6 +695,15 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Lead Capture Popup */}
+      <LeadCapturePopup
+        isOpen={showLeadPopup}
+        onClose={() => setShowLeadPopup(false)}
+        title="Get 10% Off!"
+        description="Subscribe to get exclusive offers and silver rate updates!"
+        source="HOMEPAGE_POPUP"
+      />
     </div>
   );
 }

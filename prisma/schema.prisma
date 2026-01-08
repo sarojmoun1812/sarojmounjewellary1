@@ -22,13 +22,19 @@ model Product {
   material       String   @default("925 Silver")
   featured       Boolean  @default(false)
   bestseller     Boolean  @default(false)
+  isActive       Boolean  @default(true)
+  metaTitle      String?
+  metaDescription String?
+  tags           String[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   orderItems     OrderItem[]
+  inquiries      ProductInquiry[]
 
   @@index([category])
   @@index([featured])
   @@index([bestseller])
+  @@index([isActive])
 }
 
 model SilverRate {
@@ -90,7 +96,126 @@ model Admin {
   email        String   @unique
   passwordHash String
   name         String
+  role         AdminRole @default(ADMIN)
+  isActive     Boolean  @default(true)
+  lastLogin    DateTime?
   createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  sessions     AdminSession[]
+}
+
+model AdminSession {
+  id        String   @id @default(uuid())
+  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  adminId   String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([adminId])
+}
+
+// Lead Generation Models
+model Lead {
+  id        String     @id @default(uuid())
+  name      String
+  email     String?
+  phone     String
+  source    LeadSource
+  message   String?    @db.Text
+  status    LeadStatus @default(NEW)
+  notes     String?    @db.Text
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([status])
+  @@index([source])
+  @@index([createdAt])
+}
+
+model ProductInquiry {
+  id        String   @id @default(uuid())
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  name      String
+  email     String?
+  phone     String
+  message   String?  @db.Text
+  status    LeadStatus @default(NEW)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+  @@index([status])
+}
+
+model Newsletter {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  isSubscribed Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// Site Settings for dynamic configuration
+model SiteSettings {
+  id              String   @id @default("settings")
+  siteName        String   @default("Saroj Moun Jewellery")
+  tagline         String?
+  phone           String?
+  whatsapp        String?
+  email           String?
+  address         String?  @db.Text
+  gst             String?
+  shippingCharge  Int      @default(0)
+  freeShippingMin Int?     // minimum order for free shipping in paise
+  socialFacebook  String?
+  socialInstagram String?
+  socialTwitter   String?
+  socialYoutube   String?
+  metaTitle       String?
+  metaDescription String?  @db.Text
+  updatedAt       DateTime @updatedAt
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+}
+
+enum LeadSource {
+  CONTACT_FORM
+  PRODUCT_INQUIRY
+  WHATSAPP
+  PHONE
+  NEWSLETTER
+  OTHER
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CONVERTED
+  LOST
 }
 
 enum OrderStatus {
