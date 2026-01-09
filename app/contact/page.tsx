@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Clock, Send, MessageCircle, CheckCircle } from "lucide-react";
 import { useState } from "react";
+import { GoogleMap } from "@/components/google-map";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -307,14 +308,24 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* Map Placeholder */}
+            {/* Map */}
             <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
-              <div className="h-64 bg-gradient-to-br from-powder-200 to-powder-300 flex items-center justify-center">
-                <div className="text-center text-powder-600">
-                  <MapPin className="h-16 w-16 mx-auto mb-4" />
-                  <p className="font-semibold">Map Coming Soon</p>
-                  <p className="text-sm text-powder-500">Google Maps Integration</p>
-                </div>
+              <GoogleMap 
+                address="Silver Jewellery Store, Main Market, India"
+                lat={28.6139}
+                lng={77.209}
+                height="300px"
+              />
+              <div className="p-4 text-center">
+                <a
+                  href="https://www.google.com/maps/dir/?api=1&destination=28.6139,77.209"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-powder-600 hover:text-powder-700 font-semibold"
+                >
+                  <MapPin className="h-4 w-4" />
+                  Get Directions
+                </a>
               </div>
             </div>
 
