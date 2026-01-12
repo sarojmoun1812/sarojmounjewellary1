@@ -5,111 +5,136 @@ import { MapPin, Navigation, Phone, Clock } from "lucide-react";
 
 interface GoogleMapProps {
   address?: string;
-  lat?: number;
-  lng?: number;
+  latitude?: number;
+  longitude?: number;
   zoom?: number;
   height?: string;
+  showInfoCard?: boolean;
 }
 
 export function GoogleMap({
-  address = "Sarojmoun Jewellery, India",
-  lat = 28.6139, // Default to Delhi
-  lng = 77.209,
+  address = "B-90 Police Colony, Jind, Haryana 126102, India",
+  latitude = 29.3159,
+  longitude = 76.3234,
   zoom = 15,
   height = "400px",
+  showInfoCard = true,
 }: GoogleMapProps) {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Create Google Maps embed URL
-  const mapUrl = `https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || ""}&q=${encodeURIComponent(address)}&zoom=${zoom}`;
-  
-  // Fallback to OpenStreetMap if no Google Maps key
-  const osmUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.01}%2C${lat - 0.01}%2C${lng + 0.01}%2C${lat + 0.01}&layer=mapnik&marker=${lat}%2C${lng}`;
+  // Create embed URL for Google Maps
+  const mapUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(
+    address
+  )}&zoom=${zoom}`;
 
-  const embedUrl = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ? mapUrl : osmUrl;
+  // Direct link for "Get Directions"
+  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+    address
+  )}`;
+
+  // Direct link for opening in Google Maps
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    address
+  )}`;
 
   return (
-    <div className="relative w-full rounded-2xl overflow-hidden shadow-lg" style={{ height }}>
-      {isLoading && (
-        <div className="absolute inset-0 bg-powder-100 flex items-center justify-center z-10">
-          <div className="flex flex-col items-center gap-2">
-            <MapPin className="h-8 w-8 text-powder-600 animate-bounce" />
-            <p className="text-powder-600 text-sm">Loading map...</p>
+    <div className="relative">
+      {/* Map Container */}
+      <div
+        className="relative w-full rounded-2xl overflow-hidden shadow-lg bg-gray-100"
+        style={{ height }}
+      >
+        {!isLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center bg-powder-50">
+            <div className="text-center">
+              <div className="w-12 h-12 border-4 border-powder-200 border-t-powder-600 rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-gray-600">Loading map...</p>
+            </div>
+          </div>
+        )}
+        <iframe
+          src={mapUrl}
+          width="100%"
+          height="100%"
+          style={{ border: 0 }}
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          onLoad={() => setIsLoaded(true)}
+          className={`transition-opacity duration-500 ${
+            isLoaded ? "opacity-100" : "opacity-0"
+          }`}
+        />
+
+        {/* Floating Action Buttons */}
+        <div className="absolute bottom-4 right-4 flex flex-col gap-2">
+          <a
+            href={directionsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 bg-powder-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-powder-700 transition-colors text-sm font-medium"
+          >
+            <Navigation className="h-4 w-4" />
+            Get Directions
+          </a>
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 bg-white text-gray-700 px-4 py-2 rounded-full shadow-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+          >
+            <MapPin className="h-4 w-4" />
+            Open in Maps
+          </a>
+        </div>
+      </div>
+
+      {/* Info Card */}
+      {showInfoCard && (
+        <div className="mt-6 bg-white rounded-xl p-6 shadow-md border border-gray-100">
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="flex items-start gap-4">
+              <div className="bg-powder-100 p-3 rounded-xl">
+                <MapPin className="h-6 w-6 text-powder-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900">Visit Our Store</h4>
+                <p className="text-gray-600 text-sm mt-1">
+                  Saroj Moun Jewellery<br />
+                  B-90 Police Colony, Jind<br />
+                  Haryana 126102, India
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="bg-powder-100 p-3 rounded-xl">
+                <Phone className="h-6 w-6 text-powder-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900">Call Us</h4>
+                <p className="text-gray-600 text-sm mt-1">
+                  +91 98765 43210<br />
+                  +91 12345 67890
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="bg-powder-100 p-3 rounded-xl">
+                <Clock className="h-6 w-6 text-powder-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900">Store Hours</h4>
+                <p className="text-gray-600 text-sm mt-1">
+                  Mon - Sat: 10 AM - 8 PM<br />
+                  Sunday: 11 AM - 6 PM
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}
-      <iframe
-        src={embedUrl}
-        width="100%"
-        height="100%"
-        style={{ border: 0 }}
-        allowFullScreen
-        loading="lazy"
-        referrerPolicy="no-referrer-when-downgrade"
-        onLoad={() => setIsLoading(false)}
-        title="Store Location Map"
-      />
-    </div>
-  );
-}
-
-interface StoreLocationCardProps {
-  storeName?: string;
-  address?: string;
-  phone?: string;
-  hours?: string;
-  lat?: number;
-  lng?: number;
-}
-
-export function StoreLocationCard({
-  storeName = "Sarojmoun Silver Jewellery",
-  address = "Main Market, Near Temple, Your City, State - 123456",
-  phone = "+91 98765 43210",
-  hours = "10:00 AM - 8:00 PM (Mon-Sat)",
-  lat = 28.6139,
-  lng = 77.209,
-}: StoreLocationCardProps) {
-  const googleMapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-
-  return (
-    <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-      {/* Map */}
-      <GoogleMap address={address} lat={lat} lng={lng} height="300px" />
-
-      {/* Store Info */}
-      <div className="p-6 space-y-4">
-        <h3 className="text-xl font-bold text-gray-900">{storeName}</h3>
-
-        <div className="space-y-3">
-          <div className="flex items-start gap-3">
-            <MapPin className="h-5 w-5 text-powder-600 mt-0.5 flex-shrink-0" />
-            <p className="text-gray-600">{address}</p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Phone className="h-5 w-5 text-powder-600 flex-shrink-0" />
-            <a href={`tel:${phone.replace(/\s/g, "")}`} className="text-gray-600 hover:text-powder-600">
-              {phone}
-            </a>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Clock className="h-5 w-5 text-powder-600 flex-shrink-0" />
-            <p className="text-gray-600">{hours}</p>
-          </div>
-        </div>
-
-        <a
-          href={googleMapsDirectionsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 w-full py-3 bg-powder-600 text-white rounded-xl font-semibold hover:bg-powder-700 transition-colors"
-        >
-          <Navigation className="h-5 w-5" />
-          Get Directions
-        </a>
-      </div>
     </div>
   );
 }

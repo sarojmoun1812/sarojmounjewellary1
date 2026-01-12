@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Heart, Award, Sparkles, Users, Target, Shield } from "lucide-react";
+import { Heart, Award, Sparkles, Users, Target, Shield, MapPin } from "lucide-react";
 import Image from "next/image";
+import { GoogleMap } from "@/components/google-map";
 
 export default function AboutPage() {
   return (
@@ -260,6 +261,43 @@ export default function AboutPage() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Store Location */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <div className="inline-flex items-center gap-2 bg-powder-100 px-4 py-2 rounded-full mb-4">
+              <MapPin className="h-4 w-4 text-powder-600" />
+              <span className="text-sm font-semibold text-powder-700">Visit Us</span>
+            </div>
+            <h2 className="text-4xl font-heading font-bold text-gray-900 mb-4">
+              Our Store Location
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Experience our exquisite silver jewellery collection in person at our store
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <GoogleMap
+              address="B-90 Police Colony, Jind, Haryana 126102, India"
+              height="450px"
+              showInfoCard={true}
+            />
+          </motion.div>
         </div>
       </section>
 

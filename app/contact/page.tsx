@@ -308,25 +308,17 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* Map */}
-            <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
-              <GoogleMap 
-                address="Silver Jewellery Store, Main Market, India"
-                lat={28.6139}
-                lng={77.209}
-                height="300px"
+            {/* Google Map */}
+            <div className="bg-white rounded-3xl shadow-xl overflow-hidden p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-powder-600" />
+                Find Us
+              </h3>
+              <GoogleMap
+                address="Johri Bazaar, Jaipur, Rajasthan, India"
+                height="350px"
+                showInfoCard={false}
               />
-              <div className="p-4 text-center">
-                <a
-                  href="https://www.google.com/maps/dir/?api=1&destination=28.6139,77.209"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-powder-600 hover:text-powder-700 font-semibold"
-                >
-                  <MapPin className="h-4 w-4" />
-                  Get Directions
-                </a>
-              </div>
             </div>
 
             {/* FAQ Link */}
