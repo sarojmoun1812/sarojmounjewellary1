@@ -32,7 +32,7 @@ const mockProduct = {
   description: "Handcrafted silver peacock necklace featuring intricate traditional designs. Perfect for weddings, festivals, and special occasions. Made with 100% pure silver with hallmark certification.",
   silverWeight: 25.5,
   makingCharges: 800,
-  profitPercent: 45,
+  profitPerGram: 100,
   images: [
     "/peacock-jewellery.jpeg",
     "/peacock-jewellery.jpeg",
@@ -59,7 +59,7 @@ export default function ProductDetailPage() {
     {
       silverWeight: mockProduct.silverWeight,
       makingCharges: mockProduct.makingCharges,
-      profitPercent: mockProduct.profitPercent
+      profitPerGram: mockProduct.profitPerGram
     },
     silverRate
   );

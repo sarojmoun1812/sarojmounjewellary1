@@ -6,7 +6,7 @@
 export interface ProductPricing {
   silverWeight: number; // grams
   makingCharges: number; // in paise
-  profitPercent: number; // percentage
+  profitPerGram: number; // profit per gram in rupees (₹100/gram)
   fixedPrice?: number; // optional override in paise
 }
 
@@ -49,8 +49,8 @@ export function calculateProductPrice(
   // Add making charges
   const subtotal = silverCost + product.makingCharges;
 
-  // Calculate profit
-  const profit = Math.round(subtotal * (product.profitPercent / 100));
+  // Calculate profit (₹ per gram * weight, converted to paise)
+  const profit = Math.round(product.profitPerGram * product.silverWeight * 100);
 
   // Final price
   const finalPrice = subtotal + profit;

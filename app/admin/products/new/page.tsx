@@ -42,7 +42,7 @@ export default function NewProductPage() {
     description: "",
     silverWeight: "",
     makingCharges: "",
-    profitPercent: "20",
+    profitPerGram: "100",
     fixedPrice: "",
     category: "",
     stock: "0",
@@ -121,7 +121,7 @@ export default function NewProductPage() {
           images,
           silverWeight: parseFloat(formData.silverWeight),
           makingCharges: Math.round(parseFloat(formData.makingCharges) * 100),
-          profitPercent: parseFloat(formData.profitPercent),
+          profitPerGram: parseFloat(formData.profitPerGram),
           fixedPrice: formData.fixedPrice
             ? Math.round(parseFloat(formData.fixedPrice) * 100)
             : null,
@@ -297,17 +297,17 @@ export default function NewProductPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Profit Margin (%)
+                Profit Per Gram (₹)
               </label>
               <input
                 type="number"
-                step="0.1"
-                value={formData.profitPercent}
+                step="1"
+                value={formData.profitPerGram}
                 onChange={(e) =>
-                  setFormData({ ...formData, profitPercent: e.target.value })
+                  setFormData({ ...formData, profitPerGram: e.target.value })
                 }
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
-                placeholder="e.g., 20"
+                placeholder="e.g., 100"
               />
             </div>
             <div>

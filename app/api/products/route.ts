@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
         description: body.description || "",
         silverWeight: body.silverWeight,
         makingCharges: body.makingCharges || 0,
-        profitPercent: body.profitPercent || 20.0,
+        profitPerGram: body.profitPerGram || 100.0,
         fixedPrice: body.fixedPrice || null,
         category: body.category,
         images: body.images || [],

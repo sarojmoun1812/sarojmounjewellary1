@@ -27,7 +27,7 @@ interface ProductFormData {
   category: string;
   silverWeight: string;
   makingCharges: string;
-  profitPercent: string;
+  profitPerGram: string;
   images: string[];
   inStock: boolean;
   isActive: boolean;
@@ -63,7 +63,7 @@ export default function EditProductPage() {
     category: "",
     silverWeight: "",
     makingCharges: "",
-    profitPercent: "45",
+    profitPerGram: "100",
     images: [],
     inStock: true,
     isActive: true,
@@ -99,7 +99,7 @@ export default function EditProductPage() {
           category: data.category || "",
           silverWeight: data.silverWeight?.toString() || "",
           makingCharges: data.makingCharges?.toString() || "",
-          profitPercent: data.profitPercent?.toString() || "45",
+          profitPerGram: data.profitPerGram?.toString() || "100",
           images: data.images || [],
           inStock: data.inStock ?? true,
           isActive: data.isActive ?? true,
@@ -194,7 +194,7 @@ export default function EditProductPage() {
         category: formData.category,
         silverWeight: parseFloat(formData.silverWeight),
         makingCharges: parseFloat(formData.makingCharges),
-        profitPercent: parseFloat(formData.profitPercent),
+        profitPerGram: parseFloat(formData.profitPerGram),
         images: formData.images,
         inStock: formData.inStock,
         isActive: formData.isActive,
@@ -431,23 +431,23 @@ export default function EditProductPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Profit % *
+                    Profit Per Gram (₹) *
                   </label>
                   <input
                     type="number"
                     required
-                    value={formData.profitPercent}
+                    value={formData.profitPerGram}
                     onChange={(e) =>
-                      setFormData({ ...formData, profitPercent: e.target.value })
+                      setFormData({ ...formData, profitPerGram: e.target.value })
                     }
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
-                    placeholder="45"
+                    placeholder="100"
                   />
                 </div>
               </div>
 
               <p className="text-xs text-gray-500 mt-2">
-                Final Price = (Silver Weight × Current Rate) + Making Charges + Profit %
+                Final Price = (Silver Weight × Current Rate) + Making Charges + (Profit Per Gram × Weight)
               </p>
             </motion.div>
 

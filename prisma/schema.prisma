@@ -14,7 +14,7 @@ model Product {
   description    String   @db.Text
   silverWeight   Float    // in grams (e.g., 25.5)
   makingCharges  Int      // fixed making charges in paise
-  profitPercent  Float    @default(20.0) // profit margin percentage
+  profitPerGram  Float    @default(100.0) // profit per gram in rupees (₹100/gram)
   fixedPrice     Int?     // optional fixed price override in paise
   category       String
   images         String[] // Array of Cloudinary URLs
