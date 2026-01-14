@@ -475,60 +475,6 @@ export default function HomePage() {
   );
 }
                 >
-                  <Star className="h-4 w-4 text-powder-600 fill-powder-600" />
-                  <span className="text-sm font-semibold text-gray-700">4.9/5 Rating</span>
-                </motion.div>
-                <motion.div 
-                  className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-5 py-2.5 rounded-full shadow-md border border-powder-300"
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <Shield className="h-4 w-4 text-powder-600" />
-                  <span className="text-sm font-semibold text-gray-700">925 Hallmarked</span>
-                </motion.div>
-                <motion.div 
-                  className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-5 py-2.5 rounded-full shadow-md border border-powder-300"
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <Heart className="h-4 w-4 text-powder-600 fill-powder-600" />
-                  <span className="text-sm font-semibold text-gray-700">10K+ Customers</span>
-                </motion.div>
-              </motion.div>
-            </motion.div>
-
-            {/* Right Side - Peacock Image */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative lg:h-[700px] h-[500px]"
-            >
-              {/* Decorative Background Circle */}
-              <div className="absolute inset-0 bg-gradient-to-br from-powder-400/30 to-powder-600/20 rounded-full blur-3xl scale-110" />
-              
-              {/* Main Image Container */}
-              <motion.div
-                className="relative h-full w-full rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50"
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Image
-                  src="/peacock-jewellery.jpeg"
-                  alt="Exquisite silver jewellery collection on majestic peacock"
-                  fill
-                  className="object-cover"
-                  priority
-                />
-                
-                {/* Subtle Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-powder-900/20 via-transparent to-transparent" />
-                
-                {/* Floating Badge */}
-                <motion.div
-                  className="absolute top-6 right-6 bg-white/95 backdrop-blur-md px-6 py-3 rounded-full shadow-xl border-2 border-powder-400"
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 1, type: "spring" }}
-                >
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-powder-600" />
                     <span className="text-sm font-bold bg-gradient-to-r from-powder-600 to-powder-700 bg-clip-text text-transparent">
