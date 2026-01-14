@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Inter, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -12,9 +12,10 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const playfair = Playfair_Display({ 
+const cormorant = Cormorant_Garamond({ 
   subsets: ["latin"],
-  variable: "--font-playfair",
+  variable: "--font-cormorant",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -80,7 +81,7 @@ export default function RootLayout({
         <OrganizationSchema />
         <WebsiteSchema />
       </head>
-      <body className={`${inter.variable} ${playfair.variable} font-body antialiased`}>
+      <body className={`${inter.variable} ${cormorant.variable} font-body antialiased bg-ivory-50`}>
         <ToastProvider>
           <Navbar />
           <main className="min-h-screen">

@@ -3,13 +3,12 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/product-card";
-import { ArrowRight, Shield, Truck, RefreshCw, Sparkles, Star, Heart } from "lucide-react";
-import { motion } from "framer-motion";
-import { TestimonialsSection } from "@/components/testimonials";
+import { ArrowRight, Shield, Truck, RefreshCw, Star } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { NewsletterSignup } from "@/components/newsletter-signup";
 import { LeadCapturePopup } from "@/components/lead-capture-popup";
+import { MarqueeBanner } from "@/components/marquee-banner";
 
 // Premium silver jewellery images
 const featuredProducts = [
@@ -45,6 +44,13 @@ const featuredProducts = [
   },
 ];
 
+const categories = [
+  { name: "Rings", image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&q=80" },
+  { name: "Necklaces", image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=600&q=80" },
+  { name: "Kadas", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&q=80" },
+  { name: "Earrings", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&q=80" },
+];
+
 export default function HomePage() {
   const [showLeadPopup, setShowLeadPopup] = useState(false);
 
@@ -61,138 +67,435 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="overflow-hidden">
-      {/* Hero Section - Split Layout */}
-      <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-powder-50 via-white to-powder-100">
-        {/* Animated Background Elements */}
+    <div className="bg-ivory-50">
+      {/* Scrolling Marquee Banner */}
+      <MarqueeBanner />
+      
+      {/* Hero Section - Full Screen with Parallax */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Image */}
         <div className="absolute inset-0">
-          {/* Floating Gradient Orbs */}
-          <div className="absolute top-20 left-10 w-[600px] h-[600px] bg-gradient-to-br from-powder-300/40 to-powder-500/30 rounded-full blur-3xl animate-blob" />
-          <div className="absolute bottom-20 right-10 w-[700px] h-[700px] bg-gradient-to-br from-powder-400/30 to-powder-600/25 rounded-full blur-3xl animate-blob animation-delay-2000" />
-          <div className="absolute top-1/2 left-1/2 w-[500px] h-[500px] bg-gradient-to-br from-powder-200/35 to-powder-400/30 rounded-full blur-3xl animate-blob animation-delay-4000" />
-          
-          {/* Elegant Sparkles */}
-          {[...Array(30)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-2 h-2 bg-powder-500 rounded-full shadow-lg"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                scale: [0, 1.5, 0],
-                opacity: [0, 0.9, 0],
-              }}
-              transition={{
-                duration: 2 + Math.random() * 2,
-                repeat: Infinity,
-                delay: Math.random() * 3,
-              }}
-            />
-          ))}
+          <Image
+            src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1920&q=80"
+            alt="Luxury silver jewellery"
+            fill
+            className="object-cover"
+            priority
+            quality={95}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-charcoal-900/40 via-charcoal-900/30 to-charcoal-900/60" />
         </div>
 
-        {/* Content Container */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Side - Text Content */}
+        {/* Hero Content */}
+        <div className="relative z-10 text-center text-white px-6 max-w-5xl mx-auto">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-[11px] tracking-[0.4em] uppercase text-champagne-300 mb-8"
+          >
+            Premium 925 Silver Collection
+          </motion.p>
+          
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.3 }}
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-heading font-light tracking-tight mb-8"
+          >
+            Everyday Silver,
+            <br />
+            <span className="italic">Elevated.</span>
+          </motion.h1>
+          
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="text-base md:text-lg text-ivory-100/80 max-w-xl mx-auto font-light tracking-wide mb-12"
+          >
+            Discover handcrafted silver jewellery designed for the modern woman. 
+            Timeless elegance meets contemporary style.
+          </motion.p>
+
+          {/* CTA Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.7 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <Link href="/shop">
+              <button className="group px-12 py-4 bg-ivory-50 text-charcoal-900 text-xs font-medium tracking-[0.2em] uppercase transition-all duration-500 hover:bg-champagne-500 hover:text-ivory-50">
+                Shop Collection
+                <ArrowRight className="inline-block ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+              </button>
+            </Link>
+            <Link href="/about">
+              <button className="px-12 py-4 border border-ivory-50/50 text-ivory-50 text-xs font-medium tracking-[0.2em] uppercase transition-all duration-500 hover:bg-ivory-50/10">
+                Our Story
+              </button>
+            </Link>
+          </motion.div>
+        </div>
+
+        {/* Elegant Scroll Indicator */}
+        <motion.div
+          className="absolute bottom-10 left-1/2 -translate-x-1/2"
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <div className="flex flex-col items-center gap-3">
+            <span className="text-[10px] tracking-[0.3em] uppercase text-ivory-50/60">
+              Scroll
+            </span>
+            <div className="w-px h-12 bg-gradient-to-b from-ivory-50/60 to-transparent" />
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Shop by Category - Elegant Grid */}
+      <section className="section-padding bg-ivory-50">
+        <div className="container-luxury">
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <p className="text-[11px] tracking-[0.3em] uppercase text-champagne-600 mb-4">
+              Explore Our Collection
+            </p>
+            <h2 className="text-4xl md:text-5xl font-heading font-light text-charcoal-900">
+              Shop by Category
+            </h2>
+          </motion.div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {categories.map((category, index) => (
+              <motion.div
+                key={category.name}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+              >
+                <Link
+                  href={`/shop?category=${category.name.toLowerCase()}`}
+                  className="group block relative aspect-[3/4] overflow-hidden"
+                >
+                  <Image
+                    src={category.image}
+                    alt={category.name}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/70 via-charcoal-900/20 to-transparent" />
+                  <div className="absolute inset-0 flex flex-col items-center justify-end pb-8">
+                    <h3 className="text-xl md:text-2xl font-heading font-light text-white tracking-wide mb-2">
+                      {category.name}
+                    </h3>
+                    <span className="text-[10px] tracking-[0.2em] uppercase text-champagne-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      Explore →
+                    </span>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Editorial Section - Split Layout */}
+      <section className="section-padding bg-white">
+        <div className="container-luxury">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            {/* Image */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
               transition={{ duration: 0.8 }}
-              className="space-y-8"
+              className="relative aspect-[4/5] overflow-hidden"
             >
-              <motion.div 
-                className="inline-flex items-center gap-2 bg-white/95 backdrop-blur-md border-2 border-powder-400 px-6 py-3 rounded-full shadow-xl"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                <Sparkles className="h-5 w-5 text-powder-600" />
-                <span className="text-sm text-powder-700 font-bold">Premium 925 Silver Collection</span>
-              </motion.div>
+              <Image
+                src="/peacock-jewellery.jpeg"
+                alt="Handcrafted silver jewellery"
+                fill
+                className="object-cover"
+              />
+            </motion.div>
 
-              <motion.h1 
-                className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold leading-tight"
+            {/* Content */}
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="lg:py-12"
+            >
+              <p className="text-[11px] tracking-[0.3em] uppercase text-champagne-600 mb-6">
+                Our Craft
+              </p>
+              <h2 className="text-4xl md:text-5xl font-heading font-light text-charcoal-900 leading-tight mb-8">
+                Handcrafted with<br />
+                <span className="italic">Love & Tradition</span>
+              </h2>
+              <p className="text-charcoal-600 leading-relaxed mb-8 text-base">
+                Every piece in our collection is meticulously handcrafted by skilled artisans 
+                who have inherited the art of silver jewellery making through generations. 
+                We use only certified 925 sterling silver, ensuring each creation is not just 
+                beautiful but built to last a lifetime.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-8 mb-10">
+                <div>
+                  <p className="text-3xl font-heading font-light text-champagne-600 mb-1">925</p>
+                  <p className="text-xs tracking-wider uppercase text-charcoal-500">Sterling Silver</p>
+                </div>
+                <div>
+                  <p className="text-3xl font-heading font-light text-champagne-600 mb-1">10K+</p>
+                  <p className="text-xs tracking-wider uppercase text-charcoal-500">Happy Customers</p>
+                </div>
+                <div>
+                  <p className="text-3xl font-heading font-light text-champagne-600 mb-1">100%</p>
+                  <p className="text-xs tracking-wider uppercase text-charcoal-500">Hallmarked</p>
+                </div>
+              </div>
+              <Link href="/about">
+                <button className="btn-luxury-outline">
+                  Learn Our Story
+                  <ArrowRight className="inline-block ml-3 h-4 w-4" />
+                </button>
+              </Link>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Best Sellers - Product Grid */}
+      <section className="section-padding bg-ivory-50">
+        <div className="container-luxury">
+          <motion.div 
+            className="flex flex-col md:flex-row md:items-end md:justify-between mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <div>
+              <p className="text-[11px] tracking-[0.3em] uppercase text-champagne-600 mb-4">
+                Curated Selection
+              </p>
+              <h2 className="text-4xl md:text-5xl font-heading font-light text-charcoal-900">
+                Best Sellers
+              </h2>
+            </div>
+            <Link 
+              href="/shop" 
+              className="mt-6 md:mt-0 text-xs tracking-[0.2em] uppercase text-charcoal-700 hover:text-champagne-600 transition-colors flex items-center gap-2"
+            >
+              View All
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            {featuredProducts.map((product, index) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <ProductCard {...product} />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Full Width Banner */}
+      <section className="relative h-[70vh] overflow-hidden">
+        <Image
+          src="https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=1920&q=80"
+          alt="Silver jewellery collection"
+          fill
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-charcoal-900/50" />
+        <div className="absolute inset-0 flex items-center justify-center text-center px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <p className="text-[11px] tracking-[0.4em] uppercase text-champagne-300 mb-6">
+              New Collection
+            </p>
+            <h2 className="text-4xl md:text-6xl font-heading font-light text-white mb-8 max-w-3xl">
+              The Art of<br />
+              <span className="italic">Silver Making</span>
+            </h2>
+            <Link href="/shop">
+              <button className="px-12 py-4 bg-ivory-50 text-charcoal-900 text-xs font-medium tracking-[0.2em] uppercase transition-all duration-500 hover:bg-champagne-500 hover:text-ivory-50">
+                Explore Now
+              </button>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Trust Badges - Minimal */}
+      <section className="py-20 bg-white">
+        <div className="container-luxury">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {[
+              { 
+                icon: Shield, 
+                title: "925 Hallmarked", 
+                desc: "Every piece is certified 925 sterling silver with official hallmark" 
+              },
+              { 
+                icon: Truck, 
+                title: "Free Shipping", 
+                desc: "Complimentary delivery on all orders above ₹2,999 across India" 
+              },
+              { 
+                icon: RefreshCw, 
+                title: "Easy Returns", 
+                desc: "7-day hassle-free returns with full refund guarantee" 
+              },
+            ].map((item, index) => (
+              <motion.div
+                key={item.title}
+                className="text-center"
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.15 }}
               >
-                <span className="block bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800 bg-clip-text text-transparent">
-                  Timeless
-                </span>
-                <span className="block bg-gradient-to-r from-powder-600 via-powder-700 to-powder-600 bg-clip-text text-transparent mt-2"
-                  style={{
-                    backgroundSize: "200% 200%",
-                    animation: "gradient 3s ease infinite",
-                  }}
-                >
-                  Elegance
-                </span>
-                <span className="block bg-gradient-to-r from-gray-700 via-gray-800 to-gray-700 bg-clip-text text-transparent mt-2">
-                  Crafted with Soul
-                </span>
-              </motion.h1>
-
-              <motion.p 
-                className="text-lg md:text-xl text-gray-700 leading-relaxed max-w-xl"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-              >
-                Discover handcrafted ethnic silver jewellery that tells your story. Each piece is a masterpiece of tradition and artistry.
-              </motion.p>
-
-              <motion.div 
-                className="flex items-center gap-4 text-sm text-powder-700 font-semibold"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-powder-600 rounded-full animate-pulse" />
-                  <span>Hallmarked</span>
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-ivory-100 mb-6">
+                  <item.icon className="h-7 w-7 text-champagne-600" strokeWidth={1.5} />
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-powder-600 rounded-full animate-pulse animation-delay-2000" />
-                  <span>Authentic</span>
+                <h3 className="text-lg font-heading font-medium text-charcoal-900 mb-3">
+                  {item.title}
+                </h3>
+                <p className="text-charcoal-500 text-sm leading-relaxed">
+                  {item.desc}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials - Elegant */}
+      <section className="section-padding bg-ivory-100">
+        <div className="container-luxury">
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <p className="text-[11px] tracking-[0.3em] uppercase text-champagne-600 mb-4">
+              Customer Love
+            </p>
+            <h2 className="text-4xl md:text-5xl font-heading font-light text-charcoal-900">
+              What They Say
+            </h2>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Priya Sharma",
+                location: "Mumbai",
+                rating: 5,
+                text: "The craftsmanship is incredible. My kada has become my everyday essential - elegant and comfortable.",
+              },
+              {
+                name: "Anita Patel",
+                location: "Delhi",
+                rating: 5,
+                text: "Perfect for my wedding! The necklace was exactly as shown. Beautiful packaging and prompt delivery.",
+              },
+              {
+                name: "Sneha Reddy",
+                location: "Hyderabad",
+                rating: 5,
+                text: "Love the minimal design aesthetic. These pieces go with everything from casual to formal wear.",
+              },
+            ].map((testimonial, index) => (
+              <motion.div
+                key={testimonial.name}
+                className="bg-white p-8 lg:p-10"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.15 }}
+              >
+                {/* Stars */}
+                <div className="flex gap-1 mb-6">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="h-4 w-4 text-champagne-500 fill-champagne-500" />
+                  ))}
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-powder-600 rounded-full animate-pulse animation-delay-4000" />
-                  <span>Premium Finish</span>
+
+                <p className="text-charcoal-700 leading-relaxed mb-8 italic">
+                  "{testimonial.text}"
+                </p>
+
+                <div>
+                  <p className="font-medium text-charcoal-900">{testimonial.name}</p>
+                  <p className="text-xs text-charcoal-400 tracking-wider uppercase mt-1">
+                    {testimonial.location}
+                  </p>
                 </div>
               </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-              <motion.div 
-                className="flex gap-4 flex-wrap pt-4"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-              >
-                <Link href="/shop">
-                  <Button size="lg" className="text-base px-8 py-6 bg-gradient-to-r from-powder-600 to-powder-700 hover:from-powder-700 hover:to-powder-800 text-white font-bold shadow-2xl shadow-powder-600/50 hover:shadow-powder-700/60 transition-all duration-300 rounded-full">
-                    Shop Collection
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
-                <Link href="/about">
-                  <Button size="lg" variant="outline" className="text-base px-8 py-6 border-2 border-powder-500 text-gray-800 hover:bg-powder-100 transition-all duration-300 rounded-full backdrop-blur-sm bg-white/80">
-                    Our Story
-                  </Button>
-                </Link>
-              </motion.div>
+      {/* Newsletter Section - Luxury */}
+      <section className="section-padding bg-charcoal-900">
+        <div className="container-luxury max-w-2xl text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <p className="text-[11px] tracking-[0.3em] uppercase text-champagne-400 mb-4">
+              Stay Updated
+            </p>
+            <h2 className="text-3xl md:text-4xl font-heading font-light text-ivory-50 mb-6">
+              Join Our Community
+            </h2>
+            <p className="text-ivory-100/70 mb-10">
+              Subscribe to receive exclusive offers, silver rate updates, and early access to new collections.
+            </p>
+            <NewsletterSignup />
+          </motion.div>
+        </div>
+      </section>
 
-              {/* Trust Indicators */}
-              <motion.div 
-                className="flex items-center gap-6 flex-wrap pt-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8 }}
-              >
-                <motion.div 
-                  className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-5 py-2.5 rounded-full shadow-md border border-powder-300"
-                  whileHover={{ scale: 1.05 }}
+      {/* Lead Capture Popup */}
+      <LeadCapturePopup
+        isOpen={showLeadPopup}
+        onClose={() => setShowLeadPopup(false)}
+        title="Get 10% Off!"
+        description="Subscribe to get exclusive offers and silver rate updates!"
+        source="HOMEPAGE_POPUP"
+      />
+    </div>
+  );
+}
                 >
                   <Star className="h-4 w-4 text-powder-600 fill-powder-600" />
                   <span className="text-sm font-semibold text-gray-700">4.9/5 Rating</span>
@@ -551,6 +854,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Parallax Hero Section - Susicala Style */}
+      <ParallaxHero />
 
       {/* Instagram Feed Section */}
       <section className="py-24 bg-primary relative overflow-hidden">

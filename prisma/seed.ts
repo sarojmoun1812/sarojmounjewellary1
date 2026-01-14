@@ -4,15 +4,12 @@ const bcrypt = require("bcryptjs");
 const prisma = new PrismaClient();
 
 async function main() {
-  // Check if admin already exists
-  const existingAdmin = await prisma.admin.findUnique({
+  // Delete existing admin and create fresh
+  await prisma.admin.deleteMany({
     where: { email: "sarojmounjewellary@gmail.com" },
   });
-
-  if (existingAdmin) {
-    console.log("Admin already exists!");
-    return;
-  }
+  
+  console.log("Creating fresh admin...");
 
   // Create admin with hardcoded credentials
   const passwordHash = await bcrypt.hash("Sarojmoun@jewellary18", 12);
