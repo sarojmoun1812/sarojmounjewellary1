@@ -13,31 +13,9 @@ import { MarqueeBanner } from "@/components/marquee-banner";
 // Premium silver jewellery images
 const featuredProducts = [
   {
-    id: "1",
-    name: "Handcrafted Silver Kada",
-    slug: "handcrafted-silver-kada",
-    price: 349900,
-    image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800&q=80",
-    badge: "Best Seller",
-  },
-  {
-    id: "2",
-    name: "Temple Design Necklace",
-    slug: "temple-design-necklace",
-    price: 599900,
-    image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80",
-    badge: "New",
-  },
-  {
-    id: "3",
-    name: "Oxidized Silver Rings",
-    slug: "oxidized-silver-rings",
-    price: 149900,
-    image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80",
-  },
-  {
-    id: "4",
-    name: "Ethnic Jhumka Earrings",
+    </div>
+  );
+}
     slug: "ethnic-jhumka-earrings",
     price: 249900,
     image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&q=80",
