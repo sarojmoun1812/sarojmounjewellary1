@@ -13,9 +13,6 @@ import { MarqueeBanner } from "@/components/marquee-banner";
 // Premium silver jewellery images
 const featuredProducts = [
   {
-    </div>
-  );
-}
     slug: "ethnic-jhumka-earrings",
     price: 249900,
     image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&q=80",
