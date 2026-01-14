@@ -471,43 +471,6 @@ export default function HomePage() {
     </div>
   );
 }
-                >
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-powder-600" />
-                    <span className="text-sm font-bold bg-gradient-to-r from-powder-600 to-powder-700 bg-clip-text text-transparent">
-                      Premium Collection
-                    </span>
-                  </div>
-                </motion.div>
-              </motion.div>
-
-              {/* Decorative Elements */}
-              <motion.div
-                className="absolute -bottom-4 -right-4 w-32 h-32 bg-powder-500/30 rounded-full blur-2xl"
-                animate={{
-                  scale: [1, 1.2, 1],
-                  opacity: [0.3, 0.5, 0.3],
-                }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              />
-              <motion.div
-                className="absolute -top-4 -left-4 w-24 h-24 bg-powder-400/40 rounded-full blur-2xl"
-                animate={{
-                  scale: [1.2, 1, 1.2],
-                  opacity: [0.4, 0.6, 0.4],
-                }}
-                transition={{
-                  duration: 5,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              />
-            </motion.div>
-          </div>
         </div>
 
         {/* Scroll Indicator */}
