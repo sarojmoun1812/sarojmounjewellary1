@@ -311,22 +311,12 @@ export default function ContactPage() {
             {/* Map */}
             <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
               <GoogleMap 
-                address="Silver Jewellery Store, Main Market, India"
-                lat={28.6139}
-                lng={77.209}
+                address="B-90 Police Colony, Jind, Haryana 126102, India"
+                latitude={29.3159}
+                longitude={76.3234}
                 height="300px"
+                showInfoCard={false}
               />
-              <div className="p-4 text-center">
-                <a
-                  href="https://www.google.com/maps/dir/?api=1&destination=28.6139,77.209"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-powder-600 hover:text-powder-700 font-semibold"
-                >
-                  <MapPin className="h-4 w-4" />
-                  Get Directions
-                </a>
-              </div>
             </div>
 
             {/* FAQ Link */}

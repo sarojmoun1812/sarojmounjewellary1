@@ -65,6 +65,19 @@ const config: Config = {
           800: "#424242",
           900: "#212121",
         },
+        // Powder Blue - elegant accent color
+        powder: {
+          50: "#F0F7FF",
+          100: "#E0EFFF",
+          200: "#B8DBFF",
+          300: "#8AC4FF",
+          400: "#5AABFF",
+          500: "#3B93F7",
+          600: "#2176D4",
+          700: "#1A5CA8",
+          800: "#164A87",
+          900: "#0F3460",
+        },
         primary: {
           DEFAULT: "#1A1A1A",
           foreground: "#FAFAFA",
