@@ -52,6 +52,20 @@ export function FacebookPixel({ pixelId }: { pixelId?: string }) {
   );
 }
 
+// Combined Analytics component
+export function Analytics() {
+  // Add your tracking IDs here when you have them
+  const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+  const FB_PIXEL_ID = process.env.NEXT_PUBLIC_FB_PIXEL_ID;
+
+  return (
+    <>
+      {GA_ID && <GoogleAnalytics measurementId={GA_ID} />}
+      {FB_PIXEL_ID && <FacebookPixel pixelId={FB_PIXEL_ID} />}
+    </>
+  );
+}
+
 // Usage: Add these to layout.tsx with your tracking IDs
 // <GoogleAnalytics measurementId="G-XXXXXXXXXX" />
 // <FacebookPixel pixelId="XXXXXXXXXXXXXXX" />

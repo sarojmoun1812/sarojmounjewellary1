@@ -3,9 +3,11 @@ import { Inter, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import WhatsAppButton from "@/components/whatsapp-button";
+import { FloatingCTA } from "@/components/floating-cta";
+import { ExitIntentPopup } from "@/components/exit-intent-popup";
 import { OrganizationSchema, WebsiteSchema } from "@/components/structured-data";
 import { ToastProvider } from "@/components/toast";
+import { Analytics } from "@/components/analytics";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -84,11 +86,13 @@ export default function RootLayout({
       <body className={`${inter.variable} ${cormorant.variable} font-body antialiased bg-ivory-50`}>
         <ToastProvider>
           <Navbar />
-          <main className="min-h-screen">
+          <main className="min-h-screen pb-16 md:pb-0">
             {children}
           </main>
           <Footer />
-          <WhatsAppButton />
+          <FloatingCTA />
+          <ExitIntentPopup />
+          <Analytics />
         </ToastProvider>
       </body>
     </html>

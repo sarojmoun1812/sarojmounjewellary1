@@ -1,37 +1,85 @@
-import { ProductCard } from "@/components/product-card";
+import { Metadata } from "next";
+import { prisma } from "@/lib/db";
+import { ShopPageClient } from "./shop-client";
 
-// This would be fetched from database with filters
-const products = [
-  {
-    id: "1",
-    name: "Handcrafted Silver Kada",
-    slug: "handcrafted-silver-kada",
-    price: 349900,
-    image: "https://res.cloudinary.com/demo/image/upload/sample.jpg",
-    badge: "Best Seller",
+export const metadata: Metadata = {
+  title: "Shop Silver Jewellery | Saroj Moun Jewellery",
+  description: "Browse our complete collection of handcrafted 925 sterling silver jewellery. Necklaces, earrings, kadas, rings and more. Free shipping above ₹2999.",
+  keywords: ["silver jewellery", "925 silver", "buy silver jewellery online", "silver necklace", "silver earrings", "silver kada"],
+  openGraph: {
+    title: "Shop Silver Jewellery Collection | Saroj Moun",
+    description: "Handcrafted 925 sterling silver jewellery with hallmark certification. Browse necklaces, earrings, kadas and more.",
+    images: ["/peacock-jewellery.jpeg"],
   },
-  // Add more products...
-];
+};
 
-export default function ShopPage() {
+// Force dynamic rendering to always fetch fresh products
+export const dynamic = "force-dynamic";
+
+async function getProducts(category?: string) {
+  try {
+    const where: any = { isActive: true };
+    if (category && category !== "all") {
+      where.category = category;
+    }
+
+    const products = await prisma.product.findMany({
+      where,
+      orderBy: [
+        { featured: "desc" },
+        { bestseller: "desc" },
+        { createdAt: "desc" },
+      ],
+    });
+
+    return products;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return [];
+  }
+}
+
+async function getCategories() {
+  try {
+    const categories = await prisma.product.findMany({
+      where: { isActive: true },
+      select: { category: true },
+      distinct: ["category"],
+    });
+    return categories.map((c) => c.category);
+  } catch {
+    return [];
+  }
+}
+
+async function getSilverRate() {
+  try {
+    const rate = await prisma.silverRate.findFirst({
+      orderBy: { updatedAt: "desc" },
+    });
+    return rate?.ratePerGram || 95;
+  } catch {
+    return 95;
+  }
+}
+
+export default async function ShopPage({
+  searchParams,
+}: {
+  searchParams: { category?: string; sort?: string };
+}) {
+  const [products, categories, silverRate] = await Promise.all([
+    getProducts(searchParams.category),
+    getCategories(),
+    getSilverRate(),
+  ]);
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="mb-8">
-        <h1 className="text-4xl font-heading font-bold text-primary mb-2">
-          Shop Collection
-        </h1>
-        <p className="text-gray-600">
-          Discover our complete range of handcrafted silver jewellery
-        </p>
-      </div>
-
-      {/* Filters would go here */}
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {products.map((product) => (
-          <ProductCard key={product.id} {...product} />
-        ))}
-      </div>
-    </div>
+    <ShopPageClient
+      products={products}
+      categories={categories}
+      silverRate={silverRate}
+      selectedCategory={searchParams.category}
+    />
   );
 }
