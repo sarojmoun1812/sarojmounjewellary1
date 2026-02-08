@@ -4,13 +4,23 @@ const crypto = require('crypto');
 
 const prisma = new PrismaClient();
 
+// Same hashing logic as lib/auth.ts
+async function hashPassword(password) {
+  const authSecret = process.env.AUTH_SECRET || 'default-secret-key';
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password + authSecret);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 async function createAdmin() {
   const email = 'sarojmounjewellary@gmail.com';
   const password = 'Sarojmoun@jewellary18';
   const name = 'Saroj Moun';
   
-  // Hash password
-  const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
+  // Hash password using same logic as auth.ts
+  const passwordHash = await hashPassword(password);
   
   try {
     // Check if admin exists

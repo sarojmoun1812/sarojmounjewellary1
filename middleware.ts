@@ -15,8 +15,12 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Protect admin API routes
-  if (pathname.startsWith("/api/admin") && !pathname.startsWith("/api/admin/auth")) {
+  // Protect admin API routes (except auth and init)
+  if (
+    pathname.startsWith("/api/admin") &&
+    !pathname.startsWith("/api/admin/auth") &&
+    !pathname.startsWith("/api/admin/init")
+  ) {
     const sessionCookie = request.cookies.get("admin_session");
 
     if (!sessionCookie) {
