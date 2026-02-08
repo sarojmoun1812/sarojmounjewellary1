@@ -42,6 +42,25 @@ export default function NewProductPage() {
   // Silver rate for live price preview
   const { silverRate } = useSilverRate();
 
+  const [formData, setFormData] = useState({
+    name: "",
+    slug: "",
+    description: "",
+    silverWeight: "",
+    makingCharges: "",
+    profitPerGram: "100",
+    fixedPrice: "",
+    category: "",
+    stock: "0",
+    material: "925 Silver",
+    featured: false,
+    bestseller: false,
+    isActive: true,
+    metaTitle: "",
+    metaDescription: "",
+    tags: "",
+  });
+
   // Live price preview
   const [pricePreview, setPricePreview] = useState<string>("");
 
