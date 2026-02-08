@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
+import WhatsAppButton from "@/components/whatsapp-button";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { FloatingCTA } from "@/components/floating-cta";
@@ -88,6 +89,7 @@ export default function RootLayout({
           <Navbar />
           <main className="min-h-screen pb-16 md:pb-0">
             {children}
+            <WhatsAppButton />
           </main>
           <Footer />
           <FloatingCTA />

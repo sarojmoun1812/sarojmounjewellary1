@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSilverRate } from "@/lib/use-silver-rate";
+import { calculateProductPrice, formatPrice } from "@/lib/pricing";
 import Image from "next/image";
 import {
   ArrowLeft,
@@ -35,6 +37,59 @@ export default function NewProductPage() {
   const [error, setError] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [videos, setVideos] = useState<string[]>([]);
+  const [uploadingVideos, setUploadingVideos] = useState(false);
+  // Silver rate for live price preview
+  const { silverRate } = useSilverRate();
+
+  // Live price preview
+  const [pricePreview, setPricePreview] = useState<string>("");
+
+  useEffect(() => {
+    const weight = parseFloat(formData.silverWeight);
+    const making = Math.round(parseFloat(formData.makingCharges) * 100) || 0;
+    const profit = parseFloat(formData.profitPerGram) || 100;
+    if (!isNaN(weight) && silverRate) {
+      const breakdown = calculateProductPrice({
+        silverWeight: weight,
+        makingCharges: making,
+        profitPerGram: profit,
+        fixedPrice: formData.fixedPrice ? Math.round(parseFloat(formData.fixedPrice) * 100) : undefined,
+      }, silverRate);
+      setPricePreview(formatPrice(breakdown.finalPrice));
+    } else {
+      setPricePreview("");
+    }
+  }, [formData.silverWeight, formData.makingCharges, formData.profitPerGram, formData.fixedPrice, silverRate]);
+  // Video upload handler
+  const handleVideoUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setUploadingVideos(true);
+    setError("");
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formData,
+        });
+        if (!res.ok) throw new Error("Upload failed");
+        const data = await res.json();
+        return data.url;
+      });
+      const uploadedUrls = await Promise.all(uploadPromises);
+      setVideos([...videos, ...uploadedUrls]);
+    } catch (err) {
+      setError("Failed to upload videos");
+    } finally {
+      setUploadingVideos(false);
+    }
+  };
+
+  const removeVideo = (index: number) => {
+    setVideos(videos.filter((_, i) => i !== index));
+  };
 
   const [formData, setFormData] = useState({
     name: "",
@@ -130,6 +185,7 @@ export default function NewProductPage() {
             .split(",")
             .map((t) => t.trim())
             .filter(Boolean),
+          videos,
         }),
       });
 
@@ -339,6 +395,48 @@ export default function NewProductPage() {
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
               />
             </div>
+          </div>
+          {/* Live Price Preview */}
+          <div className="mt-4">
+            <span className="text-sm text-gray-700 font-medium">Live Price Preview: </span>
+            <span className="text-lg font-bold text-powder-600">{pricePreview || "-"}</span>
+          </div>
+        </div>
+        {/* Videos */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Product Videos</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {videos.map((url, index) => (
+              <div key={index} className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden group">
+                <video src={url} controls className="object-cover w-full h-full" />
+                <button
+                  type="button"
+                  onClick={() => removeVideo(index)}
+                  className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+            <label
+              className={`aspect-video border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-powder-500 transition-colors ${uploadingVideos ? "opacity-50 pointer-events-none" : ""}`}
+            >
+              <input
+                type="file"
+                className="hidden"
+                accept="video/*"
+                multiple
+                onChange={(e) => handleVideoUpload(e.target.files)}
+              />
+              {uploadingVideos ? (
+                <Loader2 className="h-8 w-8 text-gray-400 animate-spin" />
+              ) : (
+                <>
+                  <Play className="h-8 w-8 text-gray-400" />
+                  <span className="text-sm text-gray-500 mt-2">Add Video</span>
+                </>
+              )}
+            </label>
           </div>
         </div>
 
