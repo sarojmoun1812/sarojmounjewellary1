@@ -110,25 +110,6 @@ export default function NewProductPage() {
     setVideos(videos.filter((_, i) => i !== index));
   };
 
-  const [formData, setFormData] = useState({
-    name: "",
-    slug: "",
-    description: "",
-    silverWeight: "",
-    makingCharges: "",
-    profitPerGram: "100",
-    fixedPrice: "",
-    category: "",
-    stock: "0",
-    material: "925 Silver",
-    featured: false,
-    bestseller: false,
-    isActive: true,
-    metaTitle: "",
-    metaDescription: "",
-    tags: "",
-  });
-
   const generateSlug = (name: string) => {
     return name
       .toLowerCase()
