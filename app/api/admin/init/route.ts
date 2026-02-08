@@ -46,8 +46,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Admin init error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Failed to create admin" },
+      { error: `Failed to create admin: ${errorMessage}` },
       { status: 500 }
     );
   }
