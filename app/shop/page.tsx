@@ -68,15 +68,21 @@ export default async function ShopPage({
 }: {
   searchParams: { category?: string; sort?: string };
 }) {
-  const [products, categories, silverRate] = await Promise.all([
+  const [rawProducts, categories, silverRate] = await Promise.all([
     getProducts(searchParams.category),
     getCategories(),
     getSilverRate(),
   ]);
 
+  const products = rawProducts.map((p) => ({
+    ...p,
+    images: (() => { try { const parsed = JSON.parse(p.images); return Array.isArray(parsed) ? parsed : []; } catch { return []; } })(),
+    tags: (() => { try { const parsed = JSON.parse(p.tags); return Array.isArray(parsed) ? parsed : []; } catch { return []; } })(),
+  }));
+
   return (
     <ShopPageClient
-      products={products}
+      products={products as any}
       categories={categories}
       silverRate={silverRate}
       selectedCategory={searchParams.category}

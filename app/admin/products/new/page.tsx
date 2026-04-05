@@ -21,6 +21,7 @@ const categories = [
   "Necklaces",
   "Earrings",
   "Rings",
+  "Kadas",
   "Bracelets",
   "Bangles",
   "Anklets",
@@ -28,7 +29,11 @@ const categories = [
   "Chains",
   "Temple Jewellery",
   "Oxidized",
-  "Sets",
+  "Jewellery Sets",
+  "Fashion Jewellery",
+  "Suits",
+  "Sarees",
+  "Bridal Collection",
 ];
 
 export default function NewProductPage() {

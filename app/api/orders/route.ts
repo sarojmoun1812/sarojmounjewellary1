@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         shipping,
         total,
         paymentMethod: validated.paymentMethod,
-        shippingAddress: validated.shippingAddress,
+        shippingAddress: JSON.stringify(validated.shippingAddress),
         notes: validated.notes,
         items: {
           create: validated.items.map((item) => ({

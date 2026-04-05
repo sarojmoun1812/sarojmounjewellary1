@@ -21,7 +21,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${product.name} | Saroj Moun Jewellery`,
     description: product.metaDescription || product.description.slice(0, 160),
-    keywords: product.tags?.join(", ") || `${product.category}, silver jewellery, 925 silver`,
+    keywords: (() => {
+      try {
+        const tags = typeof product.tags === "string" ? JSON.parse(product.tags) : product.tags;
+        return Array.isArray(tags) ? tags.join(", ") : `${product.category}, silver jewellery, 925 silver`;
+      } catch {
+        return `${product.category}, silver jewellery, 925 silver`;
+      }
+    })(),
     openGraph: {
       title: product.name,
       description: product.description.slice(0, 200),
@@ -83,7 +90,27 @@ export default async function ProductPage({ params }: Props) {
 
   const relatedProducts = await getRelatedProducts(product.category, product.id);
 
-  // Breadcrumb data for SEO
+  const parseJsonField = (field: string): string[] => {
+    try {
+      const parsed = JSON.parse(field);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const parsedProduct = {
+    ...product,
+    images: parseJsonField(product.images),
+    tags: parseJsonField(product.tags),
+  };
+
+  const parsedRelated = relatedProducts.map((p) => ({
+    ...p,
+    images: parseJsonField(p.images),
+    tags: parseJsonField(p.tags),
+  }));
+
   const breadcrumbs = [
     { name: "Home", url: "https://sarojmoun.com" },
     { name: "Shop", url: "https://sarojmoun.com/shop" },
@@ -93,23 +120,22 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <>
-      {/* Structured Data for SEO */}
       <ProductSchema
         product={{
-          name: product.name,
-          description: product.description,
-          images: product.images,
-          slug: product.slug,
-          price: product.silverWeight * silverRate + product.makingCharges / 100,
-          inStock: product.stock > 0,
+          name: parsedProduct.name,
+          description: parsedProduct.description,
+          images: parsedProduct.images,
+          slug: parsedProduct.slug,
+          price: parsedProduct.silverWeight * silverRate + parsedProduct.makingCharges / 100,
+          inStock: parsedProduct.stock > 0,
         }}
       />
       <BreadcrumbSchema items={breadcrumbs} />
 
       <ProductDetailClient
-        product={product}
+        product={parsedProduct as any}
         silverRate={silverRate}
-        relatedProducts={relatedProducts}
+        relatedProducts={parsedRelated as any}
       />
     </>
   );

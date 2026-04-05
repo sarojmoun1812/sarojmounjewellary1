@@ -39,16 +39,22 @@ interface ProductFormData {
 }
 
 const categories = [
-  { value: "necklaces", label: "Necklaces" },
-  { value: "earrings", label: "Earrings" },
-  { value: "rings", label: "Rings" },
-  { value: "bangles", label: "Bangles" },
-  { value: "bracelets", label: "Bracelets" },
-  { value: "anklets", label: "Anklets" },
-  { value: "chains", label: "Chains" },
-  { value: "pendants", label: "Pendants" },
-  { value: "sets", label: "Jewellery Sets" },
-  { value: "other", label: "Other" },
+  { value: "Necklaces", label: "Necklaces" },
+  { value: "Earrings", label: "Earrings" },
+  { value: "Rings", label: "Rings" },
+  { value: "Kadas", label: "Kadas" },
+  { value: "Bracelets", label: "Bracelets" },
+  { value: "Bangles", label: "Bangles" },
+  { value: "Anklets", label: "Anklets" },
+  { value: "Chains", label: "Chains" },
+  { value: "Pendants", label: "Pendants" },
+  { value: "Temple Jewellery", label: "Temple Jewellery" },
+  { value: "Oxidized", label: "Oxidized" },
+  { value: "Jewellery Sets", label: "Jewellery Sets" },
+  { value: "Fashion Jewellery", label: "Fashion Jewellery" },
+  { value: "Suits", label: "Suits" },
+  { value: "Sarees", label: "Sarees" },
+  { value: "Bridal Collection", label: "Bridal Collection" },
 ];
 
 export default function EditProductPage() {

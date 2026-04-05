@@ -193,12 +193,16 @@ async function main() {
     },
   ];
 
-  // Create products
   for (const product of products) {
+    const dbProduct = {
+      ...product,
+      images: JSON.stringify(product.images),
+      tags: JSON.stringify(product.tags),
+    };
     const created = await prisma.product.upsert({
       where: { slug: product.slug },
-      update: product,
-      create: product,
+      update: dbProduct,
+      create: dbProduct,
     });
     console.log(`✅ Product created: ${created.name}`);
   }

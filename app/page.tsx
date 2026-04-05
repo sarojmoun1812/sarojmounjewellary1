@@ -154,18 +154,18 @@ export default function HomePage() {
               transition={{ delay: 0.3, duration: 0.8 }}
               className="text-[11px] tracking-[0.4em] uppercase text-champagne-400 mb-6"
             >
-              Handcrafted Excellence
+              Haathon Ki Karigari
             </motion.p>
             
             <h1 className="text-5xl md:text-7xl font-heading font-light text-ivory-50 mb-6 leading-[1.1]">
-              Pure Silver,
+              Chaandi Ka
               <br />
-              <span className="italic text-champagne-400">Timeless Beauty</span>
+              <span className="italic text-champagne-400">Husn</span>
             </h1>
             
             <p className="text-lg text-ivory-100/80 mb-10 max-w-lg leading-relaxed">
-              Discover our collection of hallmarked 925 sterling silver jewellery. 
-              Each piece is handcrafted with love, designed to make you shine.
+              Hallmarked 925 pure silver ke haathon se bane gehne — 
+              shaadi ho ya tyohaar, har mauke ke liye khaas. Jind, Haryana se aapke darwaaze tak.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -269,23 +269,23 @@ export default function HomePage() {
               transition={{ duration: 0.8 }}
             >
               <p className="text-[11px] tracking-[0.3em] uppercase text-champagne-600 mb-4">
-                Our Heritage
+                Hamari Pehchaan
               </p>
               <h2 className="text-4xl md:text-5xl font-heading font-light text-charcoal-900 mb-6">
-                A Legacy of
+                Peedhiyon Ki
                 <br />
-                <span className="italic">Craftsmanship</span>
+                <span className="italic">Virasat</span>
               </h2>
               <p className="text-charcoal-600 leading-relaxed mb-6">
-                Founded by Saroj Moun, our journey began with a simple passion - 
-                creating silver jewellery that tells a story. Based in Jind, Haryana, 
-                we are a family of artisans who have inherited the art of silver 
-                jewellery making through generations.
+                Saroj Moun Jewellery ki shuruaat ek sapne se hui — 
+                aisi chaandi ki jewellery banana jo har aurat ko khaas mehsoos karaaye. 
+                Jind, Haryana mein hamara parivaar peedhiyon se yeh hunar 
+                sambhale hue hai.
               </p>
               <p className="text-charcoal-600 leading-relaxed mb-8">
-                We use only certified 925 sterling silver, ensuring each creation 
-                is not just beautiful but built to last a lifetime. Every piece 
-                carries our hallmark of quality and love.
+                Hum sirf certified 925 sterling silver use karte hain. 
+                Har ek piece hallmark certified hai — khoobsurat bhi, 
+                aur bharosemand bhi. Yeh sirf gehna nahi, pyaar ki nishani hai.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-8 mb-10">
@@ -430,12 +430,12 @@ export default function HomePage() {
             transition={{ duration: 0.8 }}
           >
             <p className="text-[11px] tracking-[0.4em] uppercase text-champagne-300 mb-6">
-              New Arrivals
+              Naye Designs
             </p>
             <h2 className="text-4xl md:text-6xl font-heading font-light text-white mb-8 max-w-3xl">
-              The Art of
+              Chaandi Ki
               <br />
-              <span className="italic">Silver Making</span>
+              <span className="italic">Kala</span>
             </h2>
             <Link href="/shop">
               <button className="px-12 py-4 bg-ivory-50 text-charcoal-900 text-sm font-medium tracking-[0.2em] uppercase transition-all duration-500 hover:bg-champagne-500 hover:text-ivory-50">
@@ -501,10 +501,10 @@ export default function HomePage() {
             transition={{ duration: 0.8 }}
           >
             <p className="text-[11px] tracking-[0.3em] uppercase text-champagne-600 mb-4">
-              Customer Love
+              Khush Customers
             </p>
             <h2 className="text-4xl md:text-5xl font-heading font-light text-charcoal-900">
-              What They Say
+              Unki Baatein
             </h2>
           </motion.div>
 
@@ -561,13 +561,13 @@ export default function HomePage() {
             viewport={{ once: true }}
           >
             <p className="text-[11px] tracking-[0.3em] uppercase text-champagne-400 mb-4">
-              Follow Us
+              Humse Judiye
             </p>
             <h2 className="text-4xl md:text-5xl font-heading font-light text-ivory-50 mb-4">
               @sarojmounfashion
             </h2>
             <p className="text-ivory-100/60 max-w-md mx-auto">
-              Join our community and see how our customers style their silver jewellery
+              Instagram par hamari latest designs dekhiye aur apni favourite pick kariye
             </p>
           </motion.div>
 
@@ -629,13 +629,13 @@ export default function HomePage() {
             transition={{ duration: 0.8 }}
           >
             <p className="text-[11px] tracking-[0.3em] uppercase text-champagne-600 mb-4">
-              Stay Connected
+              Judi Rahiye
             </p>
             <h2 className="text-3xl md:text-4xl font-heading font-light text-charcoal-900 mb-6">
-              Join Our Community
+              Exclusive Offers Paayein
             </h2>
             <p className="text-charcoal-600 mb-10">
-              Subscribe to receive exclusive offers, silver rate updates, and early access to new collections.
+              Subscribe karein aur paayein special discounts, silver rate updates, aur nayi collections ki pehli jhalak.
             </p>
             <NewsletterSignup />
           </motion.div>
