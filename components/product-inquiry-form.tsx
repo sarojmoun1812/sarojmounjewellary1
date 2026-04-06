@@ -101,7 +101,7 @@ export function ProductInquiryForm({
                 Inquiry Submitted!
               </h3>
               <p className="text-gray-600">
-                We'll get back to you shortly about "{productName}"
+                We&apos;ll get back to you shortly about &quot;{productName}&quot;
               </p>
             </div>
           ) : (
@@ -214,7 +214,7 @@ export function ProductInquiryForm({
               </form>
 
               <p className="text-xs text-gray-500 text-center mt-4">
-                We'll contact you within 24 hours
+                We&apos;ll contact you within 24 hours
               </p>
             </>
           )}

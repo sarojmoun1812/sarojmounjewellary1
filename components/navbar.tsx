@@ -28,10 +28,10 @@ export function Navbar() {
   return (
     <>
       <motion.nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-ivory-50/95 backdrop-blur-md shadow-sm"
-            : "bg-transparent"
+            ? "border-b border-ivory-200/80 bg-ivory-50/92 shadow-[0_12px_44px_rgba(17,18,22,0.07)] backdrop-blur-xl"
+            : "border-b border-transparent bg-transparent"
         }`}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -45,15 +45,15 @@ export function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative text-xs font-medium tracking-[0.15em] uppercase transition-colors duration-300 ${
+                  className={`group relative text-xs font-medium uppercase tracking-[0.15em] transition-colors duration-300 ${
                     scrolled
                       ? "text-charcoal-700 hover:text-charcoal-900"
                       : "text-white/90 hover:text-white"
                   }`}
                 >
-                  <span className="relative">
+                  <span className="relative inline-block">
                     {link.label}
-                    <span className="absolute -bottom-1 left-0 w-0 h-px bg-champagne-500 transition-all duration-300 group-hover:w-full" />
+                    <span className="absolute -bottom-1 left-0 h-px w-0 bg-champagne-500 transition-all duration-300 ease-out group-hover:w-full" />
                   </span>
                 </Link>
               ))}

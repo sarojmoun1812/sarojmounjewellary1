@@ -24,6 +24,8 @@ import {
 import { useCart } from "@/lib/cart-store";
 import { calculateProductPrice, formatPrice } from "@/lib/pricing";
 import { ProductInquiryForm } from "@/components/product-inquiry-form";
+import { Reveal, StaggerItem, StaggerReveal } from "@/components/reveal";
+import { revealLeft, revealRight } from "@/lib/motion";
 
 interface Product {
   id: string;
@@ -105,7 +107,7 @@ export function ProductDetailClient({
 
   return (
     <div className="min-h-screen bg-ivory-50 pt-24">
-      <div className="container-luxury py-8">
+      <div className="container-luxury py-8 md:py-12">
         {/* Breadcrumb */}
         <nav className="mb-8 text-sm">
           <ol className="flex items-center gap-2 text-charcoal-500">
@@ -136,15 +138,11 @@ export function ProductDetailClient({
           </ol>
         </nav>
 
-        <div className="grid lg:grid-cols-2 gap-12">
+        <div className="grid gap-12 lg:grid-cols-2">
           {/* Image Gallery */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+          <Reveal variants={revealLeft}>
             {/* Main Image */}
-            <div className="relative bg-ivory-100 aspect-square overflow-hidden mb-4">
+            <div className="media-frame relative mb-4 aspect-square overflow-hidden rounded-[2rem] bg-charcoal-900">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={selectedImageIndex}
@@ -220,15 +218,10 @@ export function ProductDetailClient({
                 ))}
               </div>
             )}
-          </motion.div>
+          </Reveal>
 
           {/* Product Info */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            className="space-y-6"
-          >
+          <Reveal variants={revealRight} className="space-y-6">
             <div>
               <p className="text-[10px] tracking-[0.3em] uppercase text-champagne-600 mb-2">
                 {product.category}
@@ -374,7 +367,7 @@ export function ProductDetailClient({
             </div>
 
             {/* Product Details */}
-            <div className="bg-white p-6 space-y-4">
+            <div className="elevated-card space-y-4 rounded-[1.5rem] p-6 md:p-8">
               <h3 className="text-lg font-heading font-medium text-charcoal-900">
                 Product Details
               </h3>
@@ -403,22 +396,19 @@ export function ProductDetailClient({
                 </div>
               </div>
             </div>
-          </motion.div>
+          </Reveal>
         </div>
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <motion.section
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mt-20 pt-12 border-t border-ivory-200"
-          >
-            <h2 className="text-2xl font-heading font-light text-charcoal-900 mb-8">
-              You May Also Like
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <section className="mt-20 border-t border-ivory-200 pt-12">
+            <Reveal className="mb-10">
+              <p className="section-kicker text-champagne-700">More to love</p>
+              <h2 className="mt-3 text-2xl font-heading font-light text-charcoal-900 md:text-3xl">
+                You May Also Like
+              </h2>
+            </Reveal>
+            <StaggerReveal className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
               {relatedProducts.map((relatedProduct) => {
                 const relatedPrice = calculateProductPrice(
                   {
@@ -431,12 +421,12 @@ export function ProductDetailClient({
                 );
 
                 return (
+                  <StaggerItem key={relatedProduct.id}>
                   <Link
-                    key={relatedProduct.id}
                     href={`/product/${relatedProduct.slug}`}
-                    className="group"
+                    className="group block"
                   >
-                    <div className="relative aspect-square bg-ivory-100 overflow-hidden mb-3">
+                    <div className="relative mb-3 aspect-square overflow-hidden rounded-[1.15rem] border border-ivory-200/80 bg-ivory-100 shadow-sm transition-shadow duration-300 group-hover:shadow-md">
                       <Image
                         src={relatedProduct.images[0] || "/peacock-jewellery.jpeg"}
                         alt={relatedProduct.name}
@@ -449,10 +439,11 @@ export function ProductDetailClient({
                     </h3>
                     <p className="text-charcoal-600">{formatPrice(relatedPrice.finalPrice)}</p>
                   </Link>
+                  </StaggerItem>
                 );
               })}
-            </div>
-          </motion.section>
+            </StaggerReveal>
+          </section>
         )}
       </div>
 

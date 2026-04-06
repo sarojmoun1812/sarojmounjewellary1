@@ -1,329 +1,208 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Heart, Award, Sparkles, Users, Target, Shield, MapPin } from "lucide-react";
+import { Heart, Award, Sparkles, Target, Shield, MapPin } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { GoogleMap } from "@/components/google-map";
+import { Reveal, StaggerReveal, StaggerItem } from "@/components/reveal";
+import { revealLeft, revealRight } from "@/lib/motion";
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-powder-50 via-white to-powder-100">
-      {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-powder-600/10 to-powder-400/10"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <div className="inline-flex items-center gap-2 bg-powder-100 px-6 py-3 rounded-full mb-6">
-              <Heart className="h-5 w-5 text-powder-600" />
-              <span className="text-sm font-semibold text-powder-700">Crafted with Love</span>
+    <div className="min-h-screen bg-ivory-50">
+      <section className="section-padding luxury-mesh border-b border-ivory-200/70 pt-28">
+        <div className="container-luxury">
+          <Reveal className="mx-auto max-w-3xl text-center">
+            <div className="glass-light mx-auto mb-8 inline-flex items-center gap-2 rounded-full px-6 py-3">
+              <Heart className="h-4 w-4 text-champagne-600" />
+              <span className="section-kicker text-champagne-700">Crafted with care</span>
             </div>
-            <h1 className="text-5xl md:text-6xl font-heading font-bold text-gray-900 mb-6">
+            <h1 className="text-4xl font-heading font-light text-charcoal-950 md:text-6xl">
               About Saroj Moun
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Where timeless elegance meets modern craftsmanship in pure silver jewellery
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-charcoal-600">
+              Where timeless elegance meets modern craftsmanship in pure silver jewellery.
             </p>
-          </motion.div>
+          </Reveal>
         </div>
       </section>
 
-      {/* Our Story */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <h2 className="text-4xl font-heading font-bold text-gray-900 mb-6">
-                Our Story
-              </h2>
-              <div className="space-y-4 text-gray-700 text-lg">
+      <section className="section-padding">
+        <div className="container-luxury">
+          <div className="grid items-center gap-14 md:grid-cols-2">
+            <Reveal variants={revealLeft}>
+              <p className="section-kicker text-champagne-700">Our story</p>
+              <h2 className="mt-4 text-3xl font-heading font-light text-charcoal-950 md:text-4xl">Heritage &amp; heart</h2>
+              <div className="mt-8 space-y-5 text-base leading-relaxed text-charcoal-600 md:text-lg">
                 <p>
-                  From the heart of Sherkhan Kheri, Kaithal, Saroj Moun has become a symbol of inspiration and empowerment. As the elected Sarpanch of her village and a certified expert in cutting, tailoring, and beauty, Saroj’s journey is a testament to resilience, vision, and relentless hard work.
+                  From the heart of Sherkhan Kheri, Kaithal, Saroj Moun has become a symbol of inspiration and
+                  empowerment. As the elected Sarpanch of her village and a certified expert in cutting, tailoring,
+                  and beauty, Saroj&apos;s journey is a testament to resilience, vision, and relentless hard work.
                 </p>
                 <p>
-                  Starting with humble beginnings, Saroj transformed her skills into a thriving business in Jind, now serving customers all across India. Her keen eye for fashion and her signature designs have made her a trendsetter—her style and suggestions are celebrated throughout Jind and beyond. In a traditional Jaat family, she has balanced the roles of a devoted mother, a dynamic entrepreneur, and a respected community leader.
+                  Starting with humble beginnings, Saroj transformed her skills into a thriving business in Jind, now
+                  serving customers all across India. Her keen eye for fashion and her signature designs have made her a
+                  trendsetter—her style and suggestions are celebrated throughout Jind and beyond.
                 </p>
                 <p>
-                  Saroj’s achievements are not hers alone—her journey is powered by the unwavering support of her husband, a dedicated police officer who stands by her side in every challenge, and her two children—a son and a daughter, with her daughter being an IIT Madras graduate and a lead developer at top firms. Together, they prove that with courage, unity, and determination, no dream is too big.
+                  Saroj&apos;s achievements are not hers alone—her journey is powered by the unwavering support of her
+                  husband, a dedicated police officer who stands by her side in every challenge, and her two
+                  children—a son and a daughter, with her daughter being an IIT Madras graduate and a lead developer at
+                  top firms.
                 </p>
                 <p>
-                  Saroj Moun’s story inspires women everywhere to break barriers, embrace their uniqueness, and lead with kindness and strength. Her legacy is not just in the beautiful designs she creates, but in the lives she touches and the example she sets for future generations.
+                  Saroj Moun&apos;s story inspires women everywhere to break barriers, embrace their uniqueness, and lead
+                  with kindness and strength.
                 </p>
               </div>
-            </motion.div>
+            </Reveal>
 
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="relative h-[500px] rounded-3xl overflow-hidden shadow-2xl"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-powder-600/20 to-powder-400/20 z-10"></div>
-              <Image
-                src="/saroj.jpeg"
-                alt="Saroj Moun - Founder"
-                fill
-                className="object-cover object-center z-0"
-                priority
-              />
-            </motion.div>
+            <Reveal variants={revealRight} className="relative">
+              <div className="media-frame relative aspect-[4/5] overflow-hidden rounded-[2rem]">
+                <Image src="/saroj.jpeg" alt="Saroj Moun - Founder" fill className="object-cover object-center" priority />
+                <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/40 via-transparent to-transparent" />
+              </div>
+              <div className="glass-light absolute -bottom-6 right-4 max-w-[220px] rounded-[1.5rem] px-6 py-5 shadow-xl md:right-8">
+                <p className="font-heading text-3xl text-charcoal-900">25+</p>
+                <p className="mt-1 text-xs uppercase tracking-[0.24em] text-charcoal-500">Years of excellence</p>
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      {/* Values */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl font-heading font-bold text-gray-900 mb-4">
-              Our Values
-            </h2>
-            <p className="text-xl text-gray-600">
-              The principles that guide everything we do
-            </p>
-          </motion.div>
+      <section className="section-padding luxury-mesh border-y border-ivory-200/70">
+        <div className="container-luxury">
+          <Reveal className="mb-14 text-center">
+            <p className="section-kicker text-champagne-700">Principles</p>
+            <h2 className="mt-4 text-3xl font-heading font-light text-charcoal-950 md:text-4xl">Our values</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-charcoal-600">The principles that guide everything we do.</p>
+          </Reveal>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="bg-gradient-to-br from-powder-50 to-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow"
-            >
-              <div className="w-16 h-16 bg-powder-600 rounded-2xl flex items-center justify-center mb-6">
-                <Sparkles className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Authenticity</h3>
-              <p className="text-gray-600">
-                Every piece is crafted from 100% pure silver with hallmark certification, ensuring you receive only genuine, high-quality jewellery.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-gradient-to-br from-powder-50 to-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow"
-            >
-              <div className="w-16 h-16 bg-powder-600 rounded-2xl flex items-center justify-center mb-6">
-                <Award className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Craftsmanship</h3>
-              <p className="text-gray-600">
-                Our artisans bring decades of experience, creating intricate designs that blend traditional techniques with contemporary aesthetics.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="bg-gradient-to-br from-powder-50 to-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow"
-            >
-              <div className="w-16 h-16 bg-powder-600 rounded-2xl flex items-center justify-center mb-6">
-                <Shield className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Trust</h3>
-              <p className="text-gray-600">
-                Transparent pricing based on live silver rates, secure payments, and hassle-free returns build lasting relationships with our customers.
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Mission & Vision */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="bg-gradient-to-br from-powder-600 to-powder-500 p-12 rounded-3xl text-white shadow-2xl"
-            >
-              <Target className="h-12 w-12 mb-6" />
-              <h3 className="text-3xl font-heading font-bold mb-4">Our Mission</h3>
-              <p className="text-powder-100 text-lg">
-                To make beautiful, authentic silver jewellery accessible to every woman in India, combining traditional craftsmanship with transparent, fair pricing and exceptional customer service.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="bg-gradient-to-br from-gray-900 to-gray-800 p-12 rounded-3xl text-white shadow-2xl"
-            >
-              <Sparkles className="h-12 w-12 mb-6" />
-              <h3 className="text-3xl font-heading font-bold mb-4">Our Vision</h3>
-              <p className="text-gray-300 text-lg">
-                To become India's most trusted online destination for silver jewellery, known for our quality, transparency, and the joy we bring to customers through every piece they wear.
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Why Choose Us */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl font-heading font-bold text-gray-900 mb-4">
-              Why Choose Saroj Moun?
-            </h2>
-            <p className="text-xl text-gray-600">
-              Experience the difference of authentic craftsmanship
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <StaggerReveal className="grid gap-8 md:grid-cols-3">
             {[
               {
-                icon: "✓",
-                title: "100% Pure Silver",
-                description: "Hallmarked and certified silver in every piece"
+                icon: Sparkles,
+                title: "Authenticity",
+                body: "Every piece is crafted from hallmarked 925 sterling silver, ensuring genuine, high-quality jewellery.",
               },
               {
-                icon: "₹",
-                title: "Transparent Pricing",
-                description: "Prices based on live silver rates with clear breakdowns"
+                icon: Award,
+                title: "Craftsmanship",
+                body: "Our artisans blend traditional techniques with contemporary aesthetics for intricate, lasting design.",
               },
               {
-                icon: "🎁",
-                title: "Beautiful Packaging",
-                description: "Elegant gift boxes perfect for every occasion"
+                icon: Shield,
+                title: "Trust",
+                body: "Transparent pricing, secure payments, and hassle-free returns build lasting relationships.",
               },
-              {
-                icon: "🔒",
-                title: "Secure Payments",
-                description: "Razorpay integration with COD option available"
-              },
-              {
-                icon: "🚚",
-                title: "Fast Delivery",
-                description: "5-7 days delivery to metro cities across India"
-              },
-              {
-                icon: "↩️",
-                title: "Easy Returns",
-                description: "7-day return policy with no questions asked"
-              },
-              {
-                icon: "🛡️",
-                title: "6-Month Warranty",
-                description: "Comprehensive warranty on manufacturing defects"
-              },
-              {
-                icon: "💬",
-                title: "24/7 Support",
-                description: "WhatsApp and email support for all queries"
-              }
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="text-center p-6 rounded-xl hover:bg-powder-50 transition-colors"
-              >
-                <div className="text-4xl mb-4">{item.icon}</div>
-                <h4 className="font-bold text-gray-900 mb-2">{item.title}</h4>
-                <p className="text-sm text-gray-600">{item.description}</p>
-              </motion.div>
+            ].map((v) => (
+              <StaggerItem key={v.title}>
+                <div className="elevated-card gradient-border h-full rounded-[1.75rem] p-8">
+                  <div className="glass-dark mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10">
+                    <v.icon className="h-7 w-7 text-champagne-300" />
+                  </div>
+                  <h3 className="text-xl font-heading font-light text-charcoal-950">{v.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-charcoal-600">{v.body}</p>
+                </div>
+              </StaggerItem>
             ))}
+          </StaggerReveal>
+        </div>
+      </section>
+
+      <section className="section-padding">
+        <div className="container-luxury">
+          <div className="grid gap-8 md:grid-cols-2">
+            <Reveal variants={revealLeft}>
+              <div className="spotlight-panel gradient-border h-full rounded-[2rem] p-10 text-ivory-50">
+                <Target className="mb-6 h-10 w-10 text-champagne-300" />
+                <h3 className="font-heading text-2xl font-light md:text-3xl">Our mission</h3>
+                <p className="mt-4 text-base leading-relaxed text-ivory-100/75">
+                  To make beautiful, authentic silver jewellery accessible to every woman in India, combining traditional
+                  craftsmanship with transparent, fair pricing and exceptional customer service.
+                </p>
+              </div>
+            </Reveal>
+            <Reveal variants={revealRight}>
+              <div className="elevated-card gradient-border h-full rounded-[2rem] border-charcoal-200/80 bg-charcoal-950 p-10 text-ivory-50">
+                <Sparkles className="mb-6 h-10 w-10 text-champagne-300" />
+                <h3 className="font-heading text-2xl font-light md:text-3xl">Our vision</h3>
+                <p className="mt-4 text-base leading-relaxed text-ivory-100/72">
+                  To become India&apos;s most trusted online destination for silver jewellery, known for our quality,
+                  transparency, and the joy we bring to customers through every piece they wear.
+                </p>
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      {/* Store Location */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
-          >
-            <div className="inline-flex items-center gap-2 bg-powder-100 px-4 py-2 rounded-full mb-4">
-              <MapPin className="h-4 w-4 text-powder-600" />
-              <span className="text-sm font-semibold text-powder-700">Visit Us</span>
-            </div>
-            <h2 className="text-4xl font-heading font-bold text-gray-900 mb-4">
-              Our Store Location
+      <section className="section-padding luxury-mesh">
+        <div className="container-luxury">
+          <Reveal className="mb-14 text-center">
+            <p className="section-kicker text-champagne-700">Why us</p>
+            <h2 className="mt-4 text-3xl font-heading font-light text-charcoal-950 md:text-4xl">
+              Why choose Saroj Moun?
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Experience our exquisite silver jewellery collection in person at our store
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <GoogleMap
-              address="B-90 Police Colony, Jind, Haryana 126102, India"
-              height="450px"
-              showInfoCard={true}
-            />
-          </motion.div>
+          </Reveal>
+          <StaggerReveal className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { t: "100% hallmarked", d: "Certified silver in every piece" },
+              { t: "Transparent pricing", d: "Live silver rates with clear breakdowns" },
+              { t: "Beautiful packaging", d: "Gifting-ready presentation" },
+              { t: "Secure payments", d: "Trusted checkout with COD where available" },
+              { t: "Fast delivery", d: "Reliable shipping across India" },
+              { t: "Easy returns", d: "7-day return window" },
+              { t: "Warranty", d: "Support for manufacturing defects" },
+              { t: "Support", d: "WhatsApp & email for queries" },
+            ].map((item) => (
+              <StaggerItem key={item.t}>
+                <div className="elevated-card rounded-[1.25rem] p-6 text-center">
+                  <p className="font-heading text-lg text-charcoal-900">{item.t}</p>
+                  <p className="mt-2 text-sm text-charcoal-600">{item.d}</p>
+                </div>
+              </StaggerItem>
+            ))}
+          </StaggerReveal>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 bg-gradient-to-r from-powder-600 to-powder-500">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-4xl font-heading font-bold text-white mb-6">
-              Ready to Find Your Perfect Piece?
-            </h2>
-            <p className="text-xl text-powder-100 mb-8">
-              Explore our collection of handcrafted silver jewellery
+      <section className="section-padding border-t border-ivory-200/80 bg-ivory-50">
+        <div className="container-luxury">
+          <Reveal className="mb-12 text-center">
+            <div className="glass-light mx-auto mb-6 inline-flex items-center gap-2 rounded-full px-4 py-2">
+              <MapPin className="h-4 w-4 text-champagne-600" />
+              <span className="section-kicker text-champagne-700">Visit us</span>
+            </div>
+            <h2 className="text-3xl font-heading font-light text-charcoal-950 md:text-4xl">Our store location</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-charcoal-600">
+              Experience our silver jewellery collection in person at our store.
             </p>
-            <a
+          </Reveal>
+          <Reveal>
+            <div className="overflow-hidden rounded-[1.5rem] border border-ivory-200/80 shadow-lg">
+              <GoogleMap address="B-90 Police Colony, Jind, Haryana 126102, India" height="450px" showInfoCard />
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="section-padding bg-charcoal-950 text-ivory-50">
+        <div className="container-luxury max-w-4xl text-center">
+          <Reveal>
+            <h2 className="text-3xl font-heading font-light md:text-4xl">Ready to find your perfect piece?</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-ivory-100/70">
+              Explore our collection of handcrafted silver jewellery.
+            </p>
+            <Link
               href="/shop"
-              className="inline-flex items-center gap-2 bg-white text-powder-600 px-8 py-4 rounded-full font-semibold hover:bg-powder-50 transition-colors"
+              className="mt-10 inline-flex items-center gap-2 rounded-full bg-champagne-500 px-8 py-4 text-sm font-medium uppercase tracking-[0.18em] text-charcoal-950 transition-colors hover:bg-champagne-400"
             >
-              Shop Now
+              Shop now
               <Sparkles className="h-5 w-5" />
-            </a>
-          </motion.div>
+            </Link>
+          </Reveal>
         </div>
       </section>
     </div>

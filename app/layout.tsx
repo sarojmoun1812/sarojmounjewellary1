@@ -1,14 +1,10 @@
 import type { Metadata } from "next";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
-import WhatsAppButton from "@/components/whatsapp-button";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
-import { FloatingCTA } from "@/components/floating-cta";
-import { ExitIntentPopup } from "@/components/exit-intent-popup";
 import { OrganizationSchema, WebsiteSchema } from "@/components/structured-data";
 import { ToastProvider } from "@/components/toast";
 import { Analytics } from "@/components/analytics";
+import { SiteChrome } from "@/components/site-chrome";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -86,14 +82,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${cormorant.variable} font-body antialiased bg-ivory-50`}>
         <ToastProvider>
-          <Navbar />
-          <main className="min-h-screen pb-16 md:pb-0">
-            {children}
-            <WhatsAppButton />
-          </main>
-          <Footer />
-          <FloatingCTA />
-          <ExitIntentPopup />
+          <SiteChrome>{children}</SiteChrome>
           <Analytics />
         </ToastProvider>
       </body>

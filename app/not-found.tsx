@@ -39,7 +39,8 @@ export default function NotFound() {
             Oops! Page Not Found
           </h2>
           <p className="text-lg text-gray-600">
-            The jewel you're looking for seems to have vanished. Don't worry, let's help you find something beautiful!
+            The jewel you&apos;re looking for seems to have vanished. Don&apos;t worry, let&apos;s help you find
+            something beautiful!
           </p>
         </motion.div>
 

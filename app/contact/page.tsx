@@ -1,9 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Clock, Send, MessageCircle, CheckCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, Send, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { GoogleMap } from "@/components/google-map";
+import { Reveal, StaggerReveal, StaggerItem } from "@/components/reveal";
+import { revealLeft, revealRight } from "@/lib/motion";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -11,7 +12,7 @@ export default function ContactPage() {
     email: "",
     phone: "",
     subject: "",
-    message: ""
+    message: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,7 +39,7 @@ export default function ContactPage() {
 
       setSubmitStatus("success");
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
-      
+
       setTimeout(() => setSubmitStatus("idle"), 5000);
     } catch (err) {
       setSubmitStatus("error");
@@ -50,109 +51,88 @@ export default function ContactPage() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-powder-50 via-white to-powder-100 py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <div className="inline-flex items-center gap-2 bg-powder-100 px-6 py-3 rounded-full mb-6">
-            <MessageCircle className="h-5 w-5 text-powder-600" />
-            <span className="text-sm font-semibold text-powder-700">Get in Touch</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-heading font-bold text-gray-900 mb-6">
-            Contact Us
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Have questions about our jewellery? We're here to help!
-          </p>
-        </motion.div>
-
-        <div className="grid lg:grid-cols-3 gap-8 mb-16">
-          {/* Contact Cards */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow"
-          >
-            <div className="w-14 h-14 bg-powder-100 rounded-xl flex items-center justify-center mb-6">
-              <Phone className="h-7 w-7 text-powder-600" />
+    <div className="min-h-screen bg-ivory-50 pt-24">
+      <section className="section-padding luxury-mesh border-b border-ivory-200/70">
+        <div className="container-luxury">
+          <Reveal className="mx-auto max-w-3xl text-center">
+            <div className="glass-light mx-auto mb-8 inline-flex items-center gap-2 rounded-full px-6 py-3">
+              <MessageCircle className="h-4 w-4 text-champagne-600" />
+              <span className="section-kicker text-champagne-700">Get in touch</span>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Phone</h3>
-            <p className="text-gray-600 mb-4">Call us for immediate assistance</p>
-            <a href="tel:+918168790171" className="text-powder-600 font-semibold hover:text-powder-700">
-              +91 81687 90171
-            </a>
-            <p className="text-sm text-gray-500 mt-2">Mon-Sat, 10 AM - 6 PM IST</p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow"
-          >
-            <div className="w-14 h-14 bg-powder-100 rounded-xl flex items-center justify-center mb-6">
-              <Mail className="h-7 w-7 text-powder-600" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Email</h3>
-            <p className="text-gray-600 mb-4">Send us a detailed message</p>
-            <a href="mailto:sarojmounjewellary@gmail.com" className="text-powder-600 font-semibold hover:text-powder-700">
-              sarojmounjewellary@gmail.com
-            </a>
-            <p className="text-sm text-gray-500 mt-2">Response within 24 hours</p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow"
-          >
-            <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-6">
-              <MessageCircle className="h-7 w-7 text-green-600" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">WhatsApp</h3>
-            <p className="text-gray-600 mb-4">Chat with us instantly</p>
-            <a 
-              href="https://wa.me/918168790171" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-green-600 font-semibold hover:text-green-700"
-            >
-              +91 81687 90171
-            </a>
-            <p className="text-sm text-gray-500 mt-2">Available 24/7</p>
-          </motion.div>
+            <h1 className="text-4xl font-heading font-light text-charcoal-950 md:text-6xl">Contact us</h1>
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-charcoal-600">
+              Have questions about our jewellery? We&apos;re here to help.
+            </p>
+          </Reveal>
         </div>
+      </section>
 
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Contact Form */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12">
-              <h2 className="text-3xl font-heading font-bold text-gray-900 mb-6">
-                Send us a Message
-              </h2>
+      <div className="container-luxury py-14 md:py-20">
+        <StaggerReveal className="mb-14 grid gap-8 lg:grid-cols-3">
+          <StaggerItem>
+            <div className="elevated-card gradient-border h-full rounded-[1.75rem] p-8">
+              <div className="glass-dark mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10">
+                <Phone className="h-6 w-6 text-champagne-300" />
+              </div>
+              <h3 className="text-lg font-heading font-medium text-charcoal-900">Phone</h3>
+              <p className="mt-2 text-sm text-charcoal-600">Call us for immediate assistance</p>
+              <a href="tel:+918168790171" className="mt-4 inline-block font-medium text-champagne-700 hover:text-champagne-600">
+                +91 81687 90171
+              </a>
+              <p className="mt-2 text-xs text-charcoal-500">Mon–Sat, 10 AM – 6 PM IST</p>
+            </div>
+          </StaggerItem>
+          <StaggerItem>
+            <div className="elevated-card gradient-border h-full rounded-[1.75rem] p-8">
+              <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-champagne-200/80 bg-champagne-50">
+                <Mail className="h-6 w-6 text-champagne-700" />
+              </div>
+              <h3 className="text-lg font-heading font-medium text-charcoal-900">Email</h3>
+              <p className="mt-2 text-sm text-charcoal-600">Send us a detailed message</p>
+              <a
+                href="mailto:sarojmounjewellary@gmail.com"
+                className="mt-4 inline-block font-medium text-champagne-700 hover:text-champagne-600 break-all"
+              >
+                sarojmounjewellary@gmail.com
+              </a>
+              <p className="mt-2 text-xs text-charcoal-500">Response within 24 hours</p>
+            </div>
+          </StaggerItem>
+          <StaggerItem>
+            <div className="elevated-card gradient-border h-full rounded-[1.75rem] p-8">
+              <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-200/80 bg-emerald-50">
+                <MessageCircle className="h-6 w-6 text-emerald-700" />
+              </div>
+              <h3 className="text-lg font-heading font-medium text-charcoal-900">WhatsApp</h3>
+              <p className="mt-2 text-sm text-charcoal-600">Chat with us instantly</p>
+              <a
+                href="https://wa.me/918168790171"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-block font-medium text-emerald-700 hover:text-emerald-600"
+              >
+                +91 81687 90171
+              </a>
+              <p className="mt-2 text-xs text-charcoal-500">Available 24/7</p>
+            </div>
+          </StaggerItem>
+        </StaggerReveal>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid gap-12 lg:grid-cols-2">
+          <Reveal variants={revealLeft}>
+            <div className="elevated-card gradient-border rounded-[2rem] p-8 md:p-12">
+              <h2 className="text-2xl font-heading font-light text-charcoal-950">Send us a message</h2>
+              <form onSubmit={handleSubmit} className="mt-8 space-y-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Full Name *
+                  <label htmlFor="name" className="mb-2 block text-sm font-medium text-charcoal-700">
+                    Full name *
                   </label>
                   <input
                     type="text"
@@ -161,14 +141,14 @@ export default function ContactPage() {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent transition-all"
+                    className="w-full rounded-xl border border-ivory-200 bg-white px-4 py-3 text-charcoal-900 transition-shadow focus:border-champagne-400 focus:outline-none focus:ring-2 focus:ring-champagne-500/30"
                     placeholder="Your name"
                   />
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid gap-4 md:grid-cols-2">
                   <div>
-                    <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="email" className="mb-2 block text-sm font-medium text-charcoal-700">
                       Email *
                     </label>
                     <input
@@ -178,13 +158,12 @@ export default function ContactPage() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent transition-all"
+                      className="w-full rounded-xl border border-ivory-200 bg-white px-4 py-3 text-charcoal-900 focus:border-champagne-400 focus:outline-none focus:ring-2 focus:ring-champagne-500/30"
                       placeholder="you@example.com"
                     />
                   </div>
-
                   <div>
-                    <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="phone" className="mb-2 block text-sm font-medium text-charcoal-700">
                       Phone
                     </label>
                     <input
@@ -193,14 +172,14 @@ export default function ContactPage() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent transition-all"
+                      className="w-full rounded-xl border border-ivory-200 bg-white px-4 py-3 text-charcoal-900 focus:border-champagne-400 focus:outline-none focus:ring-2 focus:ring-champagne-500/30"
                       placeholder="+91 XXXXX XXXXX"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="subject" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="subject" className="mb-2 block text-sm font-medium text-charcoal-700">
                     Subject *
                   </label>
                   <select
@@ -209,20 +188,20 @@ export default function ContactPage() {
                     value={formData.subject}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent transition-all"
+                    className="w-full rounded-xl border border-ivory-200 bg-white px-4 py-3 text-charcoal-900 focus:border-champagne-400 focus:outline-none focus:ring-2 focus:ring-champagne-500/30"
                   >
                     <option value="">Select a subject</option>
-                    <option value="product-inquiry">Product Inquiry</option>
-                    <option value="order-status">Order Status</option>
-                    <option value="custom-order">Custom Order</option>
-                    <option value="returns">Returns & Refunds</option>
-                    <option value="wholesale">Wholesale Inquiry</option>
+                    <option value="product-inquiry">Product inquiry</option>
+                    <option value="order-status">Order status</option>
+                    <option value="custom-order">Custom order</option>
+                    <option value="returns">Returns &amp; refunds</option>
+                    <option value="wholesale">Wholesale inquiry</option>
                     <option value="other">Other</option>
                   </select>
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="message" className="mb-2 block text-sm font-medium text-charcoal-700">
                     Message *
                   </label>
                   <textarea
@@ -232,7 +211,7 @@ export default function ContactPage() {
                     onChange={handleChange}
                     required
                     rows={6}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent transition-all resize-none"
+                    className="w-full resize-none rounded-xl border border-ivory-200 bg-white px-4 py-3 text-charcoal-900 focus:border-champagne-400 focus:outline-none focus:ring-2 focus:ring-champagne-500/30"
                     placeholder="Tell us more about your inquiry..."
                   />
                 </div>
@@ -240,77 +219,77 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-powder-600 text-white py-4 rounded-xl font-semibold hover:bg-powder-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-charcoal-900 py-4 font-medium text-ivory-50 transition-colors hover:bg-charcoal-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                       Sending...
                     </>
                   ) : (
                     <>
-                      Send Message
+                      Send message
                       <Send className="h-5 w-5" />
                     </>
                   )}
                 </button>
 
                 {submitStatus === "success" && (
-                  <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl">
-                    ✓ Message sent successfully! We'll get back to you soon.
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800">
+                    Message sent successfully. We&apos;ll get back to you soon.
                   </div>
                 )}
 
                 {submitStatus === "error" && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
-                    ✗ Failed to send message. Please try again or contact us directly.
+                  <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-800">
+                    {errorMessage || "Failed to send message. Please try again or contact us directly."}
                   </div>
                 )}
               </form>
             </div>
-          </motion.div>
+          </Reveal>
 
-          {/* Business Info & Map */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="space-y-8"
-          >
-            {/* Business Address */}
-            <div className="bg-white rounded-3xl shadow-xl p-8">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 bg-powder-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <MapPin className="h-6 w-6 text-powder-600" />
+          <Reveal variants={revealRight} className="space-y-8">
+            <div className="elevated-card rounded-[2rem] p-8">
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-champagne-200/80 bg-champagne-50">
+                  <MapPin className="h-6 w-6 text-champagne-700" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Visit Our Studio</h3>
-                  <p className="text-gray-600">
-                    B-90, Police Line<br />
-                    Jind, Haryana - 126102<br />
+                  <h3 className="text-xl font-heading font-light text-charcoal-950">Visit our studio</h3>
+                  <p className="mt-2 text-charcoal-600">
+                    B-90, Police Line
+                    <br />
+                    Jind, Haryana - 126102
+                    <br />
                     India
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-powder-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Clock className="h-6 w-6 text-powder-600" />
+              <div className="mt-8 flex items-start gap-4 border-t border-ivory-200 pt-8">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-ivory-200 bg-ivory-100">
+                  <Clock className="h-6 w-6 text-charcoal-700" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Business Hours</h3>
-                  <div className="text-gray-600 space-y-1">
-                    <p><strong>Monday - Friday:</strong> 10:00 AM - 6:00 PM</p>
-                    <p><strong>Saturday:</strong> 10:00 AM - 4:00 PM</p>
-                    <p><strong>Sunday:</strong> Closed</p>
+                  <h3 className="text-xl font-heading font-light text-charcoal-950">Business hours</h3>
+                  <div className="mt-2 space-y-1 text-charcoal-600">
+                    <p>
+                      <strong className="text-charcoal-800">Monday – Friday:</strong> 10:00 AM – 6:00 PM
+                    </p>
+                    <p>
+                      <strong className="text-charcoal-800">Saturday:</strong> 10:00 AM – 4:00 PM
+                    </p>
+                    <p>
+                      <strong className="text-charcoal-800">Sunday:</strong> Closed
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Map */}
-            <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
-              <GoogleMap 
+            <div className="overflow-hidden rounded-[2rem] border border-ivory-200/80 shadow-lg">
+              <GoogleMap
                 address="B-90 Police Colony, Jind, Haryana 126102, India"
                 latitude={29.3159}
                 longitude={76.3234}
@@ -319,21 +298,20 @@ export default function ContactPage() {
               />
             </div>
 
-            {/* FAQ Link */}
-            <div className="bg-gradient-to-r from-powder-600 to-powder-500 rounded-3xl shadow-xl p-8 text-white">
-              <h3 className="text-2xl font-bold mb-4">Quick Questions?</h3>
-              <p className="mb-6 text-powder-100">
-                Check our FAQ section for instant answers to common questions about orders, shipping, returns, and more.
+            <div className="rounded-[2rem] border border-champagne-300/40 bg-gradient-to-br from-charcoal-900 to-charcoal-950 p-8 text-ivory-50 shadow-xl">
+              <h3 className="text-2xl font-heading font-light">Quick questions?</h3>
+              <p className="mt-3 text-ivory-100/75">
+                Check our FAQ for instant answers about orders, shipping, returns, and more.
               </p>
               <a
                 href="/faq"
-                className="inline-flex items-center gap-2 bg-white text-powder-600 px-6 py-3 rounded-xl font-semibold hover:bg-powder-50 transition-colors"
+                className="mt-6 inline-flex items-center gap-2 rounded-full bg-ivory-50 px-6 py-3 text-sm font-medium text-charcoal-900 transition-colors hover:bg-champagne-200"
               >
                 View FAQ
                 <Send className="h-4 w-4" />
               </a>
             </div>
-          </motion.div>
+          </Reveal>
         </div>
       </div>
     </div>

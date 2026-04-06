@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ShoppingCart, Heart } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/utils";
@@ -20,6 +20,7 @@ interface ProductCardProps {
 export function ProductCard({ id, name, slug, price, image, badge }: ProductCardProps) {
   const addItem = useCart((state) => state.addItem);
   const [liked, setLiked] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -28,10 +29,14 @@ export function ProductCard({ id, name, slug, price, image, badge }: ProductCard
   };
 
   return (
-    <div className="group relative">
-      <Link href={`/product/${slug}`}>
+    <motion.div
+      className="group relative rounded-[1.75rem] elevated-card gradient-border p-[1px]"
+      whileHover={prefersReducedMotion ? undefined : { y: -5 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <Link href={`/product/${slug}`} className="block rounded-[1.7rem] bg-ivory-50/90 p-3">
         {/* Image */}
-        <div className="relative aspect-[3/4] overflow-hidden bg-ivory-100 mb-4">
+        <div className="relative mb-4 aspect-[3/4] overflow-hidden rounded-[1.25rem] border border-ivory-200/70 bg-ivory-100 transition-shadow duration-500 group-hover:shadow-[0_22px_55px_rgba(196,167,100,0.22)]">
           <Image
             src={image}
             alt={name}
@@ -40,11 +45,11 @@ export function ProductCard({ id, name, slug, price, image, badge }: ProductCard
           />
 
           {/* Hover overlay */}
-          <div className="absolute inset-0 bg-charcoal-900/0 group-hover:bg-charcoal-900/10 transition-colors duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/25 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
           {/* Badge */}
           {badge && (
-            <span className="absolute top-3 left-3 bg-powder-600 text-white text-[10px] font-semibold tracking-wider uppercase px-3 py-1.5">
+            <span className="absolute left-3 top-3 bg-champagne-500 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-charcoal-900 shadow-sm">
               {badge}
             </span>
           )}
@@ -59,7 +64,7 @@ export function ProductCard({ id, name, slug, price, image, badge }: ProductCard
             className="absolute top-3 right-3 w-9 h-9 bg-white/90 hover:bg-white flex items-center justify-center rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-300"
           >
             <Heart
-              className={`h-4 w-4 transition-colors ${liked ? "text-powder-600 fill-powder-600" : "text-charcoal-600"}`}
+              className={`h-4 w-4 transition-colors ${liked ? "fill-champagne-600 text-champagne-600" : "text-charcoal-600"}`}
             />
           </button>
 
@@ -76,8 +81,8 @@ export function ProductCard({ id, name, slug, price, image, badge }: ProductCard
         </div>
 
         {/* Product info */}
-        <div className="space-y-1.5">
-          <h3 className="text-sm font-body font-medium text-charcoal-800 line-clamp-2 group-hover:text-powder-700 transition-colors leading-snug">
+        <div className="space-y-1.5 px-0.5">
+          <h3 className="line-clamp-2 text-sm font-medium leading-snug text-charcoal-800 transition-colors group-hover:text-champagne-700">
             {name}
           </h3>
           <div className="flex items-baseline gap-2">
@@ -90,6 +95,6 @@ export function ProductCard({ id, name, slug, price, image, badge }: ProductCard
           </div>
         </div>
       </Link>
-    </div>
+    </motion.div>
   );
 }

@@ -15,62 +15,65 @@ export function ImageUpload({ images = [], onChange, maxImages = 5 }: ImageUploa
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleUpload = async (files: FileList | null) => {
-    if (!files || files.length === 0) return;
+  const handleUpload = useCallback(
+    async (files: FileList | null) => {
+      if (!files || files.length === 0) return;
 
-    const remainingSlots = maxImages - images.length;
-    if (files.length > remainingSlots) {
-      setError(`You can only upload ${remainingSlots} more image(s)`);
-      return;
-    }
+      const remainingSlots = maxImages - images.length;
+      if (files.length > remainingSlots) {
+        setError(`You can only upload ${remainingSlots} more image(s)`);
+        return;
+      }
 
-    setUploading(true);
-    setError("");
+      setUploading(true);
+      setError("");
 
-    try {
-      const uploadPromises = Array.from(files).map(async (file) => {
-        // Validate file type
-        if (!file.type.startsWith("image/")) {
-          throw new Error(`${file.name} is not an image file`);
-        }
+      try {
+        const uploadPromises = Array.from(files).map(async (file) => {
+          // Validate file type
+          if (!file.type.startsWith("image/")) {
+            throw new Error(`${file.name} is not an image file`);
+          }
 
-        // Validate file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          throw new Error(`${file.name} is too large. Max size is 5MB`);
-        }
+          // Validate file size (max 5MB)
+          if (file.size > 5 * 1024 * 1024) {
+            throw new Error(`${file.name} is too large. Max size is 5MB`);
+          }
 
-        const formData = new FormData();
-        formData.append("file", file);
+          const formData = new FormData();
+          formData.append("file", file);
 
-        const response = await fetch("/api/admin/upload", {
-          method: "POST",
-          body: formData,
+          const response = await fetch("/api/admin/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.error || "Upload failed");
+          }
+
+          const data = await response.json();
+          return data.url;
         });
 
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || "Upload failed");
-        }
-
-        const data = await response.json();
-        return data.url;
-      });
-
-      const uploadedUrls = await Promise.all(uploadPromises);
-      onChange([...images, ...uploadedUrls]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed");
-    } finally {
-      setUploading(false);
-    }
-  };
+        const uploadedUrls = await Promise.all(uploadPromises);
+        onChange([...images, ...uploadedUrls]);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Upload failed");
+      } finally {
+        setUploading(false);
+      }
+    },
+    [images, maxImages, onChange]
+  );
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
       handleUpload(e.dataTransfer.files);
     },
-    [images, maxImages]
+    [handleUpload]
   );
 
   const handleDragOver = (e: React.DragEvent) => {

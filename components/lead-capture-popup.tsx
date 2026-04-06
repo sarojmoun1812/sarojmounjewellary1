@@ -116,7 +116,7 @@ export function LeadCapturePopup({
                   Thank You!
                 </h4>
                 <p className="text-gray-600 text-sm">
-                  We'll send you exclusive offers soon!
+                  We&apos;ll send you exclusive offers soon!
                 </p>
               </div>
             ) : (

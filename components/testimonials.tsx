@@ -73,7 +73,7 @@ export function TestimonialsSection() {
 
               {/* Review Text */}
               <p className="text-gray-700 mb-6 relative z-10">
-                "{testimonial.text}"
+                &ldquo;{testimonial.text}&rdquo;
               </p>
 
               {/* Customer Info */}

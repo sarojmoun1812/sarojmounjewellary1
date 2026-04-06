@@ -30,7 +30,8 @@ export default function ReturnPolicyPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-4">7-Day Return Policy</h2>
               <div className="space-y-3 text-gray-700">
                 <p>
-                  At Saroj Moun Jewellery, we want you to be completely satisfied with your purchase. If you're not happy with your order, you can return or exchange it within <strong>7 days</strong> of delivery.
+                  At Saroj Moun Jewellery, we want you to be completely satisfied with your purchase. If you&apos;re
+                  not happy with your order, you can return or exchange it within <strong>7 days</strong> of delivery.
                 </p>
               </div>
             </section>
@@ -112,7 +113,10 @@ export default function ReturnPolicyPage() {
                     </div>
                     <div>
                       <p className="font-semibold">Pickup/Ship</p>
-                      <p className="text-sm">We'll arrange reverse pickup or you can ship it to our address (shipping charges applicable).</p>
+                      <p className="text-sm">
+                        We&apos;ll arrange reverse pickup or you can ship it to our address (shipping charges
+                        applicable).
+                      </p>
                     </div>
                   </div>
 
@@ -122,7 +126,7 @@ export default function ReturnPolicyPage() {
                     </div>
                     <div>
                       <p className="font-semibold">Quality Check</p>
-                      <p className="text-sm">We'll inspect the product within 2-3 business days of receiving it.</p>
+                      <p className="text-sm">We&apos;ll inspect the product within 2-3 business days of receiving it.</p>
                     </div>
                   </div>
 
@@ -185,8 +189,8 @@ export default function ReturnPolicyPage() {
                 <ul className="list-disc list-inside space-y-2 ml-4">
                   <li>Contact us within 24 hours of delivery</li>
                   <li>Share photos/videos of the damaged product</li>
-                  <li>We'll arrange immediate replacement or full refund</li>
-                  <li>No questions asked - we'll bear all shipping charges</li>
+                  <li>We&apos;ll arrange immediate replacement or full refund</li>
+                  <li>No questions asked - we&apos;ll bear all shipping charges</li>
                 </ul>
               </div>
             </section>
