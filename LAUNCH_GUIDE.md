@@ -313,7 +313,7 @@ NEXT_PUBLIC_SUPABASE_URL=https://zxsexfufedeawsxyjprh.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_anlH89ir8c3dDUTSskkn2A_nswm-1pi
 
 # Metal Price API
-METAL_PRICE_API_KEY=12b750578db1c1e8ba1d278dab276631
+METAL_PRICE_API_KEY=your-metalpriceapi-key
 
 # Cloudinary
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name

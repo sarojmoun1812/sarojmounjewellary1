@@ -185,10 +185,12 @@ async function main() {
   ];
   for (const [label, html] of pagesWithUrls) {
     check(`${label} canonical and JSON-LD use the configured domain`, html.includes(origin));
-    if (!origin.includes("sarojmoun.com")) {
+    // Matches her real domain and the sarojmoun.com the code used to assume.
+    const literalDomain = /https:\/\/(www\.)?sarojmoun(jewellary)?\.com/;
+    if (!literalDomain.test(origin)) {
       check(
         `${label} has no domain hardcoded past the config`,
-        !/https:\/\/sarojmoun\.com/.test(html)
+        !literalDomain.test(html)
       );
     }
   }

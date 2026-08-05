@@ -70,7 +70,7 @@ Should return current silver rate! ✅
    DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@db.zxsexfufedeawsxyjprh.supabase.co:5432/postgres
    NEXT_PUBLIC_SUPABASE_URL=https://zxsexfufedeawsxyjprh.supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_anlH89ir8c3dDUTSskkn2A_nswm-1pi
-   METAL_PRICE_API_KEY=12b750578db1c1e8ba1d278dab276631
+   METAL_PRICE_API_KEY=your-metalpriceapi-key
    RAZORPAY_KEY_ID=your_razorpay_key
    RAZORPAY_KEY_SECRET=your_razorpay_secret
    NEXT_PUBLIC_BASE_URL=https://your-site.vercel.app

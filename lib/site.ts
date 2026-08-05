@@ -11,8 +11,12 @@
  * a NEXT_PUBLIC_ variable, because components render this on the browser too.
  */
 
-/** Used when nothing is configured. Only correct if she keeps this domain. */
-const FALLBACK_ORIGIN = "https://sarojmoun.com";
+/**
+ * Used when nothing is configured. Her domain is sarojmounjewellary.com — the
+ * code previously assumed sarojmoun.com in six places, so every canonical URL,
+ * sitemap entry and share preview pointed at a domain that is not hers.
+ */
+const FALLBACK_ORIGIN = "https://sarojmounjewellary.com";
 
 function normalize(value: string): string {
   const trimmed = value.trim().replace(/\/+$/, "");

@@ -1,431 +1,163 @@
-# 🚀 DEPLOYMENT GUIDE - Saroj Moun Jewellery
+# Deployment Guide — Saroj Moun Jewellery
 
-## Quick Reference
-- **Business:** Saroj Moun Jewellery
-- **Location:** B-90, Police Line, Jind, Haryana - 126102
-- **Phone:** +91 81687 90171
-- **Email:** sarojmounjewellary@gmail.com
-- **Instagram:** @sarojmounfashion
-- **YouTube:** @sarojmoun1207
+## The stack, as it actually is
 
----
+| Piece | Where it runs |
+| --- | --- |
+| Website and API routes | Vercel |
+| Postgres database | Render |
+| Product photographs | Cloudinary |
+| Orders | WhatsApp to +91 81687 90171 |
+| Domain | sarojmounjewellary.com |
 
-## ✅ What's Complete
+There is no separate backend to deploy. The API routes live inside the Next.js
+app, so they go up with the site on Vercel. Render hosts only the database.
 
-### All Pages Built ✅
-1. Homepage (with testimonials)
-2. Shop/Product catalog
-3. Product detail pages
-4. Cart & Checkout
-5. About Us
-6. Contact (with form)
-7. Privacy Policy
-8. Terms & Conditions
-9. Shipping Policy
-10. Return/Refund Policy
-11. Custom 404 page
-12. Admin dashboard
-
-### Features Implemented ✅
-- ✅ Dynamic pricing (live silver rates)
-- ✅ WhatsApp floating button
-- ✅ Toast notifications
-- ✅ SEO optimization (meta tags, structured data)
-- ✅ XML sitemap
-- ✅ robots.txt
-- ✅ Responsive design
-- ✅ Animations (Framer Motion)
-- ✅ Contact information updated
-- ✅ Social media links added
+There is no payment gateway. A customer builds a cart, the server prices it, and
+the order arrives as a WhatsApp message. Razorpay was removed — do not add
+payment keys, and do not follow any older guide in this repo that mentions
+Razorpay or Supabase. Those describe a version of the site that no longer exists.
 
 ---
 
-## 📋 Pre-Deployment Checklist
+## Environment variables on Vercel
 
-### 1. Add Product Images ⏳
-```bash
-# Place images in:
-public/products/
-  ├── necklace-1.jpg
-  ├── earring-1.jpg
-  └── ...
-```
-
-### 2. Add Products to Database ⏳
-Use Prisma Studio:
-```bash
-npx prisma studio
-```
-
-Fill in for each product:
-- Name & description
-- Silver weight (grams)
-- Making charges (in paise)
-- Profit percent (e.g., 45 for 45%)
-- Category
-- Images array
-
-### 3. Set Up Analytics (Optional)
-**Google Analytics:**
-1. Create property at analytics.google.com
-2. Get Measurement ID (G-XXXXXXXXXX)
-3. Add to Vercel environment variables
-
-**Facebook Pixel:**
-1. Create pixel at business.facebook.com
-2. Get Pixel ID
-3. Add to Vercel environment variables
-
----
-
-## 🌐 Deployment Steps (Vercel)
-
-### Step 1: Push to GitHub
-```bash
-git init
-git add .
-git commit -m "Saroj Moun Jewellery - Production ready"
-git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/sarojmounjewellary.git
-git push -u origin main
-```
-
-### Step 2: Deploy to Vercel
-1. Go to https://vercel.com
-2. Sign up/Login with GitHub
-3. Click "Import Project"
-4. Select your repository
-5. Configure:
-   - Framework: Next.js
-   - Root Directory: ./
-   - Build Command: npm run build
-   - Output Directory: .next
-
-### Step 3: Add Environment Variables
-In Vercel dashboard, add:
+Set every one of these in **Vercel → Project → Settings → Environment
+Variables**, for Production (and Preview if you use it). The site will not work
+correctly without the first four.
 
 ```env
-DATABASE_URL=your-supabase-connection-string
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-METAL_PRICE_API_KEY=12b750578db1c1e8ba1d278dab276631
-NEXT_PUBLIC_RAZORPAY_KEY_ID=your-razorpay-key
-RAZORPAY_KEY_SECRET=your-razorpay-secret
+# Render Postgres, the External Connection String, ending in ?sslmode=require
+DATABASE_URL=postgresql://USER:PASSWORD@HOST/DBNAME?sslmode=require
+
+# Admin password hashes derive from this. Changing it invalidates every
+# existing password. Generate with:
+#   node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
+AUTH_SECRET=
+
+# The real domain, no trailing slash. Canonical URLs, the sitemap, robots.txt
+# and every share preview are built from this.
+NEXT_PUBLIC_BASE_URL=https://sarojmounjewellary.com
+
+# Cloudinary, from Dashboard → Settings → API Keys. Without these, uploading a
+# product photo fails with a clear error instead of saving anything.
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+
+# metalpriceapi.com. Without it the silver rate is whatever was last saved in
+# the admin panel. Every product price depends on it.
+METAL_PRICE_API_KEY=
+
+# Digits only, with country code. Customer orders are sent here.
+NEXT_PUBLIC_WHATSAPP_NUMBER=918168790171
+
+NEXT_PUBLIC_SITE_NAME=Saroj Moun Jewellery
+
+# Optional. While set (16+ characters) the login page can create the first
+# admin. Remove it once her account exists.
+ADMIN_SETUP_TOKEN=
 ```
 
-### Step 4: Deploy!
-Click "Deploy" button. Your site will be live at:
-```
-https://your-project-name.vercel.app
-```
+Anything starting with `NEXT_PUBLIC_` is visible in the browser by design. Never
+put a password or secret behind that prefix.
 
 ---
 
-## 🌍 Custom Domain Setup (Optional)
+## First deploy
 
-### Purchase Domain
-**Recommended registrars:**
-- Namecheap.com (₹800-1200/year)
-- GoDaddy.in (₹999-1500/year)
-- HostGator.in
+1. Push to GitHub. Vercel deploys `main` automatically once connected.
+2. In Vercel, import the repository. Framework preset: Next.js. Leave the build
+   and output settings alone — `npm run build` already runs `prisma generate`.
+3. Add the environment variables above, then redeploy so they take effect.
+   Variables added after a build do not apply to that build.
+4. Visit the deployment URL and check the shop page loads with products.
 
-**Suggested domains:**
-- sarojmoun.com
-- sarojmounjewellery.com
-- sarojmounsilver.com
+## Connecting the domain
 
-### Connect to Vercel
-1. In Vercel dashboard → Settings → Domains
-2. Add your domain (e.g., sarojmoun.com)
-3. Update DNS records at your registrar:
-   ```
-   Type: A
-   Name: @
-   Value: 76.76.19.19
+1. Vercel → Settings → Domains → add `sarojmounjewellary.com` and `www`.
+2. At the registrar, create the exact DNS records Vercel shows you on that
+   screen. Do not copy IP addresses out of any guide, including this one —
+   Vercel changes them, and the dashboard is the only current source.
+3. DNS usually propagates within an hour, occasionally up to 48.
+4. Confirm `NEXT_PUBLIC_BASE_URL` matches the final domain, then redeploy.
 
-   Type: CNAME
-   Name: www
-   Value: cname.vercel-dns.com
-   ```
-4. Wait 24-48 hours for propagation
+## Creating her admin account
+
+There is no default password, by design. From a machine with the production
+`DATABASE_URL` and `AUTH_SECRET` in `.env`:
+
+```bash
+ADMIN_EMAIL=her@email.com ADMIN_PASSWORD=a-long-password node scripts/create-admin.js
+```
+
+Minimum twelve characters. To reset it later, run the same command again with a
+new password.
 
 ---
 
-## 💳 Razorpay Setup
+## Before telling anyone the site is live
 
-### Step 1: Account Creation
-1. Go to https://razorpay.com
-2. Sign up with business details
-3. Complete KYC verification (requires):
-   - PAN Card
-   - GST Certificate (if registered)
-   - Bank account details
-   - Business address proof
+- [ ] At least five products, each with her own photographs uploaded
+- [ ] Place a real test order end to end and confirm the WhatsApp message
+      arrives with the right items and total
+- [ ] Check a product page on a phone, including add-to-cart
+- [ ] Confirm the silver rate in the admin panel matches the market
+- [ ] Confirm `/admin` asks for a login when signed out
+- [ ] Search Google Search Console for the sitemap at
+      `https://sarojmounjewellary.com/sitemap.xml`
 
-### Step 2: Get API Keys
-1. Dashboard → Settings → API Keys
-2. Generate keys:
-   - **Test Mode:** For development
-   - **Live Mode:** For production (after KYC approval)
+## Verifying it after deploy
 
-### Step 3: Configure
-Add keys to Vercel environment variables:
-```env
-NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_live_xxxxxxxxxxxx
-RAZORPAY_KEY_SECRET=your_secret_key
-```
-
-### Step 4: Test Payments
-Test cards for development:
-```
-Card: 4111 1111 1111 1111
-CVV: Any 3 digits
-Expiry: Any future date
+```bash
+npm run db:status   # products, orders, admins, silver rate, shipping settings
+npm run smoke       # 105 checks; needs the site running and ADMIN_EMAIL/ADMIN_PASSWORD
 ```
 
 ---
 
-## 🔍 SEO Setup
+## Things that will bite
 
-### Google Search Console
-1. Go to https://search.google.com/search-console
-2. Add property (sarojmoun.com)
-3. Verify ownership (HTML tag method):
-   - Add verification code to layout.tsx metadata
-4. Submit sitemap: https://sarojmoun.com/sitemap.xml
+**GST is off, and must stay off.** She is not GST registered, and collecting tax
+without a GSTIN is an offence. The rate is 0 in the database and in the admin
+panel. Only raise it after she registers.
 
-### Google My Business
-1. https://www.google.com/business/
-2. Create business profile
-3. Verify with postcard/phone
-4. Add:
-   - Business hours
-   - Photos
-   - Services (silver jewellery)
-   - Location (Jind, Haryana)
+**The Render free tier deletes the database after 30 days.** Move to a paid tier
+or take regular backups before then. Everything — products, orders, customers —
+lives there.
 
----
+**Rotate anything that has ever been committed.** The metalpriceapi key was
+previously in this file in plain text, so treat it as public and generate a new
+one.
 
-## 📱 WhatsApp Business Setup
+**Prices come from the live silver rate.** If the rate feed is wrong or stale,
+every price on the site is wrong. Check it after deploy and occasionally after.
 
-### WhatsApp Business App
-1. Download WhatsApp Business
-2. Register with +91 81687 90171
-3. Set up:
-   - Business profile
-   - Catalog (products)
-   - Quick replies
-   - Away messages
-
-### WhatsApp Business API (Advanced)
-For automated messages:
-1. Partner: Gupshup, Twilio, or MessageBird
-2. Costs: ₹0.25-1 per message
-3. Benefits: Auto-responses, order updates
+**No coupon system exists.** Do not advertise a discount code; nothing will
+accept it. Offer a discount by adjusting the price she quotes on WhatsApp.
 
 ---
 
-## 📊 Marketing Launch Plan
+## Ongoing
 
-### Week 1: Soft Launch
-- [ ] Share on Instagram stories
-- [ ] Post on Facebook
-- [ ] Share in WhatsApp status
-- [ ] Send to existing customers
-- [ ] Family & friends testing
+**Daily** — check for new orders on WhatsApp and in `/admin/orders`, reply to
+inquiries.
 
-### Week 2: Public Launch
-- [ ] Instagram post announcing website
-- [ ] YouTube video tour
-- [ ] Create launch offer (10% off first order)
-- [ ] Run Instagram ads (₹500/day budget)
+**Weekly** — update stock, confirm the silver rate looks right.
 
-### Month 1: Growth
-- [ ] Post 2-3 times daily on Instagram
-- [ ] Upload product videos on YouTube
-- [ ] Run Facebook ads
-- [ ] Google Shopping ads
-- [ ] Influencer collaborations
+**Monthly** — add products and fresh photographs, review what sold.
 
----
+## Support channels
 
-## 🎯 Content Calendar
+- WhatsApp: +91 81687 90171 (primary, this is where orders arrive)
+- Email: sarojmounjewellary@gmail.com
+- Instagram: @sarojmounfashion
+- YouTube: @sarojmoun1207
 
-### Daily
-- Instagram stories (product showcases, behind-the-scenes)
-- Reply to WhatsApp messages
+## When something breaks
 
-### Weekly
-- 3-5 Instagram posts
-- 1 YouTube video
-- Email newsletter to customers
-
-### Monthly
-- New product launches
-- Festival/occasion collections
-- Customer testimonial features
-
----
-
-## 💰 Pricing Strategy
-
-### Current Model
-```
-Final Price = (Silver Weight × Current Rate) + Making Charges + Profit
-
-Where:
-- Silver Rate: Live updates every 6 hours
-- Making Charges: ₹100 per gram (as per your mom's info)
-- Profit: Built into making charges
-```
-
-### Competitive Advantage
-✅ Transparent pricing (show breakdown)
-✅ No hidden charges
-✅ Live silver rate updates
-✅ Hallmark certification
-✅ Direct from artisan (no middleman)
-
----
-
-## 📞 Customer Support Setup
-
-### Communication Channels
-1. **WhatsApp Business:** +91 81687 90171 (Primary)
-2. **Email:** sarojmounjewellary@gmail.com
-3. **Instagram DM:** @sarojmounfashion
-4. **Phone:** +91 81687 90171
-
-### Response Times
-- WhatsApp: Within 1 hour (10 AM - 6 PM)
-- Email: Within 24 hours
-- Instagram: Within 2-4 hours
-
-### Quick Replies (WhatsApp Business)
-Set up templates for:
-- Order confirmation
-- Shipping updates
-- Delivery confirmation
-- Return process
-- Product inquiries
-
----
-
-## 🔧 Maintenance
-
-### Daily
-- Check for new orders
-- Respond to inquiries
-- Monitor website uptime
-
-### Weekly
-- Review analytics
-- Update product stock
-- Check silver rate accuracy
-
-### Monthly
-- Review sales data
-- Update product photos
-- Add new products
-- Run promotions
-
----
-
-## 🚨 Emergency Contacts
-
-### Technical Issues
-- Vercel Status: https://vercel-status.com
-- Supabase Status: https://status.supabase.com
-- Razorpay Status: https://status.razorpay.com
-
-### Website Down?
-1. Check Vercel dashboard for errors
-2. Check database connection
-3. Verify environment variables
-4. Contact developer
-
----
-
-## 📈 Success Metrics
-
-### Track These KPIs
-- **Traffic:** Daily visitors, page views
-- **Conversion Rate:** Visitors → Orders
-- **Average Order Value**
-- **Cart Abandonment Rate**
-- **Customer Acquisition Cost**
-- **Revenue per Day/Week/Month**
-
-### Tools
-- Google Analytics (free)
-- Vercel Analytics (built-in)
-- Razorpay Dashboard (payment stats)
-
----
-
-## 🎉 Launch Day Checklist
-
-### Morning of Launch
-- [ ] Final product check (at least 5-10 products)
-- [ ] Test checkout process end-to-end
-- [ ] Verify payment gateway (test transaction)
-- [ ] Check WhatsApp button works
-- [ ] Test contact form submission
-- [ ] Mobile responsiveness check
-- [ ] Check all links work
-
-### Launch Announcement
-- [ ] Instagram post + story
-- [ ] Facebook post
-- [ ] WhatsApp status
-- [ ] YouTube community post
-- [ ] Email to customer database
-
-### Post-Launch Monitoring (First 24 hours)
-- [ ] Monitor website for errors
-- [ ] Respond to all inquiries quickly
-- [ ] Track first orders
-- [ ] Collect feedback
-- [ ] Fix any issues immediately
-
----
-
-## 🎁 Launch Offers (Suggested)
-
-### First Week
-- 10% off all products (code: LAUNCH10)
-- Free shipping on all orders
-- Extra gift with first order
-
-### First Month
-- Buy 2 get 5% off
-- Refer a friend, both get ₹200 off
-- Featured product of the week
-
----
-
-## 🏆 Long-term Goals
-
-### 3 Months
-- 100+ orders
-- 5000+ website visitors
-- 5000+ Instagram followers
-- ₹2-3 Lakh monthly revenue
-
-### 6 Months
-- 500+ orders
-- Expand product range
-- Launch collections (Festive, Bridal, etc.)
-- Partner with influencers
-
-### 1 Year
-- Establish brand name
-- Open physical store (optional)
-- Hire team members
-- Scale to ₹10+ Lakh monthly
-
----
-
-**🚀 Ready to Launch! Best wishes for your mom's business success! 💎**
-
-Contact me for any technical issues during deployment.
+1. Vercel dashboard → the failing deployment → Runtime Logs
+2. Check the Render database is awake and reachable
+3. Confirm the environment variables are present in the right environment
+4. Vercel status: https://www.vercel-status.com — Render status:
+   https://status.render.com
