@@ -7,6 +7,7 @@ import { calculateProductPrice } from "@/lib/pricing";
 import { getGstSettings } from "@/lib/orders";
 import { ProductDetailClient } from "./product-client";
 import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
+import { SITE_URL } from "@/lib/site";
 
 interface Props {
   params: { slug: string };
@@ -88,10 +89,10 @@ export default async function ProductPage({ params }: Props) {
   const parsedRelated = normalizeProducts(relatedProducts);
 
   const breadcrumbs = [
-    { name: "Home", url: "https://sarojmoun.com" },
-    { name: "Shop", url: "https://sarojmoun.com/shop" },
-    { name: product.category, url: `https://sarojmoun.com/shop?category=${product.category.toLowerCase()}` },
-    { name: product.name, url: `https://sarojmoun.com/product/${product.slug}` },
+    { name: "Home", url: SITE_URL },
+    { name: "Shop", url: `${SITE_URL}/shop` },
+    { name: product.category, url: `${SITE_URL}/shop?category=${product.category.toLowerCase()}` },
+    { name: product.name, url: `${SITE_URL}/product/${product.slug}` },
   ];
 
   return (

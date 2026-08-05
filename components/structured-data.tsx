@@ -1,10 +1,12 @@
+import { SITE_URL } from "@/lib/site";
+
 export function OrganizationSchema() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "name": "Saroj Moun Jewellery",
     "description": "Handcrafted 925 silver jewellery with hallmark certification",
-    "url": "https://sarojmoun.com",
+    "url": SITE_URL,
     "telephone": "+91-81687-90171",
     "email": "sarojmounjewellary@gmail.com",
     "address": {
@@ -64,7 +66,7 @@ export function ProductSchema({ product }: { product: any }) {
     },
     "offers": {
       "@type": "Offer",
-      "url": `https://sarojmoun.com/product/${product.slug}`,
+      "url": `${SITE_URL}/product/${product.slug}`,
       "priceCurrency": "INR",
       "price": product.price,
       "priceValidUntil": new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -89,7 +91,7 @@ export function WebsiteSchema() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "Saroj Moun Jewellery",
-    "url": "https://sarojmoun.com"
+    "url": SITE_URL
     // No SearchAction: the shop has no search parameter, so declaring one asks
     // Google to send people to a URL that quietly ignores their query.
   };

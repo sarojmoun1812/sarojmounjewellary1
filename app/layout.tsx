@@ -5,6 +5,7 @@ import { OrganizationSchema, WebsiteSchema } from "@/components/structured-data"
 import { ToastProvider } from "@/components/toast";
 import { Analytics } from "@/components/analytics";
 import { SiteChrome } from "@/components/site-chrome";
+import { SITE_URL } from "@/lib/site";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -27,14 +28,15 @@ export const metadata: Metadata = {
   authors: [{ name: "Saroj Moun Jewellery" }],
   creator: "Saroj Moun Jewellery",
   publisher: "Saroj Moun Jewellery",
-  metadataBase: new URL("https://sarojmoun.com"),
+  metadataBase: new URL(SITE_URL),
   alternates: {
-    canonical: "https://sarojmoun.com"
+    // Relative, so metadataBase above resolves it against the real domain.
+    canonical: "/"
   },
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://sarojmoun.com",
+    url: SITE_URL,
     title: "Saroj Moun - Premium Silver Jewellery | Handcrafted 925 Silver",
     description: "Shop authentic handcrafted 925 silver jewellery with hallmark certification. Transparent pricing based on live silver rates. Free shipping above ₹2999.",
     siteName: "Saroj Moun Jewellery",

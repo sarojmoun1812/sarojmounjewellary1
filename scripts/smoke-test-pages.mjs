@@ -155,7 +155,45 @@ async function main() {
     check(`${path} is served`, res.ok, `HTTP ${res.status}`);
   }
 
-  console.log("\n6. Admin pages require a session");
+  // The domain was previously typed out by hand in the layout, the sitemap,
+  // robots.txt and the structured data. Moving domain would have left some of
+  // them pointing at the old one, and a wrong URL in a share preview is not
+  // visible until a customer taps it and lands nowhere.
+  console.log("\n6. Public URLs all follow the configured domain");
+  const origin = (process.env.NEXT_PUBLIC_BASE_URL || BASE).replace(/\/+$/, "");
+
+  const robots = await fetch(`${BASE}/robots.txt`);
+  const robotsBody = await robots.text();
+  check("robots.txt is served", robots.ok, `HTTP ${robots.status}`);
+  check(
+    "robots.txt points at the configured sitemap",
+    robotsBody.includes(`${origin}/sitemap.xml`),
+    robotsBody.split("\n").find((l) => l.startsWith("Sitemap"))
+  );
+  check("robots.txt keeps admin and api out of the index",
+    robotsBody.includes("/admin") && robotsBody.includes("/api"));
+
+  const sitemapBody = await (await fetch(`${BASE}/sitemap.xml`)).text();
+  const foreignLoc = [...sitemapBody.matchAll(/<loc>([^<]+)<\/loc>/g)]
+    .map((m) => m[1])
+    .find((url) => !url.startsWith(origin));
+  check("every sitemap URL uses the configured domain", !foreignLoc, foreignLoc);
+
+  const pagesWithUrls = [
+    ["homepage", (await getPage("/")).html],
+    ["product page", (await getPage(`/product/${product.slug}`)).html],
+  ];
+  for (const [label, html] of pagesWithUrls) {
+    check(`${label} canonical and JSON-LD use the configured domain`, html.includes(origin));
+    if (!origin.includes("sarojmoun.com")) {
+      check(
+        `${label} has no domain hardcoded past the config`,
+        !/https:\/\/sarojmoun\.com/.test(html)
+      );
+    }
+  }
+
+  console.log("\n7. Admin pages require a session");
   for (const path of ["/admin", "/admin/products", "/admin/orders"]) {
     const page = await getPage(path);
     const redirected = page.status >= 300 && page.status < 400;
@@ -166,7 +204,7 @@ async function main() {
     );
   }
 
-  console.log("\n7. Admin pages render when signed in");
+  console.log("\n8. Admin pages render when signed in");
   const login = await fetch(`${BASE}/api/admin/auth`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
