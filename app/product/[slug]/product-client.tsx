@@ -414,9 +414,10 @@ export function ProductDetailClient({
                   <span className="text-charcoal-500">Category</span>
                   <span className="font-medium text-charcoal-900 capitalize">{product.category}</span>
                 </div>
-                {/* No "Hallmark Certified: Yes" row here — certification is not
-                    recorded per product, so it cannot be asserted per product.
-                    Metal Purity above already states the material. */}
+                {/* No "Hallmark Certified" row here. Every piece is hallmarked
+                    92.5 sterling, so it is a fact about the shop rather than
+                    about one product — the badge above states it once, and
+                    Metal Purity already carries the material. */}
                 <div className="flex justify-between py-2">
                   <span className="text-charcoal-500">Availability</span>
                   <span className={`font-medium ${product.stock > 0 ? "text-green-600" : "text-red-600"}`}>
