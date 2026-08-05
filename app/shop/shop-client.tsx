@@ -123,8 +123,8 @@ export function ShopPageClient({
       >
         <motion.div className="absolute inset-0 h-[115%] w-full" style={{ y: heroY }}>
           <Image
-            src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=1920&q=80"
-            alt="Silver jewellery collection"
+            src="/peacock-jewellery.jpeg"
+            alt="Handcrafted silver jewellery by Saroj Moun"
             fill
             className="object-cover"
             priority
@@ -260,7 +260,7 @@ export function ShopPageClient({
                       </div>
 
                       {/* Quick Actions */}
-                      <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute bottom-3 right-3 flex gap-2 transition-opacity duration-300 can-hover:opacity-0 can-hover:group-hover:opacity-100">
                         <button
                           onClick={(e) => {
                             e.preventDefault();
@@ -310,9 +310,10 @@ export function ShopPageClient({
                 Premium Silver Jewellery Online
               </h2>
               <p className="mt-6 leading-relaxed text-charcoal-600">
-                At Saroj Moun Jewellery, we offer an exquisite collection of handcrafted 925 sterling silver jewellery.
-                Each piece is certified with BIS hallmark, ensuring you receive only the finest quality silver. Our
-                collection includes traditional and contemporary designs in necklaces, earrings, kadas, and rings.
+                At Saroj Moun Jewellery, we offer an exquisite collection of handcrafted 92.5 sterling silver jewellery,
+                hallmarked for purity. Every piece is made by karigars in Jaipur and Udaipur, whose families have worked
+                in silver for generations. Our collection includes traditional and contemporary designs in necklaces,
+                earrings, kadas, and rings.
               </p>
               <p className="mt-4 leading-relaxed text-charcoal-600">
                 With transparent pricing based on current silver rates and weight, you always know exactly what you&apos;re

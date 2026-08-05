@@ -39,7 +39,7 @@ export function OrganizationSchema() {
       "https://www.youtube.com/@sarojmoun1207"
     ],
     "priceRange": "₹₹-₹₹₹",
-    "paymentAccepted": ["Cash", "Credit Card", "Debit Card", "UPI", "Net Banking"],
+    "paymentAccepted": ["Cash", "UPI", "Bank Transfer"],
     "currenciesAccepted": "INR"
   };
 
@@ -70,12 +70,10 @@ export function ProductSchema({ product }: { product: any }) {
       "priceValidUntil": new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       "availability": product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       "itemCondition": "https://schema.org/NewCondition"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "reviewCount": "50"
     }
+    // No aggregateRating: there is no review system, and inventing one is both a
+    // Google structured-data violation and a misrepresentation to customers.
+    // Add it back only when it is computed from real reviews.
   };
 
   return (
@@ -91,12 +89,9 @@ export function WebsiteSchema() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "Saroj Moun Jewellery",
-    "url": "https://sarojmoun.com",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://sarojmoun.com/shop?search={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
+    "url": "https://sarojmoun.com"
+    // No SearchAction: the shop has no search parameter, so declaring one asks
+    // Google to send people to a URL that quietly ignores their query.
   };
 
   return (

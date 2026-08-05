@@ -1,5 +1,6 @@
-import { prisma } from "@/lib/db";
+import { prisma, containsInsensitive } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
+import { normalizeProducts } from "@/lib/products";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,8 +14,8 @@ async function getProducts(search?: string, category?: string) {
 
   if (search) {
     where.OR = [
-      { name: { contains: search, mode: "insensitive" } },
-      { slug: { contains: search, mode: "insensitive" } },
+      { name: containsInsensitive(search) },
+      { slug: containsInsensitive(search) },
     ];
   }
 
@@ -45,10 +46,11 @@ export default async function ProductsPage({
   if (!admin) redirect("/admin/login");
 
   const params = await searchParams;
-  const [products, categories] = await Promise.all([
+  const [rawProducts, categories] = await Promise.all([
     getProducts(params.search, params.category),
     getCategories(),
   ]);
+  const products = normalizeProducts(rawProducts);
 
   const formatPrice = (paise: number) => {
     return new Intl.NumberFormat("en-IN", {

@@ -2,27 +2,70 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { hashPassword } from "@/lib/auth";
 
-// POST /api/admin/init - Initialize first admin
+/**
+ * First-admin bootstrap.
+ *
+ * "No admins exist yet" is not an authorisation check on a public URL — it is a
+ * race that whoever posts first wins, and they would own the shop. So this
+ * route only works while ADMIN_SETUP_TOKEN is set in the environment, and the
+ * caller has to present it. Leave the variable unset once setup is done; the
+ * normal way to create or reset an admin is scripts/create-admin.js.
+ */
+
+const MIN_PASSWORD_LENGTH = 12;
+
+function getSetupToken(): string | null {
+  const token = process.env.ADMIN_SETUP_TOKEN;
+  return token && token.length >= 16 ? token : null;
+}
+
+function tokensMatch(provided: string, expected: string): boolean {
+  if (provided.length !== expected.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < provided.length; i++) {
+    mismatch |= provided.charCodeAt(i) ^ expected.charCodeAt(i);
+  }
+  return mismatch === 0;
+}
+
 export async function POST(request: NextRequest) {
   try {
-    // Only allow if no admins exist
-    const adminCount = await prisma.admin.count();
-    
-    if (adminCount > 0) {
+    const expectedToken = getSetupToken();
+
+    if (!expectedToken) {
       return NextResponse.json(
-        { error: "Admin already exists" },
-        { status: 400 }
+        {
+          error:
+            "Admin setup is disabled. Use scripts/create-admin.js, or set ADMIN_SETUP_TOKEN (16+ characters) to enable this route.",
+        },
+        { status: 403 }
       );
     }
 
     const body = await request.json();
-    const { email, password, name } = body;
+    const { email, password, name, setupToken } = body;
+
+    if (typeof setupToken !== "string" || !tokensMatch(setupToken, expectedToken)) {
+      return NextResponse.json({ error: "Invalid setup token" }, { status: 403 });
+    }
 
     if (!email || !password || !name) {
       return NextResponse.json(
         { error: "Email, password, and name required" },
         { status: 400 }
       );
+    }
+
+    if (typeof password !== "string" || password.length < MIN_PASSWORD_LENGTH) {
+      return NextResponse.json(
+        { error: `Password must be at least ${MIN_PASSWORD_LENGTH} characters` },
+        { status: 400 }
+      );
+    }
+
+    const adminCount = await prisma.admin.count();
+    if (adminCount > 0) {
+      return NextResponse.json({ error: "Admin already exists" }, { status: 400 });
     }
 
     const passwordHash = await hashPassword(password);
@@ -46,21 +89,26 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Admin init error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    // The internal message is not returned — it has leaked schema and
+    // configuration details in the past.
     return NextResponse.json(
-      { error: `Failed to create admin: ${errorMessage}` },
+      { error: "Failed to create admin" },
       { status: 500 }
     );
   }
 }
 
-// GET /api/admin/init - Check if admin exists
+// GET /api/admin/init - whether the setup form should be offered
 export async function GET() {
   try {
+    if (!getSetupToken()) {
+      return NextResponse.json({ needsSetup: false });
+    }
+
     const adminCount = await prisma.admin.count();
     return NextResponse.json({ needsSetup: adminCount === 0 });
   } catch (error) {
     console.error("Admin check error:", error);
-    return NextResponse.json({ needsSetup: true });
+    return NextResponse.json({ needsSetup: false });
   }
 }

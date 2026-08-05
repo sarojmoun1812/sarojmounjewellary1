@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 import { prisma } from "@/lib/db";
+import { normalizeProducts } from "@/lib/products";
+import { getCurrentSilverRate } from "@/lib/silver-rate";
 import { ShopPageClient } from "./shop-client";
 
 export const metadata: Metadata = {
@@ -52,17 +54,6 @@ async function getCategories() {
   }
 }
 
-async function getSilverRate() {
-  try {
-    const rate = await prisma.silverRate.findFirst({
-      orderBy: { updatedAt: "desc" },
-    });
-    return rate?.ratePerGram || 95;
-  } catch {
-    return 95;
-  }
-}
-
 export default async function ShopPage({
   searchParams,
 }: {
@@ -71,20 +62,16 @@ export default async function ShopPage({
   const [rawProducts, categories, silverRate] = await Promise.all([
     getProducts(searchParams.category),
     getCategories(),
-    getSilverRate(),
+    getCurrentSilverRate(),
   ]);
 
-  const products = rawProducts.map((p) => ({
-    ...p,
-    images: (() => { try { const parsed = JSON.parse(p.images); return Array.isArray(parsed) ? parsed : []; } catch { return []; } })(),
-    tags: (() => { try { const parsed = JSON.parse(p.tags); return Array.isArray(parsed) ? parsed : []; } catch { return []; } })(),
-  }));
+  const products = normalizeProducts(rawProducts);
 
   return (
     <ShopPageClient
       products={products as any}
       categories={categories}
-      silverRate={silverRate}
+      silverRate={silverRate.ratePerGram}
       selectedCategory={searchParams.category}
     />
   );

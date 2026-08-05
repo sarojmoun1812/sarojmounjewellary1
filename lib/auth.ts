@@ -3,8 +3,17 @@ import { prisma } from "./db";
 
 // Simple password hashing (in production, use bcrypt)
 export async function hashPassword(password: string): Promise<string> {
+  const authSecret = process.env.AUTH_SECRET;
+
+  // Without this guard a missing AUTH_SECRET silently hashes
+  // `password + "undefined"`, so every deployment that forgot to set it shares
+  // the same predictable hashes. Refusing is the safe outcome.
+  if (!authSecret) {
+    throw new Error("AUTH_SECRET is not set; refusing to hash a password.");
+  }
+
   const encoder = new TextEncoder();
-  const data = encoder.encode(password + process.env.AUTH_SECRET);
+  const data = encoder.encode(password + authSecret);
   const hashBuffer = await crypto.subtle.digest("SHA-256", data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -15,7 +24,15 @@ export async function verifyPassword(
   hash: string
 ): Promise<boolean> {
   const passwordHash = await hashPassword(password);
-  return passwordHash === hash;
+
+  // Constant-time comparison so response timing cannot be used to guess a hash.
+  if (passwordHash.length !== hash.length) return false;
+
+  let mismatch = 0;
+  for (let i = 0; i < passwordHash.length; i++) {
+    mismatch |= passwordHash.charCodeAt(i) ^ hash.charCodeAt(i);
+  }
+  return mismatch === 0;
 }
 
 // Generate session token
@@ -88,22 +105,39 @@ export async function deleteSession(token: string) {
   }
 }
 
-// Initialize first admin if none exists
+/**
+ * Creates the first admin, using credentials supplied through the environment.
+ * There is deliberately no default password: a well-known one on a public URL
+ * is the same as no password at all. Use scripts/create-admin.js instead when
+ * setting up or resetting access.
+ */
 export async function initializeAdmin() {
   const adminCount = await prisma.admin.count();
-  if (adminCount === 0) {
-    const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || "admin123";
-    const passwordHash = await hashPassword(defaultPassword);
+  if (adminCount > 0) return { created: false as const };
 
-    await prisma.admin.create({
-      data: {
-        email: "admin@sarojmounjewellery.com",
-        passwordHash,
-        name: "Admin",
-        role: "SUPER_ADMIN",
-      },
-    });
+  const email = process.env.ADMIN_EMAIL;
+  const password = process.env.ADMIN_DEFAULT_PASSWORD;
 
-    console.log("Default admin created: admin@sarojmounjewellery.com");
+  if (!email || !password) {
+    throw new Error(
+      "Set ADMIN_EMAIL and ADMIN_DEFAULT_PASSWORD to create the first admin."
+    );
   }
+
+  if (password.length < 12) {
+    throw new Error("ADMIN_DEFAULT_PASSWORD must be at least 12 characters.");
+  }
+
+  const passwordHash = await hashPassword(password);
+
+  await prisma.admin.create({
+    data: {
+      email: email.toLowerCase(),
+      passwordHash,
+      name: process.env.ADMIN_NAME || "Admin",
+      role: "SUPER_ADMIN",
+    },
+  });
+
+  return { created: true as const, email: email.toLowerCase() };
 }

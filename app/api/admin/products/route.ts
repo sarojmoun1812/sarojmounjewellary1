@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { prisma, containsInsensitive } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
+import {
+  normalizeProduct,
+  normalizeProducts,
+  productCreateSchema,
+  toProductCreateData,
+} from "@/lib/products";
 
 // GET /api/admin/products - Get all products
 export async function GET(request: NextRequest) {
@@ -18,8 +24,8 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { slug: { contains: search, mode: "insensitive" } },
+        { name: containsInsensitive(search) },
+        { slug: containsInsensitive(search) },
       ];
     }
 
@@ -32,7 +38,7 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json({ products });
+    return NextResponse.json({ products: normalizeProducts(products) });
   } catch (error) {
     console.error("Get products error:", error);
     return NextResponse.json(
@@ -50,70 +56,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const {
-      name,
-      slug,
-      description,
-      silverWeight,
-      makingCharges,
-      profitPerGram,
-      fixedPrice,
-      category,
-      images,
-      stock,
-      material,
-      featured,
-      bestseller,
-      isActive,
-      metaTitle,
-      metaDescription,
-      tags,
-    } = body;
+    const parsed = productCreateSchema.safeParse(await request.json());
 
-    // Validate required fields
-    if (!name || !slug || !description || !silverWeight || !makingCharges || !category) {
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        {
+          error: parsed.error.errors[0]?.message ?? "Invalid product details",
+          details: parsed.error.errors,
+        },
         { status: 400 }
       );
     }
 
-    // Check if slug already exists
     const existing = await prisma.product.findUnique({
-      where: { slug },
+      where: { slug: parsed.data.slug },
     });
 
     if (existing) {
       return NextResponse.json(
-        { error: "Product with this slug already exists" },
+        { error: "A product with this URL name already exists" },
         { status: 400 }
       );
     }
 
     const product = await prisma.product.create({
-      data: {
-        name,
-        slug,
-        description,
-        silverWeight,
-        makingCharges,
-        profitPerGram: profitPerGram || 100,
-        fixedPrice,
-        category,
-        images: images || [],
-        stock: stock || 0,
-        material: material || "925 Silver",
-        featured: featured || false,
-        bestseller: bestseller || false,
-        isActive: isActive !== false,
-        metaTitle,
-        metaDescription,
-        tags: tags || [],
-      },
+      data: toProductCreateData(parsed.data),
     });
 
-    return NextResponse.json({ product }, { status: 201 });
+    return NextResponse.json({ product: normalizeProduct(product) }, { status: 201 });
   } catch (error) {
     console.error("Create product error:", error);
     return NextResponse.json(

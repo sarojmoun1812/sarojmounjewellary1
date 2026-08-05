@@ -15,8 +15,8 @@ interface LeadCapturePopupProps {
 export function LeadCapturePopup({
   isOpen,
   onClose,
-  title = "Get Exclusive Offers",
-  description = "Leave your details and get 10% off on your first purchase!",
+  title = "Need Help Choosing?",
+  description = "Leave your number and we'll help you find the right piece on WhatsApp.",
   source = "POPUP",
 }: LeadCapturePopupProps) {
   const [formData, setFormData] = useState({

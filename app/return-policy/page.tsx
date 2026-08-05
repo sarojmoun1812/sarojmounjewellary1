@@ -147,13 +147,13 @@ export default function ReturnPolicyPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Refund Process</h2>
               <div className="space-y-4 text-gray-700">
                 <div className="bg-powder-50 p-6 rounded-xl">
-                  <p className="font-semibold text-powder-700 mb-3">Prepaid Orders</p>
-                  <p>Refund will be credited to your original payment method (Card/UPI/Net Banking) within 7-10 business days after quality check.</p>
-                </div>
-                
-                <div className="bg-powder-50 p-6 rounded-xl">
-                  <p className="font-semibold text-powder-700 mb-3">Cash on Delivery (COD)</p>
-                  <p>Refund will be processed via bank transfer (NEFT/IMPS). Please provide your bank account details.</p>
+                  <p className="font-semibold text-powder-700 mb-3">How refunds are made</p>
+                  <p>
+                    Once the returned piece passes our quality check, the refund
+                    is sent back the same way you paid — by UPI or bank transfer
+                    (NEFT/IMPS) — within 7-10 business days. We will confirm the
+                    details with you on WhatsApp.
+                  </p>
                 </div>
 
                 <p className="text-sm text-gray-600 italic mt-4">

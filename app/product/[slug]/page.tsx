@@ -1,6 +1,10 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { normalizeProduct, normalizeProducts } from "@/lib/products";
+import { getCurrentSilverRate } from "@/lib/silver-rate";
+import { calculateProductPrice } from "@/lib/pricing";
+import { getGstSettings } from "@/lib/orders";
 import { ProductDetailClient } from "./product-client";
 import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 
@@ -10,29 +14,28 @@ interface Props {
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const product = await getProduct(params.slug);
+  const raw = await getProduct(params.slug);
 
-  if (!product) {
+  if (!raw) {
     return {
       title: "Product Not Found",
     };
   }
 
+  const product = normalizeProduct(raw);
+  const keywords =
+    product.tags.length > 0
+      ? product.tags.join(", ")
+      : `${product.category}, silver jewellery, 925 silver`;
+
   return {
     title: `${product.name} | Saroj Moun Jewellery`,
     description: product.metaDescription || product.description.slice(0, 160),
-    keywords: (() => {
-      try {
-        const tags = typeof product.tags === "string" ? JSON.parse(product.tags) : product.tags;
-        return Array.isArray(tags) ? tags.join(", ") : `${product.category}, silver jewellery, 925 silver`;
-      } catch {
-        return `${product.category}, silver jewellery, 925 silver`;
-      }
-    })(),
+    keywords,
     openGraph: {
       title: product.name,
       description: product.description.slice(0, 200),
-      images: product.images.length > 0 ? [product.images[0]] : ["/peacock-jewellery.jpeg"],
+      ...(product.images.length > 0 ? { images: [product.images[0]] } : {}),
       type: "website",
     },
   };
@@ -47,17 +50,6 @@ async function getProduct(slug: string) {
   } catch (error) {
     console.error("Error fetching product:", error);
     return null;
-  }
-}
-
-async function getSilverRate() {
-  try {
-    const rate = await prisma.silverRate.findFirst({
-      orderBy: { updatedAt: "desc" },
-    });
-    return rate?.ratePerGram || 95;
-  } catch {
-    return 95;
   }
 }
 
@@ -79,37 +71,21 @@ async function getRelatedProducts(category: string, currentId: string) {
 }
 
 export default async function ProductPage({ params }: Props) {
-  const [product, silverRate] = await Promise.all([
+  const [product, silverRateInfo, gst] = await Promise.all([
     getProduct(params.slug),
-    getSilverRate(),
+    getCurrentSilverRate(),
+    getGstSettings(),
   ]);
 
   if (!product) {
     notFound();
   }
 
+  const silverRate = silverRateInfo.ratePerGram;
   const relatedProducts = await getRelatedProducts(product.category, product.id);
 
-  const parseJsonField = (field: string): string[] => {
-    try {
-      const parsed = JSON.parse(field);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  };
-
-  const parsedProduct = {
-    ...product,
-    images: parseJsonField(product.images),
-    tags: parseJsonField(product.tags),
-  };
-
-  const parsedRelated = relatedProducts.map((p) => ({
-    ...p,
-    images: parseJsonField(p.images),
-    tags: parseJsonField(p.tags),
-  }));
+  const parsedProduct = normalizeProduct(product);
+  const parsedRelated = normalizeProducts(relatedProducts);
 
   const breadcrumbs = [
     { name: "Home", url: "https://sarojmoun.com" },
@@ -126,7 +102,18 @@ export default async function ProductPage({ params }: Props) {
           description: parsedProduct.description,
           images: parsedProduct.images,
           slug: parsedProduct.slug,
-          price: parsedProduct.silverWeight * silverRate + parsedProduct.makingCharges / 100,
+          // Must match the price shown on the page, or Google flags a mismatch.
+          price: (
+            calculateProductPrice(
+              {
+                silverWeight: parsedProduct.silverWeight,
+                makingCharges: parsedProduct.makingCharges,
+                profitPerGram: parsedProduct.profitPerGram,
+                fixedPrice: parsedProduct.fixedPrice ?? undefined,
+              },
+              silverRate
+            ).finalPrice / 100
+          ).toFixed(2),
           inStock: parsedProduct.stock > 0,
         }}
       />
@@ -135,6 +122,7 @@ export default async function ProductPage({ params }: Props) {
       <ProductDetailClient
         product={parsedProduct as any}
         silverRate={silverRate}
+        gst={gst}
         relatedProducts={parsedRelated as any}
       />
     </>

@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
+import {
+  normalizeProduct,
+  productUpdateSchema,
+  toProductUpdateData,
+} from "@/lib/products";
 
 // GET /api/admin/products/[id] - Get single product
 export async function GET(
@@ -23,7 +28,7 @@ export async function GET(
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ product });
+    return NextResponse.json({ product: normalizeProduct(product) });
   } catch (error) {
     console.error("Get product error:", error);
     return NextResponse.json(
@@ -45,9 +50,19 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const body = await request.json();
 
-    // Check if product exists
+    const parsed = productUpdateSchema.safeParse(await request.json());
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error: parsed.error.errors[0]?.message ?? "Invalid product details",
+          details: parsed.error.errors,
+        },
+        { status: 400 }
+      );
+    }
+
     const existing = await prisma.product.findUnique({
       where: { id },
     });
@@ -56,15 +71,14 @@ export async function PATCH(
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    // Check if slug is being changed and if it already exists
-    if (body.slug && body.slug !== existing.slug) {
+    if (parsed.data.slug && parsed.data.slug !== existing.slug) {
       const slugExists = await prisma.product.findUnique({
-        where: { slug: body.slug },
+        where: { slug: parsed.data.slug },
       });
 
       if (slugExists) {
         return NextResponse.json(
-          { error: "Product with this slug already exists" },
+          { error: "A product with this URL name already exists" },
           { status: 400 }
         );
       }
@@ -72,10 +86,10 @@ export async function PATCH(
 
     const product = await prisma.product.update({
       where: { id },
-      data: body,
+      data: toProductUpdateData(parsed.data),
     });
 
-    return NextResponse.json({ product });
+    return NextResponse.json({ product: normalizeProduct(product) });
   } catch (error) {
     console.error("Update product error:", error);
     return NextResponse.json(

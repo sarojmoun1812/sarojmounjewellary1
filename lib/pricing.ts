@@ -1,7 +1,44 @@
 /**
  * Dynamic Pricing Utilities for Silver Jewellery
  * Calculates product prices based on current silver rate
+ *
+ * Client-safe: no database or server-only imports. The server-side rate lookup
+ * lives in lib/silver-rate.ts and reuses the constants below.
  */
+
+/**
+ * Used only when no rate has ever been recorded. Every product price derives
+ * from the rate, so a value that is too low sells stock below the cost of its
+ * own metal — review this against the market when it changes materially.
+ * Indian retail silver, reviewed 3 Aug 2026 (~₹235/g across metros).
+ */
+export const FALLBACK_SILVER_RATE_PER_GRAM = 235;
+
+/** A rate outside this band is treated as a bad feed, not a market move. */
+export const PLAUSIBLE_MIN_RATE_PER_GRAM = 50;
+export const PLAUSIBLE_MAX_RATE_PER_GRAM = 5000;
+
+export function isPlausibleRate(rate: unknown): rate is number {
+  return (
+    typeof rate === "number" &&
+    Number.isFinite(rate) &&
+    rate >= PLAUSIBLE_MIN_RATE_PER_GRAM &&
+    rate <= PLAUSIBLE_MAX_RATE_PER_GRAM
+  );
+}
+
+/**
+ * Rounds paise to a whole rupee.
+ *
+ * Every price on the site is displayed to the nearest rupee, and the WhatsApp
+ * message is the customer's copy of the bill. If an amount carries paise, the
+ * figure she quotes and the figure stored against the order differ, and nobody
+ * can see why. Keeping the stored amounts on whole rupees makes the displayed
+ * price exact rather than rounded.
+ */
+export function roundToRupee(paise: number): number {
+  return Math.round(paise / 100) * 100;
+}
 
 export interface ProductPricing {
   silverWeight: number; // grams
@@ -49,11 +86,12 @@ export function calculateProductPrice(
   // Add making charges
   const subtotal = silverCost + product.makingCharges;
 
-  // Calculate profit (₹ per gram * weight, converted to paise)
-  const profit = Math.round(product.profitPerGram * product.silverWeight * 100);
-
-  // Final price
-  const finalPrice = subtotal + profit;
+  // Profit is derived from the rounded total rather than the other way round,
+  // so silverCost + makingCharges + profit always equals finalPrice and the
+  // breakdown shown on the product page adds up to the price charged.
+  const rawProfit = Math.round(product.profitPerGram * product.silverWeight * 100);
+  const finalPrice = roundToRupee(subtotal + rawProfit);
+  const profit = finalPrice - subtotal;
 
   return {
     silverCost,
@@ -123,23 +161,21 @@ export async function fetchSilverRate(): Promise<number> {
   try {
     // Check cache first
     const cached = getCachedSilverRate();
-    if (cached) return cached;
+    if (isPlausibleRate(cached)) return cached;
 
     // Fetch from API
     const response = await fetch("/api/silver-rate");
     const data = await response.json();
 
-    if (data.success && data.ratePerGram) {
-      // Cache the rate
+    if (isPlausibleRate(data?.ratePerGram)) {
       cacheSilverRate(data.ratePerGram);
       return data.ratePerGram;
     }
 
-    // Fallback rate
-    return 95.0;
+    return FALLBACK_SILVER_RATE_PER_GRAM;
   } catch (error) {
     console.error("Error fetching silver rate:", error);
-    return 95.0; // Fallback
+    return FALLBACK_SILVER_RATE_PER_GRAM;
   }
 }
 

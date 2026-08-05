@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     default: "Saroj Moun - Premium Silver Jewellery | Handcrafted 925 Silver Jewelry",
     template: "%s | Saroj Moun Jewellery"
   },
-  description: "Shop authentic handcrafted 925 silver jewellery at Saroj Moun. Hallmark certified necklaces, earrings, rings & bangles with transparent pricing. Based in Jind, Haryana. Free shipping above ₹5000.",
+  description: "Shop authentic handcrafted 925 silver jewellery at Saroj Moun. Hallmark certified necklaces, earrings, rings & bangles with transparent pricing. Based in Jind, Haryana. Free shipping above ₹2999.",
   keywords: ["silver jewellery", "925 silver", "hallmark silver", "indian jewellery", "handcrafted jewellery", "silver necklace", "silver earrings", "silver rings", "saroj moun", "jind jewellery", "haryana silver jewellery"],
   authors: [{ name: "Saroj Moun Jewellery" }],
   creator: "Saroj Moun Jewellery",
@@ -36,22 +36,14 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: "https://sarojmoun.com",
     title: "Saroj Moun - Premium Silver Jewellery | Handcrafted 925 Silver",
-    description: "Shop authentic handcrafted 925 silver jewellery with hallmark certification. Transparent pricing based on live silver rates. Free shipping above ₹5000.",
+    description: "Shop authentic handcrafted 925 silver jewellery with hallmark certification. Transparent pricing based on live silver rates. Free shipping above ₹2999.",
     siteName: "Saroj Moun Jewellery",
-    images: [
-      {
-        url: "/peacock-jewellery.jpeg",
-        width: 1200,
-        height: 630,
-        alt: "Saroj Moun Silver Jewellery Collection"
-      }
-    ]
+    // Images come from app/opengraph-image.tsx, which renders at a true 1200x630.
   },
   twitter: {
     card: "summary_large_image",
     title: "Saroj Moun - Premium Silver Jewellery",
     description: "Shop authentic handcrafted 925 silver jewellery with hallmark certification",
-    images: ["/peacock-jewellery.jpeg"]
   },
   robots: {
     index: true,
@@ -64,9 +56,11 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  verification: {
-    google: "your-google-verification-code", // Add when you set up Google Search Console
-  }
+  // Omitted unless the real token is configured. A placeholder here publishes a
+  // meta tag that fails verification rather than simply being absent.
+  verification: process.env.GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+    : undefined,
 };
 
 export default function RootLayout({

@@ -94,7 +94,7 @@ export default function AboutPage() {
               {
                 icon: Shield,
                 title: "Trust",
-                body: "Transparent pricing, secure payments, and hassle-free returns build lasting relationships.",
+                body: "Transparent pricing, a real person on the other end, and hassle-free returns build lasting relationships.",
               },
             ].map((v) => (
               <StaggerItem key={v.title}>
@@ -151,7 +151,7 @@ export default function AboutPage() {
               { t: "100% hallmarked", d: "Certified silver in every piece" },
               { t: "Transparent pricing", d: "Live silver rates with clear breakdowns" },
               { t: "Beautiful packaging", d: "Gifting-ready presentation" },
-              { t: "Secure payments", d: "Trusted checkout with COD where available" },
+              { t: "Order on WhatsApp", d: "Talk to us directly before you pay" },
               { t: "Fast delivery", d: "Reliable shipping across India" },
               { t: "Easy returns", d: "7-day return window" },
               { t: "Warranty", d: "Support for manufacturing defects" },
@@ -182,7 +182,7 @@ export default function AboutPage() {
           </Reveal>
           <Reveal>
             <div className="overflow-hidden rounded-[1.5rem] border border-ivory-200/80 shadow-lg">
-              <GoogleMap address="B-90 Police Colony, Jind, Haryana 126102, India" height="450px" showInfoCard />
+              <GoogleMap height="450px" showInfoCard />
             </div>
           </Reveal>
         </div>

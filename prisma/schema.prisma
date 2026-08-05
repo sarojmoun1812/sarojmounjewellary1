@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -60,14 +60,14 @@ model Order {
   customer        Customer    @relation(fields: [customerId], references: [id])
   customerId      String
   items           OrderItem[]
-  subtotal        Int         // in paise
+  subtotal        Int         // in paise, before GST
+  tax             Int         @default(0) // GST in paise
+  taxRate         Float       @default(0) // percent applied, recorded for the invoice
   shipping        Int         @default(0)
   total           Int
   status          String      @default("PENDING") // PENDING, CONFIRMED, PROCESSING, SHIPPED, DELIVERED, CANCELLED
-  paymentMethod   String      // COD, PREPAID
+  paymentMethod   String      // WHATSAPP, COD
   paymentStatus   String      @default("PENDING") // PENDING, PAID, FAILED, REFUNDED
-  razorpayOrderId String?
-  razorpayPaymentId String?
   shippingAddress String      // JSON string: { name, phone, address, city, state, pincode }
   notes           String?
   createdAt       DateTime    @default(now())
@@ -183,7 +183,15 @@ model SiteSettings {
   whatsapp        String?
   email           String?
   address         String?
-  gst             String?
+  gst             String?  // GSTIN, shown on invoices and in the footer
+  // Zero because this is an unregistered personal business. Collecting GST
+  // without a GSTIN is an offence, so this stays 0 until she registers; 3% is
+  // the correct rate for silver jewellery (HSN 7113) if she ever does.
+  gstRate          Float   @default(0)
+  // Whether the catalogue price already contains GST. Product prices are built
+  // from silver cost + making + profit, which is a pre-tax figure, so the
+  // default adds GST as a separate line rather than absorbing it.
+  gstInclusive     Boolean @default(false)
   shippingCharge  Int      @default(0)
   freeShippingMin Int?     // minimum order for free shipping in paise
   socialFacebook  String?

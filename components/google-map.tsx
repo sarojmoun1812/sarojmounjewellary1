@@ -2,30 +2,41 @@
 
 import { useState } from "react";
 import { MapPin, Navigation, Phone, Clock } from "lucide-react";
+import {
+  ADDRESS_LINES,
+  ADDRESS_ONE_LINE,
+  BUSINESS_NAME,
+  PHONE_DISPLAY,
+  PHONE_NUMBER,
+  STORE_HOURS,
+} from "@/lib/constants";
 
 interface GoogleMapProps {
   address?: string;
-  latitude?: number;
-  longitude?: number;
   zoom?: number;
   height?: string;
   showInfoCard?: boolean;
 }
 
 export function GoogleMap({
-  address = "B-90 Police Colony, Jind, Haryana 126102, India",
-  latitude = 29.3159,
-  longitude = 76.3234,
+  address = ADDRESS_ONE_LINE,
   zoom = 15,
   height = "400px",
   showInfoCard = true,
 }: GoogleMapProps) {
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Create embed URL for Google Maps
-  const mapUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(
-    address
-  )}&zoom=${zoom}`;
+  // The keyless embed is used by default so the map works without anyone having
+  // to set up a Google Cloud project. Setting NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+  // switches to the official Embed API, which allows finer control.
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  const mapUrl = apiKey
+    ? `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(
+        address
+      )}&zoom=${zoom}`
+    : `https://maps.google.com/maps?q=${encodeURIComponent(
+        address
+      )}&z=${zoom}&output=embed`;
 
   // Direct link for "Get Directions"
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
@@ -100,9 +111,14 @@ export function GoogleMap({
               <div>
                 <h4 className="font-semibold text-gray-900">Visit Our Store</h4>
                 <p className="text-gray-600 text-sm mt-1">
-                  Saroj Moun Jewellery<br />
-                  B-90 Police Colony, Jind<br />
-                  Haryana 126102, India
+                  {BUSINESS_NAME}
+                  <br />
+                  {ADDRESS_LINES.map((line) => (
+                    <span key={line}>
+                      {line}
+                      <br />
+                    </span>
+                  ))}
                 </p>
               </div>
             </div>
@@ -114,8 +130,9 @@ export function GoogleMap({
               <div>
                 <h4 className="font-semibold text-gray-900">Call Us</h4>
                 <p className="text-gray-600 text-sm mt-1">
-                  +91 98765 43210<br />
-                  +91 12345 67890
+                  <a href={`tel:${PHONE_NUMBER}`} className="hover:text-powder-600">
+                    {PHONE_DISPLAY}
+                  </a>
                 </p>
               </div>
             </div>
@@ -127,8 +144,12 @@ export function GoogleMap({
               <div>
                 <h4 className="font-semibold text-gray-900">Store Hours</h4>
                 <p className="text-gray-600 text-sm mt-1">
-                  Mon - Sat: 10 AM - 8 PM<br />
-                  Sunday: 11 AM - 6 PM
+                  {STORE_HOURS.map(({ days, hours }) => (
+                    <span key={days}>
+                      {days}: {hours}
+                      <br />
+                    </span>
+                  ))}
                 </p>
               </div>
             </div>

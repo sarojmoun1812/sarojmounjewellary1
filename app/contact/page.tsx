@@ -5,6 +5,7 @@ import { useState } from "react";
 import { GoogleMap } from "@/components/google-map";
 import { Reveal, StaggerReveal, StaggerItem } from "@/components/reveal";
 import { revealLeft, revealRight } from "@/lib/motion";
+import { PHONE_NUMBER, WHATSAPP_NUMBER } from "@/lib/constants";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -83,7 +84,7 @@ export default function ContactPage() {
               </div>
               <h3 className="text-lg font-heading font-medium text-charcoal-900">Phone</h3>
               <p className="mt-2 text-sm text-charcoal-600">Call us for immediate assistance</p>
-              <a href="tel:+918168790171" className="mt-4 inline-block font-medium text-champagne-700 hover:text-champagne-600">
+              <a href={`tel:${PHONE_NUMBER}`} className="mt-4 inline-block font-medium text-champagne-700 hover:text-champagne-600">
                 +91 81687 90171
               </a>
               <p className="mt-2 text-xs text-charcoal-500">Mon–Sat, 10 AM – 6 PM IST</p>
@@ -113,7 +114,7 @@ export default function ContactPage() {
               <h3 className="text-lg font-heading font-medium text-charcoal-900">WhatsApp</h3>
               <p className="mt-2 text-sm text-charcoal-600">Chat with us instantly</p>
               <a
-                href="https://wa.me/918168790171"
+                href={`https://wa.me/${WHATSAPP_NUMBER}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-4 inline-block font-medium text-emerald-700 hover:text-emerald-600"
@@ -289,25 +290,22 @@ export default function ContactPage() {
             </div>
 
             <div className="overflow-hidden rounded-[2rem] border border-ivory-200/80 shadow-lg">
-              <GoogleMap
-                address="B-90 Police Colony, Jind, Haryana 126102, India"
-                latitude={29.3159}
-                longitude={76.3234}
-                height="300px"
-                showInfoCard={false}
-              />
+              <GoogleMap height="300px" showInfoCard={false} />
             </div>
 
             <div className="rounded-[2rem] border border-champagne-300/40 bg-gradient-to-br from-charcoal-900 to-charcoal-950 p-8 text-ivory-50 shadow-xl">
               <h3 className="text-2xl font-heading font-light">Quick questions?</h3>
               <p className="mt-3 text-ivory-100/75">
-                Check our FAQ for instant answers about orders, shipping, returns, and more.
+                Message us on WhatsApp for the fastest answer about sizing, an order, or a
+                return.
               </p>
               <a
-                href="/faq"
+                href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="mt-6 inline-flex items-center gap-2 rounded-full bg-ivory-50 px-6 py-3 text-sm font-medium text-charcoal-900 transition-colors hover:bg-champagne-200"
               >
-                View FAQ
+                Chat on WhatsApp
                 <Send className="h-4 w-4" />
               </a>
             </div>

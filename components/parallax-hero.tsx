@@ -16,7 +16,7 @@ interface ParallaxHeroProps {
 }
 
 export function ParallaxHero({
-  imageSrc = "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1920&q=80",
+  imageSrc = "/peacock-jewellery.jpeg",
   title = "Everyday Silver, Elevated.",
   subtitle = "Discover our exclusive collection of handcrafted silver jewellery",
   height = "100vh",

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Gift, Phone, User, Loader2, CheckCircle, Percent } from "lucide-react";
+import { X, Phone, User, Loader2, CheckCircle, MessageCircle } from "lucide-react";
 
 export function ExitIntentPopup() {
   const [isOpen, setIsOpen] = useState(false);
@@ -110,13 +110,13 @@ export function ExitIntentPopup() {
             
             <div className="relative">
               <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-champagne-400 to-champagne-600 rounded-2xl mb-4 shadow-lg">
-                <Percent className="h-10 w-10 text-charcoal-900" />
+                <MessageCircle className="h-10 w-10 text-charcoal-900" />
               </div>
               <h3 className="text-3xl font-heading font-light text-ivory-50 mb-2">
-                Wait! Don&apos;t Go!
+                Looking for something particular?
               </h3>
               <p className="text-champagne-400 text-lg font-medium">
-                Get ₹500 OFF your first order
+                Tell us and we&apos;ll help you find it
               </p>
             </div>
           </div>
@@ -133,20 +133,18 @@ export function ExitIntentPopup() {
                   <CheckCircle className="h-8 w-8 text-green-600" />
                 </div>
                 <h4 className="text-xl font-bold text-charcoal-900 mb-2">
-                  Your Coupon is Ready!
+                  Thank you — we have your number
                 </h4>
-                <p className="text-charcoal-600 mb-4">
-                  We&apos;ve sent your exclusive discount code via WhatsApp.
+                <p className="text-charcoal-600">
+                  Saroj will message you on WhatsApp to help you find the right
+                  piece.
                 </p>
-                <div className="bg-champagne-100 rounded-xl p-4">
-                  <p className="text-sm text-charcoal-600 mb-1">Your coupon code:</p>
-                  <p className="text-2xl font-bold text-champagne-600">WELCOME500</p>
-                </div>
               </motion.div>
             ) : (
               <>
                 <p className="text-charcoal-600 text-center mb-6">
-                  Share your details and get an exclusive discount on handcrafted silver jewellery!
+                  Leave your number and we&apos;ll help you pick a piece, check
+                  a size, or make something to order.
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -186,8 +184,8 @@ export function ExitIntentPopup() {
                       </>
                     ) : (
                       <>
-                        <Gift className="h-5 w-5" />
-                        Claim My ₹500 OFF
+                        <MessageCircle className="h-5 w-5" />
+                        Ask Saroj
                       </>
                     )}
                   </button>

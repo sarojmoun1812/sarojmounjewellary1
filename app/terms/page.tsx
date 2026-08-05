@@ -55,13 +55,19 @@ export default function TermsPage() {
                 <ul className="list-disc list-inside space-y-2 ml-4">
                   <li>All orders are subject to availability and confirmation</li>
                   <li>We reserve the right to refuse or cancel any order</li>
-                  <li>Order confirmation will be sent via email/SMS</li>
+                  <li>Orders are placed and confirmed over WhatsApp</li>
                 </ul>
-                <p className="mt-4"><strong>Payment Methods:</strong></p>
+                <p className="mt-4"><strong>Payment:</strong></p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Credit/Debit Cards, UPI, Net Banking (via Razorpay)</li>
-                  <li>Cash on Delivery (COD) available on select orders</li>
-                  <li>All payments are processed securely</li>
+                  <li>No payment is taken on this website</li>
+                  <li>
+                    Once we confirm your order on WhatsApp, we will agree the
+                    payment method and amount with you directly
+                  </li>
+                  <li>
+                    Prices shown are based on the current silver rate and are
+                    confirmed at the time we accept your order
+                  </li>
                 </ul>
               </div>
             </section>
@@ -73,7 +79,7 @@ export default function TermsPage() {
                   <li>We ship across India via trusted courier partners</li>
                   <li>Delivery timeline: 5-7 business days (metro cities), 7-10 days (other locations)</li>
                   <li>Shipping charges applicable as per order value</li>
-                  <li>Free shipping on orders above ₹5,000</li>
+                  <li>Free shipping on orders above ₹2,999</li>
                   <li>Orders are insured during transit</li>
                 </ul>
               </div>

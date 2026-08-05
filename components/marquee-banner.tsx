@@ -2,13 +2,15 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 
+// Every claim here has to be one we actually honour, since it scrolls past on
+// every page. "Lifetime free polish" and "100% authentic" were removed because
+// no policy on the site backs either of them.
 const marqueeItems = [
   "925 HALLMARKED SILVER",
   "FREE SHIPPING OVER ₹2999",
-  "HANDCRAFTED WITH LOVE",
-  "LIFETIME POLISH FREE",
+  "HANDCRAFTED IN JIND, HARYANA",
   "7 DAY EASY RETURNS",
-  "100% AUTHENTIC",
+  "ORDER ON WHATSAPP",
 ];
 
 export function MarqueeBanner() {

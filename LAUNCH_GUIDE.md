@@ -146,7 +146,7 @@ Test everything in the checklist below ✓
 - [ ] Appears when mouse leaves page (desktop)
 - [ ] Appears after 30 seconds (mobile)
 - [ ] Form submits successfully
-- [ ] Shows ₹500 discount code (WELCOME500)
+- [ ] Confirms we have her number (no coupon is promised — none exists)
 - [ ] Saves to database with source: "EXIT_INTENT"
 - [ ] Doesn't show again after submission
 
@@ -410,13 +410,14 @@ NEXT_PUBLIC_BASE_URL=https://your-site.vercel.app
 ## 🆘 TROUBLESHOOTING
 
 ### Issue: Admin can't login
-**Fix:** Run this to create admin account:
+**Fix:** Create or reset the admin account. `AUTH_SECRET` must be the same
+value the app runs with, otherwise the password will never match at login.
+
 ```bash
-curl http://localhost:3000/api/admin/init
+ADMIN_EMAIL=her@email.com ADMIN_PASSWORD='a-long-unique-password' node scripts/create-admin.js
 ```
-Then login with:
-- Email: admin@sarojmoun.com
-- Password: admin123 (change this!)
+
+There is no default password. Never commit real credentials to this repo.
 
 ### Issue: Images won't upload
 **Fix:** Check Cloudinary credentials are correct

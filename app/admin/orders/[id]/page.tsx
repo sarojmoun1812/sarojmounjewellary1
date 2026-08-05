@@ -210,13 +210,6 @@ export default async function OrderDetailPage({
                   {order.paymentStatus}
                 </span>
               </div>
-              {order.razorpayPaymentId && (
-                <div className="pt-2 border-t border-gray-100">
-                  <p className="text-xs text-gray-500">
-                    Razorpay ID: {order.razorpayPaymentId}
-                  </p>
-                </div>
-              )}
             </div>
           </div>
         </div>

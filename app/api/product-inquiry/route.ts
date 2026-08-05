@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 // POST /api/product-inquiry - Submit product inquiry
 export async function POST(request: NextRequest) {
   try {
+    const limited = enforceRateLimit(request, "product-inquiry", {
+      limit: 5,
+      windowMs: 10 * 60 * 1000,
+    });
+    if (limited) return limited;
+
     const body = await request.json();
     const { productId, name, email, phone, message } = body;
 

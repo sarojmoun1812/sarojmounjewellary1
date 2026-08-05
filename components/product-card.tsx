@@ -61,7 +61,8 @@ export function ProductCard({ id, name, slug, price, image, badge }: ProductCard
               e.stopPropagation();
               setLiked(!liked);
             }}
-            className="absolute top-3 right-3 w-9 h-9 bg-white/90 hover:bg-white flex items-center justify-center rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-300"
+            className="absolute top-3 right-3 w-9 h-9 bg-white/90 hover:bg-white flex items-center justify-center rounded-full shadow-sm transition-all duration-300 can-hover:opacity-0 can-hover:group-hover:opacity-100"
+            aria-label={liked ? `Remove ${name} from wishlist` : `Add ${name} to wishlist`}
           >
             <Heart
               className={`h-4 w-4 transition-colors ${liked ? "fill-champagne-600 text-champagne-600" : "text-charcoal-600"}`}
@@ -69,7 +70,7 @@ export function ProductCard({ id, name, slug, price, image, badge }: ProductCard
           </button>
 
           {/* Quick add to cart */}
-          <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+          <div className="absolute bottom-0 left-0 right-0 transition-transform duration-300 can-hover:translate-y-full can-hover:group-hover:translate-y-0">
             <button
               onClick={handleAddToCart}
               className="w-full bg-charcoal-900/90 backdrop-blur-sm text-ivory-50 text-xs font-medium tracking-wider uppercase py-3.5 flex items-center justify-center gap-2 hover:bg-charcoal-900 transition-colors"
@@ -89,9 +90,6 @@ export function ProductCard({ id, name, slug, price, image, badge }: ProductCard
             <p className="text-base font-semibold text-charcoal-900">
               {formatPrice(price)}
             </p>
-            <span className="text-xs text-charcoal-400 line-through">
-              {formatPrice(Math.round(price * 1.25))}
-            </span>
           </div>
         </div>
       </Link>

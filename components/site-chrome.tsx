@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import WhatsAppButton from "@/components/whatsapp-button";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { FloatingCTA } from "@/components/floating-cta";
@@ -23,9 +22,11 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
       <MarqueeBanner />
       <main className="min-h-screen pb-16 md:pb-0">
         <PageTransition>{children}</PageTransition>
-        <WhatsAppButton />
       </main>
       <Footer />
+      {/* FloatingCTA is the only floating contact control. It previously shared
+          the exact same bottom-6/right-6 slot as WhatsAppButton, so the two sat
+          on top of each other. */}
       <FloatingCTA />
       <ExitIntentPopup />
     </>

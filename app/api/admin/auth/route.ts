@@ -7,10 +7,20 @@ import {
   hashPassword,
 } from "@/lib/auth";
 import { cookies } from "next/headers";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 // POST /api/admin/auth - Login
 export async function POST(request: NextRequest) {
   try {
+    // The admin panel has a single account, so an unthrottled login form is a
+    // straightforward offline-speed guessing target.
+    const limited = enforceRateLimit(request, "admin-login", {
+      limit: 8,
+      windowMs: 15 * 60 * 1000,
+      message: "Too many login attempts. Please wait 15 minutes and try again.",
+    });
+    if (limited) return limited;
+
     const body = await request.json();
     const { email, password } = body;
 

@@ -1,17 +1,27 @@
 import { PrismaClient } from "@prisma/client";
+import { FALLBACK_SILVER_RATE_PER_GRAM } from "../lib/pricing";
 
 const prisma = new PrismaClient();
+
+/**
+ * Seeded products deliberately share one obvious placeholder rather than stock
+ * photos of other people's jewellery. Pretty stock images made the catalogue
+ * look finished, which is how it shipped with none of her own photography.
+ */
+const PLACEHOLDER_IMAGE = "/peacock-jewellery.jpeg";
 
 async function main() {
   console.log("🌱 Seeding database...");
 
-  // Create initial silver rate
+  // Create initial silver rate.
+  // This must track the real market rate — every product price derives from it,
+  // so a value that is too low sells stock below the cost of its own metal.
   const silverRate = await prisma.silverRate.upsert({
     where: { id: "initial-rate" },
-    update: {},
+    update: { ratePerGram: FALLBACK_SILVER_RATE_PER_GRAM },
     create: {
       id: "initial-rate",
-      ratePerGram: 95.0,
+      ratePerGram: FALLBACK_SILVER_RATE_PER_GRAM,
       source: "Initial Seed",
     },
   });
@@ -48,7 +58,7 @@ async function main() {
       profitPerGram: 100,
       category: "Necklaces",
       images: [
-        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80",
+        PLACEHOLDER_IMAGE,
       ],
       stock: 5,
       material: "925 Sterling Silver",
@@ -67,7 +77,7 @@ async function main() {
       profitPerGram: 100,
       category: "Kadas",
       images: [
-        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800&q=80",
+        PLACEHOLDER_IMAGE,
       ],
       stock: 8,
       material: "925 Sterling Silver",
@@ -86,7 +96,7 @@ async function main() {
       profitPerGram: 100,
       category: "Earrings",
       images: [
-        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&q=80",
+        PLACEHOLDER_IMAGE,
       ],
       stock: 12,
       material: "925 Sterling Silver",
@@ -105,7 +115,7 @@ async function main() {
       profitPerGram: 100,
       category: "Rings",
       images: [
-        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80",
+        PLACEHOLDER_IMAGE,
       ],
       stock: 20,
       material: "925 Sterling Silver (Oxidized)",
@@ -124,7 +134,7 @@ async function main() {
       profitPerGram: 100,
       category: "Necklaces",
       images: [
-        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80",
+        PLACEHOLDER_IMAGE,
       ],
       stock: 15,
       material: "925 Sterling Silver",
@@ -143,7 +153,7 @@ async function main() {
       profitPerGram: 100,
       category: "Earrings",
       images: [
-        "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=800&q=80",
+        PLACEHOLDER_IMAGE,
       ],
       stock: 7,
       material: "925 Sterling Silver",
@@ -162,7 +172,7 @@ async function main() {
       profitPerGram: 100,
       category: "Kadas",
       images: [
-        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800&q=80",
+        PLACEHOLDER_IMAGE,
       ],
       stock: 6,
       material: "925 Sterling Silver",
@@ -181,7 +191,7 @@ async function main() {
       profitPerGram: 100,
       category: "Rings",
       images: [
-        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80",
+        PLACEHOLDER_IMAGE,
       ],
       stock: 10,
       material: "925 Sterling Silver",

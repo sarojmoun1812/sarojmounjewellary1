@@ -17,6 +17,13 @@ const config: Config = {
       },
     },
     extend: {
+      screens: {
+        // Controls revealed on :hover are unreachable on a touchscreen, where
+        // the first tap follows the surrounding link instead. Gate the
+        // hide-until-hover styling on this so those controls stay visible on
+        // phones, which is where most of the traffic is.
+        "can-hover": { raw: "(hover: hover)" },
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

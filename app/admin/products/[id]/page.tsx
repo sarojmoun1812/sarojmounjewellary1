@@ -26,10 +26,11 @@ interface ProductFormData {
   description: string;
   category: string;
   silverWeight: string;
+  /** Rupees in the form; converted to paise on save. */
   makingCharges: string;
   profitPerGram: string;
   images: string[];
-  inStock: boolean;
+  stock: string;
   isActive: boolean;
   bestseller: boolean;
   featured: boolean;
@@ -71,7 +72,7 @@ export default function EditProductPage() {
     makingCharges: "",
     profitPerGram: "100",
     images: [],
-    inStock: true,
+    stock: "0",
     isActive: true,
     bestseller: false,
     featured: false,
@@ -98,22 +99,28 @@ export default function EditProductPage() {
           throw new Error(data.error || "Failed to fetch product");
         }
 
+        const product = data.product;
+
         setFormData({
-          name: data.name || "",
-          slug: data.slug || "",
-          description: data.description || "",
-          category: data.category || "",
-          silverWeight: data.silverWeight?.toString() || "",
-          makingCharges: data.makingCharges?.toString() || "",
-          profitPerGram: data.profitPerGram?.toString() || "100",
-          images: data.images || [],
-          inStock: data.inStock ?? true,
-          isActive: data.isActive ?? true,
-          bestseller: data.bestseller ?? false,
-          featured: data.featured ?? false,
-          metaTitle: data.metaTitle || "",
-          metaDescription: data.metaDescription || "",
-          tags: data.tags?.join(", ") || "",
+          name: product.name || "",
+          slug: product.slug || "",
+          description: product.description || "",
+          category: product.category || "",
+          silverWeight: product.silverWeight?.toString() || "",
+          // Stored in paise, shown in rupees.
+          makingCharges:
+            product.makingCharges != null
+              ? (product.makingCharges / 100).toString()
+              : "",
+          profitPerGram: product.profitPerGram?.toString() || "100",
+          images: product.images || [],
+          stock: product.stock?.toString() ?? "0",
+          isActive: product.isActive ?? true,
+          bestseller: product.bestseller ?? false,
+          featured: product.featured ?? false,
+          metaTitle: product.metaTitle || "",
+          metaDescription: product.metaDescription || "",
+          tags: Array.isArray(product.tags) ? product.tags.join(", ") : "",
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load product");
@@ -128,10 +135,11 @@ export default function EditProductPage() {
   const generateSlug = (name: string) => {
     return name
       .toLowerCase()
+      .trim()
       .replace(/[^a-z0-9\s-]/g, "")
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-")
-      .trim();
+      .replace(/^-|-$/g, "");
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -199,10 +207,11 @@ export default function EditProductPage() {
         description: formData.description,
         category: formData.category,
         silverWeight: parseFloat(formData.silverWeight),
-        makingCharges: parseFloat(formData.makingCharges),
+        // The form takes rupees; the database stores paise.
+        makingCharges: Math.round(parseFloat(formData.makingCharges) * 100),
         profitPerGram: parseFloat(formData.profitPerGram),
         images: formData.images,
-        inStock: formData.inStock,
+        stock: parseInt(formData.stock, 10) || 0,
         isActive: formData.isActive,
         bestseller: formData.bestseller,
         featured: formData.featured,
@@ -212,7 +221,7 @@ export default function EditProductPage() {
       };
 
       const res = await fetch(`/api/admin/products/${productId}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(productData),
       });
@@ -450,6 +459,31 @@ export default function EditProductPage() {
                     placeholder="100"
                   />
                 </div>
+
+                <div>
+                  <label
+                    htmlFor="stock"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Stock (pieces) *
+                  </label>
+                  <input
+                    id="stock"
+                    type="number"
+                    min="0"
+                    step="1"
+                    required
+                    value={formData.stock}
+                    onChange={(e) =>
+                      setFormData({ ...formData, stock: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                    placeholder="0"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Set to 0 to show the piece as sold out.
+                  </p>
+                </div>
               </div>
 
               <p className="text-xs text-gray-500 mt-2">
@@ -550,18 +584,6 @@ export default function EditProductPage() {
                     className="w-5 h-5 rounded text-powder-600 focus:ring-powder-500"
                   />
                   <span className="text-sm">Active (visible on site)</span>
-                </label>
-
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.inStock}
-                    onChange={(e) =>
-                      setFormData({ ...formData, inStock: e.target.checked })
-                    }
-                    className="w-5 h-5 rounded text-powder-600 focus:ring-powder-500"
-                  />
-                  <span className="text-sm">In Stock</span>
                 </label>
 
                 <label className="flex items-center gap-3 cursor-pointer">

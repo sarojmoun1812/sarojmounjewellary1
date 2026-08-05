@@ -14,6 +14,8 @@ interface Settings {
   email: string;
   address: string;
   gst: string;
+  gstRate: string;
+  gstInclusive: boolean;
   shippingCharge: string;
   freeShippingMin: string;
   socialFacebook: string;
@@ -39,6 +41,8 @@ export default function SettingsPage() {
     email: "",
     address: "",
     gst: "",
+    gstRate: "0",
+    gstInclusive: false,
     shippingCharge: "0",
     freeShippingMin: "",
     socialFacebook: "",
@@ -62,6 +66,11 @@ export default function SettingsPage() {
             email: data.settings.email || "",
             address: data.settings.address || "",
             gst: data.settings.gst || "",
+            gstRate:
+              data.settings.gstRate !== undefined && data.settings.gstRate !== null
+                ? String(data.settings.gstRate)
+                : "0",
+            gstInclusive: Boolean(data.settings.gstInclusive),
             shippingCharge: data.settings.shippingCharge
               ? (data.settings.shippingCharge / 100).toString()
               : "0",
@@ -93,6 +102,7 @@ export default function SettingsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...settings,
+          gstRate: parseFloat(settings.gstRate || "0") || 0,
           shippingCharge: Math.round(parseFloat(settings.shippingCharge || "0") * 100),
           freeShippingMin: settings.freeShippingMin
             ? Math.round(parseFloat(settings.freeShippingMin) * 100)
@@ -186,7 +196,53 @@ export default function SettingsPage() {
                   setSettings({ ...settings, gst: e.target.value })
                 }
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                placeholder="06ABCDE1234F1Z5"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                GST Rate (%)
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="28"
+                step="0.5"
+                value={settings.gstRate}
+                onChange={(e) =>
+                  setSettings({ ...settings, gstRate: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Leave this at 0. GST may only be charged once you are registered
+                and have a GSTIN — until then it must not appear on any order.
+                After registering, silver jewellery is 3% (HSN 7113).
+              </p>
+            </div>
+            <div className="md:col-span-2">
+              <label className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={settings.gstInclusive}
+                  onChange={(e) =>
+                    setSettings({ ...settings, gstInclusive: e.target.checked })
+                  }
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-powder-600 focus:ring-powder-500"
+                />
+                <span className="text-sm text-gray-700">
+                  <span className="font-medium">
+                    Product prices already include GST
+                  </span>
+                  <span className="mt-1 block text-xs text-gray-500">
+                    Leave this unticked if your prices are silver cost + making +
+                    profit, which is the pre-tax figure. GST is then shown as a
+                    separate line at checkout. Tick it only if you have already
+                    built the tax into your prices, otherwise you will be charging
+                    it twice.
+                  </span>
+                </span>
+              </label>
             </div>
           </div>
         </div>

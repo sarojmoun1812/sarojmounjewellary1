@@ -23,9 +23,11 @@ import {
 } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { calculateProductPrice, formatPrice } from "@/lib/pricing";
+import type { GstSettings } from "@/lib/tax";
 import { ProductInquiryForm } from "@/components/product-inquiry-form";
 import { Reveal, StaggerItem, StaggerReveal } from "@/components/reveal";
 import { revealLeft, revealRight } from "@/lib/motion";
+import { WHATSAPP_NUMBER } from "@/lib/constants";
 
 interface Product {
   id: string;
@@ -48,12 +50,14 @@ interface Product {
 interface ProductDetailClientProps {
   product: Product;
   silverRate: number;
+  gst: GstSettings;
   relatedProducts: Product[];
 }
 
 export function ProductDetailClient({
   product,
   silverRate,
+  gst,
   relatedProducts,
 }: ProductDetailClientProps) {
   const router = useRouter();
@@ -79,13 +83,16 @@ export function ProductDetailClient({
   const images = product.images.length > 0 ? product.images : ["/peacock-jewellery.jpeg"];
 
   const handleAddToCart = () => {
-    addItem({
-      id: product.id,
-      name: product.name,
-      slug: product.slug,
-      price: priceBreakdown.finalPrice,
-      image: images[0],
-    });
+    addItem(
+      {
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        price: priceBreakdown.finalPrice,
+        image: images[0],
+      },
+      quantity
+    );
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
   };
@@ -252,15 +259,28 @@ export function ProductDetailClient({
                     <span>Making Charges</span>
                     <span>{formatPrice(priceBreakdown.makingCharges)}</span>
                   </div>
+                  {/* Without this line the figures above do not sum to the total,
+                      which undermines the whole point of showing a breakdown. */}
+                  {priceBreakdown.profit > 0 && (
+                    <div className="flex justify-between text-charcoal-600">
+                      <span>Craftsmanship &amp; finishing</span>
+                      <span>{formatPrice(priceBreakdown.profit)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-medium text-charcoal-900 pt-2 border-t border-ivory-200">
-                    <span>Total</span>
+                    <span>{gst.gstInclusive || gst.gstRate <= 0 ? "Total" : "Subtotal"}</span>
                     <span>{formatPrice(priceBreakdown.finalPrice)}</span>
                   </div>
                 </div>
               )}
 
               <p className="text-xs text-charcoal-500 italic">
-                * Prices updated based on live silver rates
+                * Prices follow the live silver rate
+                {gst.gstRate > 0
+                  ? gst.gstInclusive
+                    ? ` and include ${gst.gstRate}% GST`
+                    : `. ${gst.gstRate}% GST is added at checkout`
+                  : ""}
               </p>
             </div>
 
@@ -272,19 +292,29 @@ export function ProductDetailClient({
               <div className="inline-flex items-center gap-4 bg-ivory-100 p-2">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 flex items-center justify-center hover:bg-ivory-200 transition-colors"
+                  className="w-10 h-10 flex items-center justify-center hover:bg-ivory-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   disabled={quantity <= 1}
+                  aria-label="Decrease quantity"
                 >
                   <Minus className="h-4 w-4" />
                 </button>
                 <span className="w-12 text-center font-medium text-lg">{quantity}</span>
                 <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-10 flex items-center justify-center hover:bg-ivory-200 transition-colors"
+                  onClick={() =>
+                    setQuantity(Math.min(product.stock, quantity + 1))
+                  }
+                  className="w-10 h-10 flex items-center justify-center hover:bg-ivory-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  disabled={quantity >= product.stock}
+                  aria-label="Increase quantity"
                 >
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
+              {product.stock > 0 && quantity >= product.stock && (
+                <p className="text-xs text-amber-700 mt-2">
+                  Only {product.stock} in stock.
+                </p>
+              )}
             </div>
 
             {/* Action Buttons */}
@@ -328,7 +358,7 @@ export function ProductDetailClient({
                 </button>
 
                 <a
-                  href={`https://wa.me/918168790171?text=${encodeURIComponent(whatsappMessage)}`}
+                  href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="py-3 bg-green-500 text-white font-medium tracking-wider uppercase hover:bg-green-600 transition-colors flex items-center justify-center gap-2 text-sm"
@@ -384,15 +414,14 @@ export function ProductDetailClient({
                   <span className="text-charcoal-500">Category</span>
                   <span className="font-medium text-charcoal-900 capitalize">{product.category}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-ivory-100">
+                {/* No "Hallmark Certified: Yes" row here — certification is not
+                    recorded per product, so it cannot be asserted per product.
+                    Metal Purity above already states the material. */}
+                <div className="flex justify-between py-2">
                   <span className="text-charcoal-500">Availability</span>
                   <span className={`font-medium ${product.stock > 0 ? "text-green-600" : "text-red-600"}`}>
                     {product.stock > 0 ? "In Stock" : "Out of Stock"}
                   </span>
-                </div>
-                <div className="flex justify-between py-2">
-                  <span className="text-charcoal-500">Hallmark Certified</span>
-                  <span className="font-medium text-champagne-600">✓ Yes</span>
                 </div>
               </div>
             </div>

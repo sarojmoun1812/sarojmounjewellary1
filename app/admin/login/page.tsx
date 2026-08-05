@@ -20,6 +20,7 @@ function LoginForm() {
     email: "",
     password: "",
     name: "",
+    setupToken: "",
   });
 
   useEffect(() => {
@@ -155,6 +156,27 @@ function LoginForm() {
               </div>
             )}
 
+            {needsSetup && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Setup Token
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="password"
+                    value={formData.setupToken}
+                    onChange={(e) =>
+                      setFormData({ ...formData, setupToken: e.target.value })
+                    }
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-powder-500 focus:border-transparent transition-all"
+                    placeholder="From your ADMIN_SETUP_TOKEN setting"
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
@@ -189,7 +211,7 @@ function LoginForm() {
                   className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-powder-500 focus:border-transparent transition-all"
                   placeholder="••••••••"
                   required
-                  minLength={6}
+                  minLength={needsSetup ? 12 : 1}
                 />
                 <button
                   type="button"

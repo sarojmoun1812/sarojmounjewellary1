@@ -1,43 +1,60 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
-  CreditCard,
-  Truck,
-  MapPin,
-  Phone,
-  Mail,
-  User,
-  Home,
-  Check,
-  ChevronRight,
   AlertCircle,
-  Wallet,
-  Building
+  Check,
+  Loader2,
+  MapPin,
+  MessageCircle,
+  ShoppingBag,
+  Truck,
 } from "lucide-react";
+import { useCart } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/pricing";
 
-// Mock cart data - will be replaced with actual cart state
-const mockCartItems = [
-  {
-    id: "1",
-    name: "Elegant Silver Peacock Necklace",
-    price: 4500,
-    quantity: 1,
-    image: "/peacock-jewellery.jpeg",
-    weight: 25.5
-  }
-];
+type QuoteLine = {
+  productId: string;
+  name: string;
+  slug: string;
+  image: string | null;
+  silverWeight: number;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+};
+
+type Quote = {
+  lines: QuoteLine[];
+  subtotal: number;
+  shipping: number;
+  gst: { rate: number; amount: number; inclusive: boolean };
+  total: number;
+  unavailable: { productId: string; name: string | null; reason: string }[];
+};
+
+type PlacedOrder = {
+  orderNumber: string;
+  total: number;
+  whatsappUrl: string;
+};
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const [step, setStep] = useState(1); // 1: Shipping, 2: Payment, 3: Confirmation
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "online">("online");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const { items, removeItem, clearCart } = useCart();
 
-  const [shippingInfo, setShippingInfo] = useState({
+  const [quote, setQuote] = useState<Quote | null>(null);
+  const [isQuoting, setIsQuoting] = useState(true);
+  const [quoteError, setQuoteError] = useState("");
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [placedOrder, setPlacedOrder] = useState<PlacedOrder | null>(null);
+
+  const [form, setForm] = useState({
     fullName: "",
     phone: "",
     email: "",
@@ -45,461 +62,468 @@ export default function CheckoutPage() {
     city: "",
     state: "",
     pincode: "",
-    landmark: ""
+    landmark: "",
+    notes: "",
   });
 
-  // Calculate totals
-  const subtotal = mockCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shippingCost = subtotal >= 5000 ? 0 : subtotal >= 2000 ? 49 : 99;
-  const total = subtotal + shippingCost;
+  // Only product IDs and quantities are sent; the server decides the prices.
+  const cartKey = useMemo(
+    () => items.map((item) => `${item.id}:${item.quantity}`).join(","),
+    [items]
+  );
 
-  const handleShippingSubmit = (e: React.FormEvent) => {
+  const loadQuote = useCallback(async () => {
+    if (items.length === 0) {
+      setQuote(null);
+      setIsQuoting(false);
+      return;
+    }
+
+    setIsQuoting(true);
+    setQuoteError("");
+
+    try {
+      const res = await fetch("/api/cart/quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          items.map((item) => ({ productId: item.id, quantity: item.quantity }))
+        ),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not price your cart");
+
+      setQuote(data);
+
+      // Drop anything the shop can no longer supply so the cart matches reality.
+      for (const gone of data.unavailable ?? []) {
+        removeItem(gone.productId);
+      }
+    } catch (err) {
+      setQuoteError(
+        err instanceof Error ? err.message : "Could not price your cart"
+      );
+    } finally {
+      setIsQuoting(false);
+    }
+    // removeItem is stable (zustand), and cartKey captures the cart contents.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cartKey]);
+
+  useEffect(() => {
+    if (placedOrder) return;
+    loadQuote();
+  }, [loadQuote, placedOrder]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStep(2);
+    setIsSubmitting(true);
+    setSubmitError("");
+
+    try {
+      const hasAddress =
+        form.address && form.city && form.state && form.pincode;
+
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer: {
+            name: form.fullName,
+            phone: form.phone,
+            ...(form.email ? { email: form.email } : {}),
+          },
+          items: items.map((item) => ({
+            productId: item.id,
+            quantity: item.quantity,
+          })),
+          ...(hasAddress
+            ? {
+                shippingAddress: {
+                  address: form.address,
+                  city: form.city,
+                  state: form.state,
+                  pincode: form.pincode,
+                  ...(form.landmark ? { landmark: form.landmark } : {}),
+                },
+              }
+            : {}),
+          ...(form.notes ? { notes: form.notes } : {}),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not place your order");
+
+      setPlacedOrder({
+        orderNumber: data.orderNumber,
+        total: data.total,
+        whatsappUrl: data.whatsappUrl,
+      });
+      clearCart();
+
+      // Open WhatsApp straight away; the confirmation screen keeps a manual link.
+      window.open(data.whatsappUrl, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "Could not place your order"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handlePayment = async () => {
-    setIsProcessing(true);
+  if (placedOrder) {
+    return (
+      <div className="min-h-screen bg-powder-50 py-16">
+        <div className="max-w-xl mx-auto px-4">
+          <div className="bg-white rounded-3xl p-10 text-center">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Check className="h-10 w-10 text-green-600" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-3">
+              Almost done — send us the message
+            </h1>
+            <p className="text-gray-600 mb-8">
+              We&apos;ve saved your order as{" "}
+              <span className="font-semibold text-gray-900">
+                {placedOrder.orderNumber}
+              </span>
+              . WhatsApp should have opened in a new tab. Send the message and
+              we&apos;ll confirm your order and delivery details there.
+            </p>
 
-    // TODO: Implement actual payment logic
-    setTimeout(() => {
-      setIsProcessing(false);
-      setStep(3);
-    }, 2000);
-  };
+            <a
+              href={placedOrder.whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 w-full bg-green-600 text-white py-4 rounded-xl font-semibold hover:bg-green-700 transition-colors"
+            >
+              <MessageCircle className="h-5 w-5" />
+              Open WhatsApp
+            </a>
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setShippingInfo(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
+            <button
+              onClick={() => router.push("/shop")}
+              className="w-full mt-3 bg-white text-powder-700 border-2 border-powder-600 py-4 rounded-xl font-semibold hover:bg-powder-50 transition-colors"
+            >
+              Continue shopping
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isQuoting && (items.length === 0 || !quote || quote.lines.length === 0)) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center">
+        <ShoppingBag className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+        <h1 className="text-2xl font-heading font-bold mb-2">
+          Your cart is empty
+        </h1>
+        <p className="text-gray-600 mb-8">
+          Add a piece you love and we&apos;ll take it from there.
+        </p>
+        <Link
+          href="/shop"
+          className="inline-block bg-powder-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-powder-700 transition-colors"
+        >
+          Browse the collection
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-powder-50 via-white to-powder-100 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-heading font-bold text-gray-900 mb-4">
-            Checkout
+    <div className="min-h-screen bg-powder-50 py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-heading font-bold text-gray-900 mb-3">
+            Complete your order
           </h1>
-          <p className="text-gray-600">Complete your purchase securely</p>
-        </div>
-
-        {/* Progress Steps */}
-        <div className="max-w-3xl mx-auto mb-12">
-          <div className="flex items-center justify-between">
-            {[
-              { num: 1, label: "Shipping" },
-              { num: 2, label: "Payment" },
-              { num: 3, label: "Confirmation" }
-            ].map((s, index) => (
-              <div key={s.num} className="flex items-center flex-1">
-                <div className="flex flex-col items-center flex-1">
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center font-bold transition-colors ${
-                      step >= s.num
-                        ? "bg-powder-600 text-white"
-                        : "bg-gray-200 text-gray-500"
-                    }`}
-                  >
-                    {step > s.num ? <Check className="h-6 w-6" /> : s.num}
-                  </div>
-                  <span className={`mt-2 text-sm font-semibold ${
-                    step >= s.num ? "text-powder-600" : "text-gray-500"
-                  }`}>
-                    {s.label}
-                  </span>
-                </div>
-                {index < 2 && (
-                  <ChevronRight className={`h-6 w-6 ${
-                    step > s.num ? "text-powder-600" : "text-gray-300"
-                  }`} />
-                )}
-              </div>
-            ))}
-          </div>
+          <p className="text-gray-600">
+            Fill in your details and we&apos;ll continue on WhatsApp — no online
+            payment needed.
+          </p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Content */}
           <div className="lg:col-span-2">
-            {/* Step 1: Shipping Information */}
-            {step === 1 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="bg-white rounded-3xl shadow-xl p-8"
-              >
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                  <Truck className="h-7 w-7 text-powder-600" />
-                  Shipping Information
-                </h2>
+            <form
+              onSubmit={handleSubmit}
+              className="bg-white rounded-3xl p-6 sm:p-8 space-y-6"
+            >
+              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-3">
+                <Truck className="h-6 w-6 text-powder-600" />
+                Your details
+              </h2>
 
-                <form onSubmit={handleShippingSubmit} className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      <User className="inline h-4 w-4 mr-1" />
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="fullName"
-                      value={shippingInfo.fullName}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
-                      placeholder="Enter your full name"
-                    />
-                  </div>
+              <div>
+                <label
+                  htmlFor="fullName"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  Full name *
+                </label>
+                <input
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  required
+                  value={form.fullName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
+                  placeholder="Your name"
+                />
+              </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        <Phone className="inline h-4 w-4 mr-1" />
-                        Phone Number *
-                      </label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={shippingInfo.phone}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
-                        placeholder="+91 XXXXX XXXXX"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        <Mail className="inline h-4 w-4 mr-1" />
-                        Email Address *
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={shippingInfo.email}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
-                        placeholder="you@example.com"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      <Home className="inline h-4 w-4 mr-1" />
-                      Complete Address *
-                    </label>
-                    <textarea
-                      name="address"
-                      value={shippingInfo.address}
-                      onChange={handleInputChange}
-                      required
-                      rows={3}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent resize-none"
-                      placeholder="House No., Street, Area"
-                    />
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        City *
-                      </label>
-                      <input
-                        type="text"
-                        name="city"
-                        value={shippingInfo.city}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
-                        placeholder="City"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        State *
-                      </label>
-                      <input
-                        type="text"
-                        name="state"
-                        value={shippingInfo.state}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
-                        placeholder="State"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        <MapPin className="inline h-4 w-4 mr-1" />
-                        PIN Code *
-                      </label>
-                      <input
-                        type="text"
-                        name="pincode"
-                        value={shippingInfo.pincode}
-                        onChange={handleInputChange}
-                        required
-                        pattern="[0-9]{6}"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
-                        placeholder="123456"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Landmark (Optional)
-                      </label>
-                      <input
-                        type="text"
-                        name="landmark"
-                        value={shippingInfo.landmark}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
-                        placeholder="Near..."
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full bg-powder-600 text-white py-4 rounded-xl font-semibold hover:bg-powder-700 transition-colors flex items-center justify-center gap-2"
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    Continue to Payment
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-                </form>
-              </motion.div>
-            )}
-
-            {/* Step 2: Payment Method */}
-            {step === 2 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="space-y-6"
-              >
-                {/* Shipping Summary */}
-                <div className="bg-white rounded-3xl shadow-xl p-6">
-                  <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <Truck className="h-5 w-5 text-powder-600" />
-                    Delivering To:
-                  </h3>
-                  <div className="text-sm text-gray-700 space-y-1">
-                    <p className="font-semibold">{shippingInfo.fullName}</p>
-                    <p>{shippingInfo.address}</p>
-                    <p>{shippingInfo.city}, {shippingInfo.state} - {shippingInfo.pincode}</p>
-                    <p>{shippingInfo.phone} | {shippingInfo.email}</p>
-                  </div>
-                  <button
-                    onClick={() => setStep(1)}
-                    className="text-powder-600 text-sm font-semibold mt-3 hover:text-powder-700"
-                  >
-                    Edit Address
-                  </button>
+                    Mobile number *
+                  </label>
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    inputMode="numeric"
+                    required
+                    value={form.phone}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
+                    placeholder="10-digit mobile number"
+                  />
                 </div>
 
-                {/* Payment Options */}
-                <div className="bg-white rounded-3xl shadow-xl p-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                    <CreditCard className="h-7 w-7 text-powder-600" />
-                    Payment Method
-                  </h2>
-
-                  <div className="space-y-4">
-                    {/* Online Payment */}
-                    <button
-                      onClick={() => setPaymentMethod("online")}
-                      className={`w-full p-6 rounded-xl border-2 transition-all text-left ${
-                        paymentMethod === "online"
-                          ? "border-powder-600 bg-powder-50"
-                          : "border-gray-200 hover:border-powder-300"
-                      }`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          paymentMethod === "online"
-                            ? "border-powder-600 bg-powder-600"
-                            : "border-gray-300"
-                        }`}>
-                          {paymentMethod === "online" && <Check className="h-4 w-4 text-white" />}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <CreditCard className="h-5 w-5 text-powder-600" />
-                            <span className="font-bold text-gray-900">Online Payment</span>
-                            <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">Recommended</span>
-                          </div>
-                          <p className="text-sm text-gray-600">
-                            Pay securely using UPI, Cards, Net Banking, or Wallets via Razorpay
-                          </p>
-                        </div>
-                      </div>
-                    </button>
-
-                    {/* Cash on Delivery */}
-                    <button
-                      onClick={() => setPaymentMethod("cod")}
-                      className={`w-full p-6 rounded-xl border-2 transition-all text-left ${
-                        paymentMethod === "cod"
-                          ? "border-powder-600 bg-powder-50"
-                          : "border-gray-200 hover:border-powder-300"
-                      }`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          paymentMethod === "cod"
-                            ? "border-powder-600 bg-powder-600"
-                            : "border-gray-300"
-                        }`}>
-                          {paymentMethod === "cod" && <Check className="h-4 w-4 text-white" />}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Wallet className="h-5 w-5 text-powder-600" />
-                            <span className="font-bold text-gray-900">Cash on Delivery</span>
-                          </div>
-                          <p className="text-sm text-gray-600">
-                            Pay with cash when your order is delivered (+ ₹50 COD charges)
-                          </p>
-                        </div>
-                      </div>
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={handlePayment}
-                    disabled={isProcessing}
-                    className="w-full mt-8 bg-powder-600 text-white py-4 rounded-xl font-semibold hover:bg-powder-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    {isProcessing ? (
-                      <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        {paymentMethod === "online" ? "Pay Now" : "Place Order"}
-                        <ChevronRight className="h-5 w-5" />
-                      </>
-                    )}
-                  </button>
+                    Email (optional)
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
+                    placeholder="you@example.com"
+                  />
                 </div>
-              </motion.div>
-            )}
+              </div>
 
-            {/* Step 3: Order Confirmation */}
-            {step === 3 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6 }}
-                className="bg-white rounded-3xl shadow-xl p-12 text-center"
-              >
-                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Check className="h-10 w-10 text-green-600" />
-                </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  Order Placed Successfully!
-                </h2>
-                <p className="text-gray-600 mb-8">
-                  Thank you for your purchase. Your order has been confirmed and will be delivered soon.
+              <div className="pt-2">
+                <h3 className="text-sm font-semibold text-gray-900 mb-1 flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-powder-600" />
+                  Delivery address
+                </h3>
+                <p className="text-xs text-gray-500 mb-4">
+                  Optional — you can also share this on WhatsApp.
                 </p>
-                <div className="bg-powder-50 rounded-xl p-6 mb-8">
-                  <p className="text-sm text-gray-600 mb-2">Order ID</p>
-                  <p className="text-2xl font-bold text-powder-700">#SM{Date.now().toString().slice(-8)}</p>
+
+                <div className="space-y-4">
+                  <textarea
+                    name="address"
+                    rows={2}
+                    value={form.address}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent resize-none"
+                    placeholder="House no., street, area"
+                    aria-label="Street address"
+                  />
+
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <input
+                      name="city"
+                      type="text"
+                      value={form.city}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
+                      placeholder="City"
+                      aria-label="City"
+                    />
+                    <input
+                      name="state"
+                      type="text"
+                      value={form.state}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
+                      placeholder="State"
+                      aria-label="State"
+                    />
+                    <input
+                      name="pincode"
+                      type="text"
+                      inputMode="numeric"
+                      value={form.pincode}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
+                      placeholder="PIN code"
+                      aria-label="PIN code"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-3">
-                  <button
-                    onClick={() => router.push("/shop")}
-                    className="w-full bg-powder-600 text-white py-4 rounded-xl font-semibold hover:bg-powder-700 transition-colors"
-                  >
-                    Continue Shopping
-                  </button>
-                  <button
-                    onClick={() => router.push("/")}
-                    className="w-full bg-white text-powder-600 border-2 border-powder-600 py-4 rounded-xl font-semibold hover:bg-powder-50 transition-colors"
-                  >
-                    Back to Home
-                  </button>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="notes"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  Anything you&apos;d like us to know? (optional)
+                </label>
+                <textarea
+                  id="notes"
+                  name="notes"
+                  rows={2}
+                  value={form.notes}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent resize-none"
+                  placeholder="Sizing, gift wrap, delivery timing…"
+                />
+              </div>
+
+              {submitError && (
+                <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 text-sm">
+                  <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                  <span>{submitError}</span>
                 </div>
-              </motion.div>
-            )}
+              )}
+
+              <button
+                type="submit"
+                disabled={isSubmitting || isQuoting}
+                className="w-full bg-green-600 text-white py-4 rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Placing your order…
+                  </>
+                ) : (
+                  <>
+                    <MessageCircle className="h-5 w-5" />
+                    Place order on WhatsApp
+                  </>
+                )}
+              </button>
+
+              <p className="text-xs text-center text-gray-500">
+                We&apos;ll save your order and open WhatsApp so you can send it
+                to us. Nothing is charged online.
+              </p>
+            </form>
           </div>
 
-          {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-3xl shadow-xl p-8 sticky top-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">Order Summary</h3>
+            <div className="bg-white rounded-3xl p-6 sticky top-8">
+              <h2 className="text-lg font-bold text-gray-900 mb-5">
+                Order summary
+              </h2>
 
-              {/* Cart Items */}
-              <div className="space-y-4 mb-6 pb-6 border-b">
-                {mockCartItems.map((item) => (
-                  <div key={item.id} className="flex gap-4">
-                    <div className="w-20 h-20 bg-powder-100 rounded-xl flex-shrink-0"></div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 text-sm mb-1">{item.name}</h4>
-                      <p className="text-xs text-gray-500">Weight: {item.weight}g</p>
-                      <p className="text-sm font-bold text-powder-600 mt-1">
-                        {formatPrice(item.price)} × {item.quantity}
-                      </p>
+              {isQuoting ? (
+                <div className="flex items-center gap-2 text-gray-500 text-sm py-6">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Checking today&apos;s prices…
+                </div>
+              ) : quoteError ? (
+                <div className="text-sm text-red-600">{quoteError}</div>
+              ) : quote ? (
+                <>
+                  {quote.unavailable.length > 0 && (
+                    <div className="mb-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-3 text-xs">
+                      {quote.unavailable
+                        .map((u) => `${u.name ?? "An item"} is ${u.reason}`)
+                        .join(". ")}
+                      . It has been removed from your cart.
+                    </div>
+                  )}
+
+                  <div className="space-y-4 mb-5 pb-5 border-b">
+                    {quote.lines.map((line) => (
+                      <div key={line.productId} className="flex gap-3">
+                        <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-powder-100 flex-shrink-0">
+                          {line.image && (
+                            <Image
+                              src={line.image}
+                              alt={line.name}
+                              fill
+                              sizes="64px"
+                              className="object-cover"
+                            />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900 text-sm line-clamp-2">
+                            {line.name}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            {line.silverWeight}g · Qty {line.quantity}
+                          </p>
+                          <p className="text-sm font-semibold text-powder-700 mt-1">
+                            {formatPrice(line.lineTotal)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="space-y-2 mb-5 pb-5 border-b text-sm">
+                    <div className="flex justify-between text-gray-700">
+                      <span>Subtotal</span>
+                      <span className="font-semibold">
+                        {formatPrice(quote.subtotal)}
+                      </span>
+                    </div>
+                    {quote.gst.amount > 0 && !quote.gst.inclusive && (
+                      <div className="flex justify-between text-gray-700">
+                        <span>GST ({quote.gst.rate}%)</span>
+                        <span className="font-semibold">
+                          {formatPrice(quote.gst.amount)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-gray-700">
+                      <span>Shipping</span>
+                      <span className="font-semibold">
+                        {quote.shipping === 0
+                          ? "Free"
+                          : formatPrice(quote.shipping)}
+                      </span>
                     </div>
                   </div>
-                ))}
-              </div>
 
-              {/* Price Breakdown */}
-              <div className="space-y-3 mb-6 pb-6 border-b">
-                <div className="flex justify-between text-gray-700">
-                  <span>Subtotal</span>
-                  <span className="font-semibold">{formatPrice(subtotal)}</span>
-                </div>
-                <div className="flex justify-between text-gray-700">
-                  <span>Shipping</span>
-                  <span className="font-semibold">
-                    {shippingCost === 0 ? "FREE" : formatPrice(shippingCost)}
-                  </span>
-                </div>
-                {paymentMethod === "cod" && step >= 2 && (
-                  <div className="flex justify-between text-gray-700">
-                    <span>COD Charges</span>
-                    <span className="font-semibold">₹50</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-gray-900">Total</span>
+                    <span className="text-2xl font-bold text-powder-700">
+                      {formatPrice(quote.total)}
+                    </span>
                   </div>
-                )}
-              </div>
+                  {quote.gst.amount > 0 && quote.gst.inclusive && (
+                    <p className="mt-2 text-xs text-gray-500">
+                      Includes {quote.gst.rate}% GST ({formatPrice(quote.gst.amount)})
+                    </p>
+                  )}
 
-              {/* Total */}
-              <div className="flex justify-between items-center mb-6">
-                <span className="text-xl font-bold text-gray-900">Total</span>
-                <span className="text-2xl font-bold text-powder-600">
-                  {formatPrice(total + (paymentMethod === "cod" && step >= 2 ? 50 : 0))}
-                </span>
-              </div>
-
-              {/* Trust Badges */}
-              <div className="space-y-3 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-600" />
-                  <span>100% Secure Payment</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-600" />
-                  <span>7-Day Easy Returns</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-600" />
-                  <span>Hallmark Certified Silver</span>
-                </div>
-              </div>
+                  <p className="text-xs text-gray-500 mt-4">
+                    Priced at today&apos;s silver rate. We&apos;ll confirm the
+                    final amount with you on WhatsApp.
+                  </p>
+                </>
+              ) : null}
             </div>
           </div>
         </div>

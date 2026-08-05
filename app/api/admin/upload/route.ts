@@ -39,13 +39,16 @@ export async function POST(request: NextRequest) {
     const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
     if (!cloudName || !apiKey || !apiSecret) {
-      // Fallback: Return placeholder URL for testing
-      return NextResponse.json({
-        url: `https://via.placeholder.com/800x800?text=${encodeURIComponent(
-          file.name
-        )}`,
-        message: "Cloudinary not configured - using placeholder",
-      });
+      // This used to return a placeholder.com URL and a 200, so an upload
+      // appeared to succeed and the grey placeholder image was saved onto a real
+      // product. Failing loudly is the only way she finds out before customers do.
+      return NextResponse.json(
+        {
+          error:
+            "Image hosting is not set up yet, so the file was not saved. Add the Cloudinary keys to the site settings and try again.",
+        },
+        { status: 503 }
+      );
     }
 
     // Convert file to base64
@@ -73,8 +76,12 @@ export async function POST(request: NextRequest) {
     uploadFormData.append("api_key", apiKey);
     uploadFormData.append("signature", signature);
 
+    // Cloudinary rejects video payloads sent to the image endpoint, so the
+    // resource type has to follow the file we were actually given.
+    const resourceType = isVideo ? "video" : "image";
+
     const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
       {
         method: "POST",
         body: uploadFormData,

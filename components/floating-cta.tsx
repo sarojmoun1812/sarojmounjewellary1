@@ -3,13 +3,12 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone, MessageCircle, X, ChevronUp, Sparkles } from "lucide-react";
+import { PHONE_NUMBER, WHATSAPP_NUMBER } from "@/lib/constants";
 
 export function FloatingCTA() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  // WhatsApp config
-  const whatsappNumber = "918168790171";
   const defaultMessage = "Hi! I'm interested in your silver jewellery collection.";
 
   useEffect(() => {
@@ -21,12 +20,12 @@ export function FloatingCTA() {
   }, []);
 
   const handleWhatsApp = () => {
-    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(defaultMessage)}`;
-    window.open(url, "_blank");
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(defaultMessage)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   const handleCall = () => {
-    window.location.href = "tel:+918168790171";
+    window.location.href = `tel:${PHONE_NUMBER}`;
   };
 
   const scrollToTop = () => {
@@ -35,8 +34,9 @@ export function FloatingCTA() {
 
   return (
     <>
-      {/* Floating Action Buttons */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+      {/* Floating Action Buttons.
+          On mobile these sit above the bottom bar rather than on top of it. */}
+      <div className="fixed bottom-24 right-4 z-50 flex flex-col items-end gap-3 md:bottom-6 md:right-6">
         {/* Scroll to top */}
         <AnimatePresence>
           {showScrollTop && (
@@ -53,6 +53,9 @@ export function FloatingCTA() {
           )}
         </AnimatePresence>
 
+        {/* Call and WhatsApp are already permanently visible in the mobile
+            bottom bar, so this expandable version is desktop-only. */}
+        <div className="relative hidden flex-col items-end gap-3 md:flex">
         {/* Expanded Menu */}
         <AnimatePresence>
           {isExpanded && (
@@ -138,6 +141,7 @@ export function FloatingCTA() {
             className="absolute bottom-0 right-0 w-14 h-14 bg-champagne-400 rounded-full pointer-events-none"
           />
         )}
+        </div>
       </div>
 
       {/* Mobile Bottom Bar */}

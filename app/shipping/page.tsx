@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Truck, Package, MapPin, Clock } from "lucide-react";
+import { CONTACT_EMAIL, PHONE_DISPLAY, STORE_HOURS } from "@/lib/constants";
 
 export default function ShippingPolicyPage() {
   return (
@@ -93,15 +94,11 @@ export default function ShippingPolicyPage() {
                     </thead>
                     <tbody>
                       <tr>
-                        <td className="border border-powder-200 px-4 py-3">Below ₹2,000</td>
+                        <td className="border border-powder-200 px-4 py-3">Below ₹2,999</td>
                         <td className="border border-powder-200 px-4 py-3">₹99</td>
                       </tr>
                       <tr className="bg-powder-50">
-                        <td className="border border-powder-200 px-4 py-3">₹2,000 - ₹4,999</td>
-                        <td className="border border-powder-200 px-4 py-3">₹49</td>
-                      </tr>
-                      <tr>
-                        <td className="border border-powder-200 px-4 py-3">₹5,000 and above</td>
+                        <td className="border border-powder-200 px-4 py-3">₹2,999 and above</td>
                         <td className="border border-powder-200 px-4 py-3 font-bold text-green-600">FREE</td>
                       </tr>
                     </tbody>
@@ -117,12 +114,12 @@ export default function ShippingPolicyPage() {
                   Once your order is dispatched, you will receive:
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Shipping confirmation email with tracking number</li>
-                  <li>SMS notification with courier partner details</li>
-                  <li>Real-time tracking link to monitor your delivery</li>
+                  <li>A WhatsApp message with your courier and tracking number</li>
+                  <li>A tracking link so you can follow the delivery</li>
                 </ul>
                 <p className="mt-4">
-                  You can also track your order by logging into your account on our website.
+                  If you have not heard from us within two working days of placing your order, message us on WhatsApp at{" "}
+                  {PHONE_DISPLAY} and we will check on it for you.
                 </p>
               </div>
             </section>
@@ -189,10 +186,13 @@ export default function ShippingPolicyPage() {
               <div className="space-y-3 text-gray-700">
                 <p>For shipping-related queries, contact us:</p>
                 <ul className="space-y-2">
-                  <li><strong>Email:</strong> shipping@sarojmoun.com</li>
-                  <li><strong>Phone:</strong> +91 XXXXX XXXXX</li>
-                  <li><strong>WhatsApp:</strong> +91 XXXXX XXXXX</li>
-                  <li><strong>Support Hours:</strong> Monday - Saturday, 10 AM - 6 PM IST</li>
+                  <li><strong>Email:</strong> {CONTACT_EMAIL}</li>
+                  <li><strong>Phone / WhatsApp:</strong> {PHONE_DISPLAY}</li>
+                  {STORE_HOURS.map(({ days, hours }) => (
+                    <li key={days}>
+                      <strong>{days}:</strong> {hours}
+                    </li>
+                  ))}
                 </ul>
               </div>
             </section>

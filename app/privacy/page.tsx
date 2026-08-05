@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Shield } from "lucide-react";
+import { ADDRESS_ONE_LINE, CONTACT_EMAIL, PHONE_DISPLAY } from "@/lib/constants";
 
 export default function PrivacyPolicyPage() {
   return (
@@ -33,13 +34,14 @@ export default function PrivacyPolicyPage() {
                   At Saroj Moun Jewellery, we collect information that you provide directly to us when you:
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Create an account or place an order</li>
+                  <li>Place an order or send an enquiry over WhatsApp</li>
                   <li>Contact us for customer support</li>
                   <li>Subscribe to our newsletter</li>
-                  <li>Participate in surveys or promotions</li>
                 </ul>
                 <p className="mt-4">
-                  <strong>Personal Information:</strong> Name, email address, phone number, shipping address, and payment information.
+                  <strong>Personal Information:</strong> Name, email address, phone number and shipping address. We do not
+                  take card or online payments through this website, so we never collect or store your card, UPI or bank
+                  details.
                 </p>
               </div>
             </section>
@@ -65,7 +67,7 @@ export default function PrivacyPolicyPage() {
                   We do not sell or rent your personal information to third parties. We may share your information with:
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li><strong>Payment Processors:</strong> Razorpay for secure payment processing</li>
+                  <li><strong>WhatsApp:</strong> Orders are placed and confirmed over WhatsApp, which is operated by Meta</li>
                   <li><strong>Shipping Partners:</strong> Courier services for order delivery</li>
                   <li><strong>Service Providers:</strong> Companies that help us operate our business</li>
                   <li><strong>Legal Requirements:</strong> When required by law or to protect our rights</li>
@@ -77,7 +79,7 @@ export default function PrivacyPolicyPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Data Security</h2>
               <div className="space-y-3 text-gray-700">
                 <p>
-                  We implement appropriate security measures to protect your personal information from unauthorized access, alteration, disclosure, or destruction. All payment transactions are processed through secure payment gateways using SSL encryption.
+                  We implement appropriate security measures to protect your personal information from unauthorized access, alteration, disclosure, or destruction. This website is served over HTTPS, and we do not collect or store card or bank details at any point.
                 </p>
               </div>
             </section>
@@ -128,9 +130,9 @@ export default function PrivacyPolicyPage() {
               <div className="space-y-3 text-gray-700">
                 <p>If you have any questions about this Privacy Policy, please contact us:</p>
                 <ul className="space-y-2">
-                  <li><strong>Email:</strong> privacy@sarojmoun.com</li>
-                  <li><strong>Phone:</strong> +91 XXXXX XXXXX</li>
-                  <li><strong>Address:</strong> [Your Business Address]</li>
+                  <li><strong>Email:</strong> {CONTACT_EMAIL}</li>
+                  <li><strong>Phone / WhatsApp:</strong> {PHONE_DISPLAY}</li>
+                  <li><strong>Address:</strong> {ADDRESS_ONE_LINE}</li>
                 </ul>
               </div>
             </section>

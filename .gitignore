@@ -26,6 +26,10 @@ yarn-error.log*
 .env*.local
 .env
 
+# local sqlite database — production runs on Postgres
+*.db
+*.db-journal
+
 # vercel
 .vercel
 

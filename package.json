@@ -9,11 +9,16 @@
     "lint": "next lint",
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "npx ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
-    "db:studio": "prisma studio"
+    "db:seed": "npx tsx prisma/seed.ts",
+    "db:studio": "prisma studio",
+    "db:use-postgres": "node scripts/use-postgres.mjs",
+    "db:status": "node scripts/db-status.mjs",
+    "db:clear-stock-photos": "node scripts/clear-stock-photos.mjs",
+    "admin:create": "node scripts/create-admin.js",
+    "smoke": "node scripts/smoke-test.mjs && node scripts/smoke-test-admin.mjs && node scripts/smoke-test-pages.mjs"
   },
   "prisma": {
-    "seed": "npx ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    "seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.8.0",
@@ -29,7 +34,6 @@
     "framer-motion": "^11.0.3",
     "lucide-react": "^0.309.0",
     "next": "14.1.0",
-    "razorpay": "^2.9.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwind-merge": "^2.2.0",

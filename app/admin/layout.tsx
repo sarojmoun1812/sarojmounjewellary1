@@ -83,7 +83,6 @@ export default function AdminLayout({
       >
         {/* Sidebar Background with glass effect */}
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900" />
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=400&q=30')] bg-cover bg-center opacity-[0.03]" />
 
         {/* Logo */}
         <div className="relative h-20 flex items-center justify-between px-5 border-b border-white/10">
