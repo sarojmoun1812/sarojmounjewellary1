@@ -5,7 +5,7 @@ import Link from "next/link";
 
 // Force dynamic rendering
 export const dynamic = "force-dynamic";
-import { Mail, Eye, CheckCircle, Clock } from "lucide-react";
+import { Mail, CheckCircle, Clock } from "lucide-react";
 
 async function getMessages(filter?: string) {
   const where: any = {};
@@ -47,52 +47,49 @@ export default async function MessagesPage({
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Sandesh</h1>
         <p className="text-gray-600 mt-1">
-          Contact form submissions ({messages.length} messages)
+          {messages.length === 0
+            ? "Abhi koi sandesh nahi aaya."
+            : `Website ke contact form se ${messages.length} sandesh.`}
         </p>
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2">
-        <Link
-          href="/admin/messages"
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            !params.filter
-              ? "bg-powder-100 text-powder-700"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-          }`}
-        >
-          All
-        </Link>
-        <Link
-          href="/admin/messages?filter=unread"
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            params.filter === "unread"
-              ? "bg-powder-100 text-powder-700"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-          }`}
-        >
-          Unread
-        </Link>
-        <Link
-          href="/admin/messages?filter=read"
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            params.filter === "read"
-              ? "bg-powder-100 text-powder-700"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-          }`}
-        >
-          Read
-        </Link>
+      <div className="flex flex-wrap gap-2">
+        {[
+          { href: "/admin/messages", label: "Saare", active: !params.filter },
+          {
+            href: "/admin/messages?filter=unread",
+            label: "Naye",
+            active: params.filter === "unread",
+          },
+          {
+            href: "/admin/messages?filter=read",
+            label: "Padh liye",
+            active: params.filter === "read",
+          },
+        ].map((tab) => (
+          <Link
+            key={tab.href}
+            href={tab.href}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              tab.active
+                ? "bg-champagne-100 text-champagne-700"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            {tab.label}
+          </Link>
+        ))}
       </div>
 
       {/* Messages List */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="divide-y divide-gray-100">
           {messages.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              No messages found.
+            <div className="text-center py-16 text-gray-500">
+              Koi sandesh nahi mila.
             </div>
           ) : (
             messages.map((message) => (
@@ -100,45 +97,47 @@ export default async function MessagesPage({
                 key={message.id}
                 href={`/admin/messages/${message.id}`}
                 className={`block p-4 hover:bg-gray-50 transition-colors ${
-                  !message.isRead ? "bg-powder-50" : ""
+                  !message.isRead ? "bg-champagne-50" : ""
                 }`}
               >
-                <div className="flex items-start justify-between gap-4">
+                {/* Stacks on a phone instead of squeezing the date into a
+                    right-hand column beside the message preview. */}
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       {!message.isRead && (
-                        <span className="w-2 h-2 bg-powder-600 rounded-full" />
+                        <span className="h-2 w-2 flex-shrink-0 rounded-full bg-champagne-600" />
                       )}
                       <p className="font-medium text-gray-900 truncate">
                         {message.subject}
                       </p>
                     </div>
-                    <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-500">
                       <span>{message.name}</span>
                       <span className="flex items-center gap-1">
                         <Mail className="h-3 w-3" />
                         {message.email}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                    <p className="mt-2 line-clamp-2 text-sm text-gray-600">
                       {message.message}
                     </p>
                   </div>
-                  <div className="text-right flex-shrink-0">
+                  <div className="flex items-center gap-3 sm:flex-col sm:items-end sm:text-right">
+                    {message.isRead ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-green-700">
+                        <CheckCircle className="h-3 w-3" />
+                        Padh liya
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-700">
+                        <Clock className="h-3 w-3" />
+                        Naya
+                      </span>
+                    )}
                     <p className="text-xs text-gray-500">
                       {formatDate(message.createdAt)}
                     </p>
-                    {message.isRead ? (
-                      <span className="inline-flex items-center gap-1 text-xs text-green-600 mt-1">
-                        <CheckCircle className="h-3 w-3" />
-                        Read
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-xs text-amber-600 mt-1">
-                        <Clock className="h-3 w-3" />
-                        New
-                      </span>
-                    )}
                   </div>
                 </div>
               </Link>

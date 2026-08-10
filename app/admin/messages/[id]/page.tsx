@@ -3,6 +3,7 @@ import { getCurrentAdmin } from "@/lib/auth";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Mail, Phone, CheckCircle } from "lucide-react";
+import { normalizeWhatsAppNumber } from "@/lib/whatsapp";
 import MarkAsRead from "./mark-as-read";
 
 // Force dynamic rendering
@@ -39,6 +40,10 @@ export default async function MessageDetailPage({
     }).format(new Date(date));
   };
 
+  // The link used to hardcode a "91" prefix, so a number typed as "+91 98765…"
+  // became wa.me/9191987… and opened an empty chat.
+  const whatsappNumber = normalizeWhatsAppNumber(message.phone);
+
   return (
     <div className="max-w-3xl mx-auto">
       {/* Header */}
@@ -55,9 +60,9 @@ export default async function MessageDetailPage({
         </div>
         {!message.isRead && <MarkAsRead id={message.id} />}
         {message.isRead && (
-          <span className="inline-flex items-center gap-1 text-sm text-green-600 bg-green-50 px-3 py-1 rounded-full">
+          <span className="inline-flex items-center gap-1 text-sm text-green-700 bg-green-50 px-3 py-1 rounded-full">
             <CheckCircle className="h-4 w-4" />
-            Read
+            Padh liya
           </span>
         )}
       </div>
@@ -66,14 +71,14 @@ export default async function MessageDetailPage({
         {/* Contact Info */}
         <div className="flex flex-wrap gap-6 pb-6 border-b border-gray-200">
           <div>
-            <p className="text-sm text-gray-500">From</p>
+            <p className="text-sm text-gray-500">Kisne bheja</p>
             <p className="font-medium text-gray-900">{message.name}</p>
           </div>
           <div>
             <p className="text-sm text-gray-500">Email</p>
             <a
               href={`mailto:${message.email}`}
-              className="font-medium text-powder-600 hover:text-powder-700 flex items-center gap-1"
+              className="font-medium text-champagne-600 hover:text-champagne-700 flex items-center gap-1"
             >
               <Mail className="h-4 w-4" />
               {message.email}
@@ -84,7 +89,7 @@ export default async function MessageDetailPage({
               <p className="text-sm text-gray-500">Phone</p>
               <a
                 href={`tel:${message.phone}`}
-                className="font-medium text-powder-600 hover:text-powder-700 flex items-center gap-1"
+                className="font-medium text-champagne-600 hover:text-champagne-700 flex items-center gap-1"
               >
                 <Phone className="h-4 w-4" />
                 {message.phone}
@@ -95,7 +100,7 @@ export default async function MessageDetailPage({
 
         {/* Message */}
         <div>
-          <p className="text-sm text-gray-500 mb-2">Message</p>
+          <p className="text-sm text-gray-500 mb-2">Unhone ye likha hai</p>
           <div className="prose prose-gray max-w-none">
             <p className="text-gray-900 whitespace-pre-wrap">{message.message}</p>
           </div>
@@ -103,24 +108,26 @@ export default async function MessageDetailPage({
 
         {/* Quick Actions */}
         <div className="pt-6 border-t border-gray-200">
-          <p className="text-sm text-gray-500 mb-3">Quick Actions</p>
+          <p className="text-sm text-gray-500 mb-3">Jawab dein</p>
           <div className="flex flex-wrap gap-3">
             <a
-              href={`mailto:${message.email}?subject=Re: ${message.subject}`}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-powder-600 text-white rounded-lg hover:bg-powder-700 transition-colors font-medium"
+              href={`mailto:${message.email}?subject=${encodeURIComponent(
+                `Re: ${message.subject}`
+              )}`}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-charcoal-900 text-white rounded-lg hover:bg-charcoal-800 transition-colors font-medium"
             >
               <Mail className="h-4 w-4" />
-              Reply via Email
+              Email se jawab
             </a>
-            {message.phone && (
+            {whatsappNumber && (
               <a
-                href={`https://wa.me/91${message.phone}`}
+                href={`https://wa.me/${whatsappNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
               >
                 <Phone className="h-4 w-4" />
-                WhatsApp
+                WhatsApp par jawab
               </a>
             )}
           </div>

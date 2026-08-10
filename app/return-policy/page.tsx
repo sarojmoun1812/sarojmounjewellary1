@@ -1,229 +1,172 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { RefreshCw, AlertCircle, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, RefreshCw } from "lucide-react";
+import { PolicyLayout, PolicySection } from "@/components/policy-layout";
+import { CONTACT_EMAIL, PHONE_DISPLAY, STORE_HOURS } from "@/lib/constants";
+
+const RETURN_STEPS = [
+  {
+    title: "Tell us",
+    detail: `WhatsApp us on ${PHONE_DISPLAY} or email ${CONTACT_EMAIL} with your order number and what went wrong.`,
+  },
+  {
+    title: "We approve it",
+    detail: "We review and confirm your return request within 24 hours.",
+  },
+  {
+    title: "Pack it up",
+    detail:
+      "Pack the piece in its original packaging with all tags and certificates.",
+  },
+  {
+    title: "Send it back",
+    detail:
+      "We arrange a reverse pickup, or you can post it to us. Shipping charges apply unless the piece was faulty.",
+  },
+  {
+    title: "We check it",
+    detail: "We inspect the piece within 2–3 business days of receiving it.",
+  },
+  {
+    title: "Refund or exchange",
+    detail:
+      "Your refund is sent, or the exchange is dispatched, within 5–7 business days.",
+  },
+];
 
 export default function ReturnPolicyPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-powder-50 via-white to-powder-100 py-20">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          {/* Header */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-powder-100 px-6 py-3 rounded-full mb-6">
-              <RefreshCw className="h-5 w-5 text-powder-600" />
-              <span className="text-sm font-semibold text-powder-700">Hassle-Free Returns</span>
-            </div>
-            <h1 className="text-4xl md:text-5xl font-heading font-bold text-gray-900 mb-4">
-              Return & Refund Policy
-            </h1>
-            <p className="text-gray-600">Last updated: December 24, 2025</p>
-          </div>
+    <PolicyLayout
+      kicker="Hassle-Free Returns"
+      icon={RefreshCw}
+      title="Return & Refund Policy"
+      updated="December 24, 2025"
+    >
+      <PolicySection title="7-day returns">
+        <p>
+          We want you to be completely happy with your purchase. If you are not,
+          you can return or exchange your order within <strong>7 days</strong> of
+          delivery.
+        </p>
+      </PolicySection>
 
-          {/* Content */}
-          <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12 space-y-8">
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">7-Day Return Policy</h2>
-              <div className="space-y-3 text-gray-700">
-                <p>
-                  At Saroj Moun Jewellery, we want you to be completely satisfied with your purchase. If you&apos;re
-                  not happy with your order, you can return or exchange it within <strong>7 days</strong> of delivery.
-                </p>
-              </div>
-            </section>
+      <PolicySection title="What we can take back">
+        <div className="border border-green-200 bg-green-50/60 p-6">
+          <p className="mb-3 flex items-center gap-2 font-medium text-green-800">
+            <CheckCircle className="h-5 w-5" strokeWidth={1.5} />
+            Eligible for return
+          </p>
+          <ul>
+            <li>The piece is unused and in original condition</li>
+            <li>Original packaging, tags and certificate are intact</li>
+            <li>No scratches, stains or damage</li>
+            <li>Returned within 7 days of delivery</li>
+            <li>The piece arrived faulty or damaged</li>
+            <li>The wrong piece was delivered</li>
+          </ul>
+        </div>
+      </PolicySection>
 
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <CheckCircle className="h-6 w-6 text-green-600" />
-                Eligible for Return
-              </h2>
-              <div className="space-y-3 text-gray-700">
-                <p>Products can be returned if:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4 bg-green-50 p-6 rounded-xl">
-                  <li>Product is unused and in original condition</li>
-                  <li>Original packaging, tags, and certificate are intact</li>
-                  <li>No scratches, stains, or damage</li>
-                  <li>Returned within 7 days of delivery</li>
-                  <li>Product received is defective or damaged</li>
-                  <li>Wrong product was delivered</li>
-                </ul>
-              </div>
-            </section>
+      <PolicySection title="What we cannot take back">
+        <div className="border border-red-200 bg-red-50/60 p-6">
+          <p className="mb-3 flex items-center gap-2 font-medium text-red-800">
+            <AlertCircle className="h-5 w-5" strokeWidth={1.5} />
+            Not eligible for return
+          </p>
+          <ul>
+            <li>Customised or engraved jewellery</li>
+            <li>Pieces bought during a special sale, unless faulty</li>
+            <li>Items without their original packaging or tags</li>
+            <li>Pieces showing signs of wear or damage</li>
+            <li>Returns requested more than 7 days after delivery</li>
+          </ul>
+        </div>
+      </PolicySection>
 
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <AlertCircle className="h-6 w-6 text-red-600" />
-                Not Eligible for Return
-              </h2>
-              <div className="space-y-3 text-gray-700">
-                <p>The following items cannot be returned:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4 bg-red-50 p-6 rounded-xl">
-                  <li>Customized or engraved jewellery</li>
-                  <li>Products purchased during special sales (unless defective)</li>
-                  <li>Items without original packaging or tags</li>
-                  <li>Products showing signs of wear or damage</li>
-                  <li>Return requested after 7 days of delivery</li>
-                </ul>
-              </div>
-            </section>
+      <PolicySection title="How to return something">
+        <ol className="space-y-4">
+          {RETURN_STEPS.map((step, index) => (
+            <li key={step.title} className="flex gap-4">
+              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center border border-champagne-300 text-sm text-champagne-700">
+                {index + 1}
+              </span>
+              <span>
+                <span className="block font-medium text-charcoal-900">
+                  {step.title}
+                </span>
+                <span className="mt-1 block text-sm text-charcoal-500">
+                  {step.detail}
+                </span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      </PolicySection>
 
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">How to Return</h2>
-              <div className="space-y-4 text-gray-700">
-                <p className="font-semibold text-powder-700">Step-by-Step Process:</p>
-                
-                <div className="space-y-4">
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-powder-600 text-white rounded-full flex items-center justify-center font-bold">
-                      1
-                    </div>
-                    <div>
-                      <p className="font-semibold">Contact Us</p>
-                      <p className="text-sm">Email us at sarojmounjewellary@gmail.com or WhatsApp +91 81687 90171 with your order number and reason for return.</p>
-                    </div>
-                  </div>
+      <PolicySection title="How refunds are made">
+        <p>
+          Once the returned piece passes our quality check, the refund is sent
+          back the same way you paid — by UPI or bank transfer (NEFT/IMPS) —
+          within 7–10 business days. We confirm the details with you on WhatsApp.
+        </p>
+        <p className="text-sm italic text-charcoal-500">
+          Shipping charges are not refundable unless the piece was faulty or the
+          wrong item was delivered.
+        </p>
+      </PolicySection>
 
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-powder-600 text-white rounded-full flex items-center justify-center font-bold">
-                      2
-                    </div>
-                    <div>
-                      <p className="font-semibold">Get Approval</p>
-                      <p className="text-sm">Our team will review and approve your return request within 24 hours.</p>
-                    </div>
-                  </div>
+      <PolicySection title="Exchanges">
+        <p>You can exchange a piece for:</p>
+        <ul>
+          <li>The same piece in a different size or design</li>
+          <li>A different piece of equal or higher value</li>
+        </ul>
+        <p>
+          If the new piece costs more, you pay the difference; if it costs less,
+          we refund the difference. Exchange shipping is ₹99, and free if the
+          original piece was faulty or wrong.
+        </p>
+      </PolicySection>
 
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-powder-600 text-white rounded-full flex items-center justify-center font-bold">
-                      3
-                    </div>
-                    <div>
-                      <p className="font-semibold">Pack Securely</p>
-                      <p className="text-sm">Pack the product in original packaging with all tags, certificates, and accessories.</p>
-                    </div>
-                  </div>
+      <PolicySection title="Damaged or faulty pieces">
+        <p>If your order arrives damaged or faulty:</p>
+        <ul>
+          <li>Contact us within 24 hours of delivery</li>
+          <li>Send us photos or a short video of the problem</li>
+          <li>We arrange a replacement or a full refund</li>
+          <li>We cover all shipping charges in this case</li>
+        </ul>
+      </PolicySection>
 
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-powder-600 text-white rounded-full flex items-center justify-center font-bold">
-                      4
-                    </div>
-                    <div>
-                      <p className="font-semibold">Pickup/Ship</p>
-                      <p className="text-sm">
-                        We&apos;ll arrange reverse pickup or you can ship it to our address (shipping charges
-                        applicable).
-                      </p>
-                    </div>
-                  </div>
+      <PolicySection title="Cancelling an order">
+        <ul>
+          <li>
+            <strong>Before dispatch:</strong> full refund, including shipping
+          </li>
+          <li>
+            <strong>After dispatch:</strong> cancellation is not possible, so
+            please use the return process instead
+          </li>
+        </ul>
+        <p>Refunds are processed within 5–7 business days.</p>
+      </PolicySection>
 
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-powder-600 text-white rounded-full flex items-center justify-center font-bold">
-                      5
-                    </div>
-                    <div>
-                      <p className="font-semibold">Quality Check</p>
-                      <p className="text-sm">We&apos;ll inspect the product within 2-3 business days of receiving it.</p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-powder-600 text-white rounded-full flex items-center justify-center font-bold">
-                      6
-                    </div>
-                    <div>
-                      <p className="font-semibold">Refund/Exchange</p>
-                      <p className="text-sm">Refund will be processed or exchange will be dispatched within 5-7 business days.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Refund Process</h2>
-              <div className="space-y-4 text-gray-700">
-                <div className="bg-powder-50 p-6 rounded-xl">
-                  <p className="font-semibold text-powder-700 mb-3">How refunds are made</p>
-                  <p>
-                    Once the returned piece passes our quality check, the refund
-                    is sent back the same way you paid — by UPI or bank transfer
-                    (NEFT/IMPS) — within 7-10 business days. We will confirm the
-                    details with you on WhatsApp.
-                  </p>
-                </div>
-
-                <p className="text-sm text-gray-600 italic mt-4">
-                  * Shipping charges are non-refundable unless the product is defective or wrong item was delivered.
-                </p>
-              </div>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Exchange Policy</h2>
-              <div className="space-y-3 text-gray-700">
-                <p>
-                  You can exchange your product for:
-                </p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Same product in different size/design</li>
-                  <li>Different product of equal or higher value</li>
-                  <li>If exchanging for higher value, pay the difference</li>
-                  <li>If exchanging for lower value, difference will be refunded</li>
-                </ul>
-                <p className="mt-4">
-                  Exchange shipping charges: ₹99 (or free if defective/wrong product)
-                </p>
-              </div>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Damaged/Defective Products</h2>
-              <div className="space-y-3 text-gray-700">
-                <p>
-                  If you receive a damaged or defective product:
-                </p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Contact us within 24 hours of delivery</li>
-                  <li>Share photos/videos of the damaged product</li>
-                  <li>We&apos;ll arrange immediate replacement or full refund</li>
-                  <li>No questions asked - we&apos;ll bear all shipping charges</li>
-                </ul>
-              </div>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Cancellation Policy</h2>
-              <div className="space-y-3 text-gray-700">
-                <p>
-                  You can cancel your order:
-                </p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li><strong>Before Dispatch:</strong> Full refund (including shipping)</li>
-                  <li><strong>After Dispatch:</strong> Cancellation not possible; use return policy instead</li>
-                  <li>Refund will be processed within 5-7 business days</li>
-                </ul>
-              </div>
-            </section>
-
-            <section className="border-t pt-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Contact Us</h2>
-              <div className="space-y-3 text-gray-700">
-                <p>For returns, refunds, or exchanges:</p>
-                <ul className="space-y-2">
-                <li><strong>Email:</strong> sarojmounjewellary@gmail.com</li>
-                <li><strong>Phone:</strong> +91 81687 90171</li>
-                <li><strong>WhatsApp:</strong> +91 81687 90171</li>
-                  <li><strong>Support Hours:</strong> Monday - Saturday, 10 AM - 6 PM IST</li>
-                </ul>
-              </div>
-            </section>
-          </div>
-        </motion.div>
-      </div>
-    </div>
+      <PolicySection title="Contact Us" divider>
+        <p>For returns, refunds or exchanges:</p>
+        <div className="space-y-1">
+          <p>
+            <strong>Email:</strong> {CONTACT_EMAIL}
+          </p>
+          <p>
+            <strong>Phone / WhatsApp:</strong> {PHONE_DISPLAY}
+          </p>
+          {STORE_HOURS.map(({ days, hours }) => (
+            <p key={days}>
+              <strong>{days}:</strong> {hours}
+            </p>
+          ))}
+        </div>
+      </PolicySection>
+    </PolicyLayout>
   );
 }

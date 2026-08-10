@@ -11,6 +11,12 @@ interface ProductInquiryFormProps {
   onClose: () => void;
 }
 
+const inquiryFieldClass =
+  "w-full border border-ivory-300 bg-white px-4 py-3 text-charcoal-900 placeholder:text-charcoal-300 focus:border-charcoal-900 focus:outline-none focus:ring-1 focus:ring-charcoal-900";
+
+const inquiryLabelClass =
+  "mb-2 block text-xs font-medium uppercase tracking-[0.14em] text-charcoal-600";
+
 export function ProductInquiryForm({
   productId,
   productName,
@@ -82,139 +88,146 @@ export function ProductInquiryForm({
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"
+          className="relative w-full max-w-md bg-white p-7 shadow-2xl"
         >
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+            aria-label="Close"
+            className="absolute right-4 top-4 p-2 text-charcoal-400 transition-colors can-hover:hover:text-charcoal-900"
           >
             <X className="h-5 w-5" />
           </button>
 
           {status === "success" ? (
-            <div className="text-center py-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                <CheckCircle className="h-8 w-8 text-green-600" />
+            <div className="py-8 text-center">
+              <div className="mx-auto mb-5 inline-flex h-14 w-14 items-center justify-center rounded-full bg-champagne-100">
+                <CheckCircle className="h-7 w-7 text-champagne-600" strokeWidth={1.5} />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Inquiry Submitted!
+              <h3 className="font-heading text-xl font-light text-charcoal-900">
+                Aapka sawaal mil gaya
               </h3>
-              <p className="text-gray-600">
-                We&apos;ll get back to you shortly about &quot;{productName}&quot;
+              <p className="mt-2 text-charcoal-500">
+                &quot;{productName}&quot; ke baare mein hum aapse jaldi baat
+                karenge.
               </p>
             </div>
           ) : (
             <>
               {/* Header */}
               <div className="mb-6">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-powder-100 rounded-xl mb-4">
-                  <MessageSquare className="h-6 w-6 text-powder-600" />
+                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center bg-champagne-100">
+                  <MessageSquare className="h-5 w-5 text-champagne-600" strokeWidth={1.5} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">
-                  Inquire About This Product
+                <h3 className="font-heading text-xl font-light text-charcoal-900">
+                  Is piece ke baare mein poochhein
                 </h3>
-                <p className="text-gray-600 text-sm mt-1">
-                  {productName}
-                </p>
+                <p className="mt-1 text-sm text-charcoal-500">{productName}</p>
               </div>
 
               {errorMessage && (
-                <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg mb-4 text-sm">
+                <div className="mb-4 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                   {errorMessage}
                 </div>
               )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Your Name *
+                  <label htmlFor="inquiry-name" className={inquiryLabelClass}>
+                    Aapka naam *
                   </label>
                   <input
+                    id="inquiry-name"
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
-                    placeholder="Enter your name"
+                    className={inquiryFieldClass}
+                    placeholder="Aapka naam"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone Number *
+                  <label htmlFor="inquiry-phone" className={inquiryLabelClass}>
+                    Phone number *
                   </label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Phone className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-charcoal-400" strokeWidth={1.5} />
                     <input
+                      id="inquiry-phone"
                       type="tel"
+                      inputMode="numeric"
                       required
                       value={formData.phone}
                       onChange={(e) =>
                         setFormData({ ...formData, phone: e.target.value })
                       }
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
-                      placeholder="Enter your phone number"
+                      className={`${inquiryFieldClass} pl-10`}
+                      placeholder="10 digit mobile number"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email (Optional)
+                  <label htmlFor="inquiry-email" className={inquiryLabelClass}>
+                    Email (optional)
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-charcoal-400" strokeWidth={1.5} />
                     <input
+                      id="inquiry-email"
                       type="email"
                       value={formData.email}
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
                       }
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
-                      placeholder="Enter your email"
+                      className={`${inquiryFieldClass} pl-10`}
+                      placeholder="you@example.com"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Message (Optional)
+                  <label htmlFor="inquiry-message" className={inquiryLabelClass}>
+                    Message (optional)
                   </label>
                   <textarea
+                    id="inquiry-message"
                     rows={3}
                     value={formData.message}
                     onChange={(e) =>
                       setFormData({ ...formData, message: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
-                    placeholder="Any specific questions or requirements?"
+                    className={`${inquiryFieldClass} resize-none`}
+                    placeholder="Size, design ya koi aur sawaal?"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3 bg-powder-600 text-white rounded-lg font-semibold hover:bg-powder-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-70"
+                  className="flex w-full items-center justify-center gap-2 bg-charcoal-900 px-6 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-ivory-50 transition-colors can-hover:hover:bg-charcoal-800 disabled:cursor-not-allowed disabled:bg-charcoal-300"
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      Submitting...
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Bheja ja raha hai…
                     </>
                   ) : (
                     <>
-                      <Send className="h-5 w-5" />
-                      Submit Inquiry
+                      <Send className="h-4 w-4" />
+                      Sawaal Bhejein
                     </>
                   )}
                 </button>
               </form>
 
-              <p className="text-xs text-gray-500 text-center mt-4">
-                We&apos;ll contact you within 24 hours
+              {/* Says "soon" rather than a fixed window: this is a one-person
+                  shop and nothing here enforces a 24-hour reply. */}
+              <p className="mt-4 text-center text-xs text-charcoal-500">
+                Hum aapse WhatsApp par jaldi sampark karenge.
               </p>
             </>
           )}

@@ -6,12 +6,12 @@
 // Never hardcode credentials in this file — it is committed to git.
 
 const { PrismaClient } = require("@prisma/client");
-const crypto = require("crypto");
+const bcrypt = require("bcryptjs");
 const fs = require("fs");
 const path = require("path");
 
-// Node does not read .env on its own, and AUTH_SECRET has to match the value
-// the app runs with or the new password will never work at login.
+// Node does not read .env on its own, and DATABASE_URL has to come from
+// somewhere for Prisma to connect.
 function loadEnvFile() {
   const envPath = path.join(__dirname, "..", ".env");
   if (!fs.existsSync(envPath)) return;
@@ -31,13 +31,11 @@ loadEnvFile();
 
 const prisma = new PrismaClient();
 
-// Must stay identical to hashPassword() in lib/auth.ts.
-async function hashPassword(password, authSecret) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password + authSecret);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+// Must stay in step with hashPassword() in lib/auth.ts, including the cost.
+const BCRYPT_COST = 12;
+
+async function hashPassword(password) {
+  return bcrypt.hash(password, BCRYPT_COST);
 }
 
 function fail(message) {
@@ -49,7 +47,6 @@ async function createAdmin() {
   const email = process.env.ADMIN_EMAIL;
   const password = process.env.ADMIN_PASSWORD;
   const name = process.env.ADMIN_NAME || "Admin";
-  const authSecret = process.env.AUTH_SECRET;
 
   if (!email || !password) {
     fail(
@@ -58,20 +55,11 @@ async function createAdmin() {
     );
   }
 
-  // Password hashes are derived from AUTH_SECRET. If it is missing here but set
-  // in the app (or vice versa), the resulting hash will never match at login.
-  if (!authSecret) {
-    fail(
-      "AUTH_SECRET is not set. It must be present and identical to the value the app runs with,\n" +
-        "  otherwise the password created here will not work at login."
-    );
-  }
-
   if (password.length < 12) {
     fail("Choose a password of at least 12 characters.");
   }
 
-  const passwordHash = await hashPassword(password, authSecret);
+  const passwordHash = await hashPassword(password);
   const normalizedEmail = email.toLowerCase();
 
   try {

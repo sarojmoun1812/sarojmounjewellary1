@@ -5,6 +5,8 @@ import {
   createSession,
   deleteSession,
   hashPassword,
+  needsRehash,
+  upgradePasswordHash,
 } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { enforceRateLimit } from "@/lib/rate-limit";
@@ -56,6 +58,12 @@ export async function POST(request: NextRequest) {
         { error: "Invalid credentials" },
         { status: 401 }
       );
+    }
+
+    // Silently move an old SHA-256 hash onto bcrypt now that the plaintext is
+    // in hand. Nobody has to reset anything, and the weak hash stops existing.
+    if (needsRehash(admin.passwordHash)) {
+      await upgradePasswordHash(admin.id, password);
     }
 
     const { token, expiresAt } = await createSession(admin.id, request);
@@ -169,6 +177,15 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
+    // Matches the minimum the setup route enforces. Without it, a hijacked
+    // session could set the password to a single character.
+    if (typeof newPassword !== "string" || newPassword.length < 12) {
+      return NextResponse.json(
+        { error: "New password must be at least 12 characters" },
+        { status: 400 }
+      );
+    }
+
     const isValid = await verifyPassword(
       currentPassword,
       session.admin.passwordHash
@@ -186,6 +203,13 @@ export async function PATCH(request: NextRequest) {
     await prisma.admin.update({
       where: { id: session.admin.id },
       data: { passwordHash: newHash },
+    });
+
+    // Changing a password is how someone responds to a suspected compromise, so
+    // every other session is cut immediately. Previously a stolen cookie stayed
+    // valid for up to seven days afterwards, which defeats the point.
+    await prisma.adminSession.deleteMany({
+      where: { adminId: session.admin.id, token: { not: token } },
     });
 
     return NextResponse.json({ success: true });

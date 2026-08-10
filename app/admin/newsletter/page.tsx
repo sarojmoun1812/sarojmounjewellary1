@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { Mail, Download, UserMinus } from "lucide-react";
+import { Mail, Download } from "lucide-react";
 
 // Force dynamic rendering
 export const dynamic = "force-dynamic";
@@ -45,34 +45,34 @@ export default async function NewsletterPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Newsletter</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Email list</h1>
           <p className="text-gray-600 mt-1">
-            Manage newsletter subscribers
+            Jinhone website par apna email diya hai.
           </p>
         </div>
         <a
           href="/api/admin/newsletter/export"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-powder-600 text-white rounded-lg hover:bg-powder-700 transition-colors font-medium"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-charcoal-900 text-white rounded-lg hover:bg-charcoal-800 transition-colors font-medium"
         >
           <Download className="h-4 w-4" />
-          Export CSV
+          Excel mein download karein
         </a>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <p className="text-sm text-gray-600">Total Subscribers</p>
+          <p className="text-sm text-gray-600">Kul</p>
           <p className="text-3xl font-bold text-gray-900 mt-1">{stats.total}</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <p className="text-sm text-gray-600">Active</p>
+          <p className="text-sm text-gray-600">Jude hue</p>
           <p className="text-3xl font-bold text-green-600 mt-1">
             {stats.subscribed}
           </p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <p className="text-sm text-gray-600">Unsubscribed</p>
+          <p className="text-sm text-gray-600">Alag ho gaye</p>
           <p className="text-3xl font-bold text-gray-400 mt-1">
             {stats.unsubscribed}
           </p>
@@ -89,7 +89,7 @@ export default async function NewsletterPage() {
                   Email
                 </th>
                 <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
-                  Subscribed On
+                  Kab jude
                 </th>
                 <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
                   Status
@@ -100,7 +100,7 @@ export default async function NewsletterPage() {
               {subscribers.length === 0 ? (
                 <tr>
                   <td colSpan={3} className="text-center py-12 text-gray-500">
-                    No subscribers yet.
+                    Abhi koi nahi juda.
                   </td>
                 </tr>
               ) : (
@@ -119,7 +119,7 @@ export default async function NewsletterPage() {
                     </td>
                     <td className="px-4 py-3">
                       <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">
-                        Active
+                        Juda hua
                       </span>
                     </td>
                   </tr>

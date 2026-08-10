@@ -28,6 +28,16 @@ const settingsSchema = z.object({
   // Defaults to 0: charging GST without a GSTIN is not allowed.
   gstRate: z.number().min(0, "GST cannot be negative").max(28).default(0),
   gstInclusive: z.boolean().default(false),
+  // Labour and commission per gram. Zero would sell her work for the price of
+  // the metal alone, so it has a floor; the ceiling catches a stray extra digit.
+  labourPerGram: z.number().min(1, "Majoori 1 se zyada honi chahiye").max(10000).default(100),
+  // How far above international spot her buying rate sits. A wrong value here
+  // moves every price in the shop at once, so the band is deliberately narrow.
+  silverRatePremiumPercent: z
+    .number()
+    .min(0, "Premium minus mein nahi ho sakta")
+    .max(200)
+    .default(31),
   shippingCharge: z.number().int().min(0).default(0),
   freeShippingMin: z.number().int().min(0).nullable().default(null),
   socialFacebook: optionalText,

@@ -48,11 +48,18 @@ async function main() {
   console.log(`Silver rate: ₹${rate.ratePerGram}/g\n`);
 
   console.log("1. Cart pricing");
-  const expectedUnit = Math.round(
-    product.silverWeight * rate.ratePerGram * 100 +
-      product.makingCharges +
-      product.profitPerGram * product.silverWeight * 100
-  );
+  // weight x (silver rate + labour per gram), rounded to a whole rupee. Mirrors
+  // calculateProductPrice deliberately: if the formula changes, this fails.
+  const settings = await prisma.siteSettings.findUnique({
+    where: { id: "settings" },
+  });
+  const labourPerGram = settings?.labourPerGram ?? 100;
+  const expectedUnit =
+    Math.round(
+      (Math.round(product.silverWeight * rate.ratePerGram * 100) +
+        Math.round(labourPerGram * product.silverWeight * 100)) /
+        100
+    ) * 100;
 
   const quote = await post("/api/cart/quote", [
     { productId: product.id, quantity: 2 },

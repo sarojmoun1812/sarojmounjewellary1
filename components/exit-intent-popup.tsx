@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Phone, User, Loader2, CheckCircle, MessageCircle } from "lucide-react";
+import { canShowLeadPrompt, markLeadCaptured, markLeadPromptShown } from "@/lib/lead-capture";
 
 export function ExitIntentPopup() {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,36 +12,25 @@ export function ExitIntentPopup() {
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 
   useEffect(() => {
-    // Check if already shown
-    const hasShown = localStorage.getItem("exit_popup_shown");
-    if (hasShown) return;
+    if (!canShowLeadPrompt()) return;
 
     let triggered = false;
 
-    const handleMouseLeave = (e: MouseEvent) => {
-      // Detect exit intent (mouse leaving viewport from top)
-      if (e.clientY <= 0 && !triggered) {
+    // Exit intent proper: the pointer leaving through the top of the viewport.
+    // There is deliberately no timer fallback for touch devices — a phone has no
+    // "moving to close the tab" signal, so the old 30-second timer was not
+    // detecting an exit at all, just interrupting people mid-scroll. On a phone
+    // the floating WhatsApp button is the standing invitation instead.
+    const handleMouseLeave = (event: MouseEvent) => {
+      if (event.clientY <= 0 && !triggered && canShowLeadPrompt()) {
         triggered = true;
         setIsOpen(true);
-        localStorage.setItem("exit_popup_shown", "true");
+        markLeadPromptShown();
       }
     };
-
-    // Also trigger on mobile after 30 seconds
-    const mobileTimer = setTimeout(() => {
-      if (window.innerWidth < 768 && !triggered) {
-        triggered = true;
-        setIsOpen(true);
-        localStorage.setItem("exit_popup_shown", "true");
-      }
-    }, 30000);
 
     document.addEventListener("mouseleave", handleMouseLeave);
-
-    return () => {
-      document.removeEventListener("mouseleave", handleMouseLeave);
-      clearTimeout(mobileTimer);
-    };
+    return () => document.removeEventListener("mouseleave", handleMouseLeave);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,7 +51,7 @@ export function ExitIntentPopup() {
       if (!res.ok) throw new Error("Failed");
 
       setStatus("success");
-      localStorage.setItem("lead_captured", "true");
+      markLeadCaptured();
 
       setTimeout(() => {
         setIsOpen(false);

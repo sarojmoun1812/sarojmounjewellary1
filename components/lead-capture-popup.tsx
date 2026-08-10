@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Phone, User, Send, Loader2, CheckCircle, Gift } from "lucide-react";
+import { markLeadCaptured } from "@/lib/lead-capture";
 
 interface LeadCapturePopupProps {
   isOpen: boolean;
@@ -50,9 +51,7 @@ export function LeadCapturePopup({
       }
 
       setStatus("success");
-      
-      // Store in localStorage to not show again
-      localStorage.setItem("lead_captured", "true");
+      markLeadCaptured();
 
       setTimeout(() => {
         onClose();
@@ -97,12 +96,12 @@ export function LeadCapturePopup({
           </button>
 
           {/* Header with gradient */}
-          <div className="bg-gradient-to-br from-powder-600 to-powder-700 px-6 pt-10 pb-8 text-center">
+          <div className="bg-gradient-to-br from-charcoal-900 to-charcoal-800 px-6 pt-10 pb-8 text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-2xl mb-4">
               <Gift className="h-8 w-8 text-white" />
             </div>
             <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
-            <p className="text-powder-100">{description}</p>
+            <p className="text-ivory-100/80">{description}</p>
           </div>
 
           {/* Form */}
@@ -138,7 +137,7 @@ export function LeadCapturePopup({
                         onChange={(e) =>
                           setFormData({ ...formData, name: e.target.value })
                         }
-                        className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-powder-500"
+                        className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-charcoal-900"
                         placeholder="Your Name"
                       />
                     </div>
@@ -154,7 +153,7 @@ export function LeadCapturePopup({
                         onChange={(e) =>
                           setFormData({ ...formData, phone: e.target.value })
                         }
-                        className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-powder-500"
+                        className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-charcoal-900"
                         placeholder="Phone Number"
                       />
                     </div>
@@ -163,7 +162,7 @@ export function LeadCapturePopup({
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full py-3 bg-gradient-to-r from-powder-600 to-powder-700 text-white rounded-xl font-semibold hover:from-powder-700 hover:to-powder-800 transition-all shadow-lg shadow-powder-500/30 flex items-center justify-center gap-2 disabled:opacity-70"
+                    className="w-full py-3 bg-gradient-to-r from-charcoal-900 to-charcoal-800 text-white rounded-xl font-semibold hover:from-charcoal-800 hover:to-charcoal-700 transition-all shadow-lg shadow-charcoal-900/20 flex items-center justify-center gap-2 disabled:opacity-70"
                   >
                     {isLoading ? (
                       <>

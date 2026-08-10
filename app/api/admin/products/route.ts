@@ -5,8 +5,28 @@ import {
   normalizeProduct,
   normalizeProducts,
   productCreateSchema,
+  slugify,
   toProductCreateData,
 } from "@/lib/products";
+
+/**
+ * Finds a free slug, appending -2, -3 and so on. Returns null if the base is
+ * empty (a name with no letters or digits) or if too many collisions pile up.
+ */
+async function resolveUniqueSlug(base: string): Promise<string | null> {
+  if (!base) return null;
+
+  for (let suffix = 1; suffix <= 50; suffix++) {
+    const candidate = suffix === 1 ? base : `${base}-${suffix}`;
+    const clash = await prisma.product.findUnique({
+      where: { slug: candidate },
+      select: { id: true },
+    });
+    if (!clash) return candidate;
+  }
+
+  return null;
+}
 
 // GET /api/admin/products - Get all products
 export async function GET(request: NextRequest) {
@@ -68,19 +88,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const existing = await prisma.product.findUnique({
-      where: { slug: parsed.data.slug },
-    });
+    // She types a name, not a URL. Two pieces can legitimately share a name, so
+    // a repeat gets a numeric suffix instead of an error she cannot act on.
+    const slug = await resolveUniqueSlug(
+      parsed.data.slug || slugify(parsed.data.name)
+    );
 
-    if (existing) {
+    if (!slug) {
       return NextResponse.json(
-        { error: "A product with this URL name already exists" },
+        { error: "Is naam se link nahi ban paaya. Naam thoda badal ke dekhein." },
         { status: 400 }
       );
     }
 
     const product = await prisma.product.create({
-      data: toProductCreateData(parsed.data),
+      data: toProductCreateData({ ...parsed.data, slug }),
     });
 
     return NextResponse.json({ product: normalizeProduct(product) }, { status: 201 });

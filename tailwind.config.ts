@@ -59,6 +59,11 @@ const config: Config = {
           700: "#434343",
           800: "#383838",
           900: "#1A1A1A",
+          // Used by the dark hero sections on the homepage, shop and about page.
+          // It was missing from this scale, so every bg-charcoal-950 and
+          // text-charcoal-950 class silently did nothing and those sections
+          // rendered without their background.
+          950: "#0F0F0F",
         },
         silver: {
           50: "#FAFAFA",
@@ -71,19 +76,6 @@ const config: Config = {
           700: "#616161",
           800: "#424242",
           900: "#212121",
-        },
-        // Rani Pink — warm Indian feminine accent
-        powder: {
-          50: "#FFF5F7",
-          100: "#FFE8ED",
-          200: "#FFCCD6",
-          300: "#FFA3B5",
-          400: "#F47A93",
-          500: "#E05577",
-          600: "#C43A5C",
-          700: "#A02848",
-          800: "#7D1F38",
-          900: "#5C1629",
         },
         // Deep Maroon — for dark sections
         maroon: {

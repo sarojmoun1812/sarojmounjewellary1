@@ -16,6 +16,8 @@ interface Settings {
   gst: string;
   gstRate: string;
   gstInclusive: boolean;
+  labourPerGram: string;
+  silverRatePremiumPercent: string;
   shippingCharge: string;
   freeShippingMin: string;
   socialFacebook: string;
@@ -43,6 +45,8 @@ export default function SettingsPage() {
     gst: "",
     gstRate: "0",
     gstInclusive: false,
+    labourPerGram: "100",
+    silverRatePremiumPercent: "31",
     shippingCharge: "0",
     freeShippingMin: "",
     socialFacebook: "",
@@ -71,6 +75,14 @@ export default function SettingsPage() {
                 ? String(data.settings.gstRate)
                 : "0",
             gstInclusive: Boolean(data.settings.gstInclusive),
+            labourPerGram:
+              data.settings.labourPerGram != null
+                ? String(data.settings.labourPerGram)
+                : "100",
+            silverRatePremiumPercent:
+              data.settings.silverRatePremiumPercent != null
+                ? String(data.settings.silverRatePremiumPercent)
+                : "31",
             shippingCharge: data.settings.shippingCharge
               ? (data.settings.shippingCharge / 100).toString()
               : "0",
@@ -103,6 +115,9 @@ export default function SettingsPage() {
         body: JSON.stringify({
           ...settings,
           gstRate: parseFloat(settings.gstRate || "0") || 0,
+          labourPerGram: parseFloat(settings.labourPerGram || "100") || 100,
+          silverRatePremiumPercent:
+            parseFloat(settings.silverRatePremiumPercent || "31") || 0,
           shippingCharge: Math.round(parseFloat(settings.shippingCharge || "0") * 100),
           freeShippingMin: settings.freeShippingMin
             ? Math.round(parseFloat(settings.freeShippingMin) * 100)
@@ -128,7 +143,7 @@ export default function SettingsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-powder-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-champagne-600" />
       </div>
     );
   }
@@ -155,6 +170,75 @@ export default function SettingsPage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Pricing sits first because these two numbers set every price in the
+            shop, and they are the only settings likely to need changing. */}
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-6">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Price kaise banta hai
+          </h2>
+          <p className="mt-1 text-sm text-gray-600">
+            Har item ka price = chandi ka weight × (chandi ka rate + majoori).
+            Chandi ka rate roz apne aap update hota hai.
+          </p>
+
+          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label
+                htmlFor="labour-per-gram"
+                className="mb-1 block text-sm font-medium text-gray-700"
+              >
+                Majoori + commission (₹ per gram)
+              </label>
+              <input
+                id="labour-per-gram"
+                type="number"
+                inputMode="decimal"
+                step="1"
+                min="1"
+                value={settings.labourPerGram}
+                onChange={(e) =>
+                  setSettings({ ...settings, labourPerGram: e.target.value })
+                }
+                className="w-full rounded-lg border border-gray-200 px-4 py-3 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+              <p className="mt-1.5 text-xs text-gray-500">
+                Abhi ₹{settings.labourPerGram || "100"}/gram lag raha hai. Ye
+                badalne par saare item ka price badal jayega.
+              </p>
+            </div>
+
+            <div>
+              <label
+                htmlFor="silver-premium"
+                className="mb-1 block text-sm font-medium text-gray-700"
+              >
+                Bazaar rate se kitna upar (%)
+              </label>
+              <input
+                id="silver-premium"
+                type="number"
+                inputMode="decimal"
+                step="0.5"
+                min="0"
+                max="200"
+                value={settings.silverRatePremiumPercent}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    silverRatePremiumPercent: e.target.value,
+                  })
+                }
+                className="w-full rounded-lg border border-gray-200 px-4 py-3 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+              <p className="mt-1.5 text-xs text-gray-500">
+                International rate se aapka kharidne ka rate itna zyada hota hai
+                (duty, GST, dealer margin). Agar website ka rate aapke asli rate
+                se kam ya zyada lage, to yahi number thoda badlein.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* General Settings */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">General</h2>
@@ -169,7 +253,7 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, siteName: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
               />
             </div>
             <div>
@@ -182,7 +266,7 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, tagline: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
               />
             </div>
             <div>
@@ -195,7 +279,7 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, gst: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
                 placeholder="06ABCDE1234F1Z5"
               />
             </div>
@@ -212,7 +296,7 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, gstRate: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
               />
               <p className="mt-1 text-xs text-gray-500">
                 Leave this at 0. GST may only be charged once you are registered
@@ -228,7 +312,7 @@ export default function SettingsPage() {
                   onChange={(e) =>
                     setSettings({ ...settings, gstInclusive: e.target.checked })
                   }
-                  className="mt-1 h-4 w-4 rounded border-gray-300 text-powder-600 focus:ring-powder-500"
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-champagne-600 focus:ring-champagne-500"
                 />
                 <span className="text-sm text-gray-700">
                   <span className="font-medium">
@@ -261,7 +345,7 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, phone: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
                 placeholder="+91 XXXXXXXXXX"
               />
             </div>
@@ -275,7 +359,7 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, whatsapp: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
                 placeholder="91XXXXXXXXXX"
               />
             </div>
@@ -289,7 +373,7 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, email: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
               />
             </div>
             <div className="md:col-span-2">
@@ -302,7 +386,7 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, address: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
               />
             </div>
           </div>
@@ -323,7 +407,7 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, shippingCharge: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
               />
             </div>
             <div>
@@ -337,7 +421,7 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, freeShippingMin: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
                 placeholder="Leave empty for no free shipping"
               />
             </div>
@@ -358,7 +442,7 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, socialFacebook: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
               />
             </div>
             <div>
@@ -371,7 +455,7 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, socialInstagram: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
               />
             </div>
             <div>
@@ -384,7 +468,7 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, socialTwitter: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
               />
             </div>
             <div>
@@ -397,7 +481,7 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, socialYoutube: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
               />
             </div>
           </div>
@@ -417,7 +501,7 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, metaTitle: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
               />
             </div>
             <div>
@@ -430,7 +514,7 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, metaDescription: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
               />
             </div>
           </div>
@@ -441,7 +525,7 @@ export default function SettingsPage() {
           <button
             type="submit"
             disabled={isSaving}
-            className="inline-flex items-center gap-2 px-6 py-2 bg-powder-600 text-white rounded-lg hover:bg-powder-700 transition-colors font-medium disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-6 py-2 bg-charcoal-900 text-white rounded-lg hover:bg-charcoal-800 transition-colors font-medium disabled:opacity-50"
           >
             {isSaving ? (
               <>

@@ -99,7 +99,7 @@ export async function getGstSettings(): Promise<GstSettings> {
  * customer is told why their total changed.
  */
 export async function quoteCart(items: CartItemInput[]): Promise<CartQuote> {
-  const [{ ratePerGram }, shippingSettings, gstSettings] = await Promise.all([
+  const [{ ratePerGram, labourPerGram }, shippingSettings, gstSettings] = await Promise.all([
     getCurrentSilverRate(),
     getShippingSettings(),
     getGstSettings(),
@@ -148,11 +148,10 @@ export async function quoteCart(items: CartItemInput[]): Promise<CartQuote> {
     const { finalPrice } = calculateProductPrice(
       {
         silverWeight: product.silverWeight,
-        makingCharges: product.makingCharges,
-        profitPerGram: product.profitPerGram,
         fixedPrice: product.fixedPrice ?? undefined,
       },
-      ratePerGram
+      ratePerGram,
+      labourPerGram
     );
 
     lines.push({

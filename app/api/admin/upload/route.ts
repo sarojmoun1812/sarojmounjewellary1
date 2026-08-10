@@ -1,7 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
+import { put } from "@vercel/blob";
 import { getCurrentAdmin } from "@/lib/auth";
 
-// POST /api/admin/upload - Upload image to Cloudinary
+/**
+ * Stores a product photograph and returns the URL to save against the product.
+ *
+ * Two backends are supported, tried in this order:
+ *
+ *  1. Vercel Blob, used when BLOB_READ_WRITE_TOKEN is present. On Vercel that
+ *     token appears by itself once a Blob store is connected to the project,
+ *     so this is the path that requires no third-party account and no keys
+ *     copied by hand.
+ *  2. Cloudinary, kept for the case where those keys are already configured.
+ *
+ * If neither is available the request fails with a 503 and an explanation. It
+ * used to return a placeholder.com URL with a 200, so an upload appeared to
+ * succeed and a grey placeholder was saved onto a real product — the kind of
+ * failure nobody notices until a customer is looking at it.
+ */
+
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+
 export async function POST(request: NextRequest) {
   try {
     const admin = await getCurrentAdmin();
@@ -13,103 +32,100 @@ export async function POST(request: NextRequest) {
     const file = formData.get("file") as File | null;
 
     if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
-    }
-
-    const isImage = file.type.startsWith("image/");
-    const isVideo = file.type.startsWith("video/");
-
-    if (!isImage && !isVideo) {
       return NextResponse.json(
-        { error: "Only images and videos are allowed" },
+        { error: "Koi photo nahi mili. Dobara select karein." },
         { status: 400 }
       );
     }
 
-    const maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
-    if (file.size > maxSize) {
+    if (!file.type.startsWith("image/")) {
       return NextResponse.json(
-        { error: `File too large (max ${isVideo ? "50MB" : "5MB"})` },
+        { error: "Sirf photo upload kar sakte hain (JPG ya PNG)." },
         { status: 400 }
       );
     }
 
-    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-    const apiKey = process.env.CLOUDINARY_API_KEY;
-    const apiSecret = process.env.CLOUDINARY_API_SECRET;
-
-    if (!cloudName || !apiKey || !apiSecret) {
-      // This used to return a placeholder.com URL and a 200, so an upload
-      // appeared to succeed and the grey placeholder image was saved onto a real
-      // product. Failing loudly is the only way she finds out before customers do.
+    if (file.size > MAX_IMAGE_BYTES) {
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
       return NextResponse.json(
         {
-          error:
-            "Image hosting is not set up yet, so the file was not saved. Add the Cloudinary keys to the site settings and try again.",
+          error: `Photo bahut badi hai (${sizeMb} MB). 10 MB se chhoti photo daalein.`,
         },
-        { status: 503 }
+        { status: 400 }
       );
     }
 
-    // Convert file to base64
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const base64 = buffer.toString("base64");
-    const dataUri = `data:${file.type};base64,${base64}`;
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      // addRandomSuffix keeps two photos with the same filename from
+      // overwriting each other, which is easy to do when phones name every
+      // picture IMG_0001.jpg.
+      const blob = await put(`products/${file.name}`, file, {
+        access: "public",
+        addRandomSuffix: true,
+        contentType: file.type,
+      });
 
-    // Upload to Cloudinary using unsigned upload
-    const timestamp = Math.round(Date.now() / 1000);
-    const folder = "saroj-moun-jewellery";
-    
-    // Create signature for signed upload
-    const crypto = require("crypto");
-    const signatureString = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
-    const signature = crypto
-      .createHash("sha1")
-      .update(signatureString)
-      .digest("hex");
-
-    const uploadFormData = new FormData();
-    uploadFormData.append("file", dataUri);
-    uploadFormData.append("folder", folder);
-    uploadFormData.append("timestamp", timestamp.toString());
-    uploadFormData.append("api_key", apiKey);
-    uploadFormData.append("signature", signature);
-
-    // Cloudinary rejects video payloads sent to the image endpoint, so the
-    // resource type has to follow the file we were actually given.
-    const resourceType = isVideo ? "video" : "image";
-
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
-      {
-        method: "POST",
-        body: uploadFormData,
-      }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Cloudinary error:", errorText);
-      return NextResponse.json(
-        { error: "Upload failed" },
-        { status: 500 }
-      );
+      return NextResponse.json({ url: blob.url });
     }
 
-    const result = await response.json();
+    const cloudinaryUrl = await uploadToCloudinary(file);
+    if (cloudinaryUrl) {
+      return NextResponse.json({ url: cloudinaryUrl });
+    }
 
-    return NextResponse.json({
-      url: result.secure_url,
-      publicId: result.public_id,
-      width: result.width,
-      height: result.height,
-    });
-  } catch (error) {
-    console.error("Upload error:", error);
     return NextResponse.json(
-      { error: "Upload failed" },
+      {
+        error:
+          "Photo save karne ki jagah set nahi hai, isliye photo upload nahi hui. Vercel par Blob store jodna hoga.",
+      },
+      { status: 503 }
+    );
+  } catch (error) {
+    console.error("[upload] Failed:", error);
+    return NextResponse.json(
+      { error: "Photo upload nahi ho payi. Thodi der baad dobara koshish karein." },
       { status: 500 }
     );
   }
+}
+
+/** Returns the hosted URL, or null when Cloudinary is not configured. */
+async function uploadToCloudinary(file: File): Promise<string | null> {
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+  if (!cloudName || !apiKey || !apiSecret) return null;
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const dataUri = `data:${file.type};base64,${buffer.toString("base64")}`;
+
+  const timestamp = Math.round(Date.now() / 1000);
+  const folder = "saroj-moun-jewellery";
+
+  const crypto = await import("crypto");
+  const signature = crypto
+    .createHash("sha1")
+    .update(`folder=${folder}&timestamp=${timestamp}${apiSecret}`)
+    .digest("hex");
+
+  const uploadFormData = new FormData();
+  uploadFormData.append("file", dataUri);
+  uploadFormData.append("folder", folder);
+  uploadFormData.append("timestamp", timestamp.toString());
+  uploadFormData.append("api_key", apiKey);
+  uploadFormData.append("signature", signature);
+
+  const response = await fetch(
+    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+    { method: "POST", body: uploadFormData }
+  );
+
+  if (!response.ok) {
+    console.error("[upload] Cloudinary error:", await response.text());
+    throw new Error("Cloudinary upload failed");
+  }
+
+  const result = await response.json();
+  return result.secure_url as string;
 }

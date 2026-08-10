@@ -40,66 +40,62 @@ export function roundToRupee(paise: number): number {
   return Math.round(paise / 100) * 100;
 }
 
+/** Labour and commission per gram, in rupees, when no setting is stored. */
+export const DEFAULT_LABOUR_PER_GRAM = 100;
+
 export interface ProductPricing {
   silverWeight: number; // grams
-  makingCharges: number; // in paise
-  profitPerGram: number; // profit per gram in rupees (₹100/gram)
-  fixedPrice?: number; // optional override in paise
+  fixedPrice?: number; // optional override in paise, for one-off pieces
 }
 
 export interface PriceBreakdown {
   silverCost: number; // in paise
-  makingCharges: number; // in paise
-  subtotal: number; // in paise
-  profit: number; // in paise
+  labour: number; // in paise — labour and commission
   finalPrice: number; // in paise
-  pricePerGram: number; // silver rate in rupees
+  silverRatePerGram: number; // rupees
+  labourPerGram: number; // rupees
 }
 
 /**
- * Calculate dynamic product price
- * @param product - Product pricing details
- * @param silverRatePerGram - Current silver rate per gram in rupees
- * @returns Final price in paise and breakdown
+ * The whole price of a piece: weight × (silver rate + labour per gram).
+ *
+ * She prices every item this way, so there is deliberately nothing else to
+ * enter — she types the weight in grams and the rest follows from the daily
+ * rate. Per-product making charges and profit used to exist here and were the
+ * reason two pieces of the same weight could carry different prices for no
+ * reason anyone could explain to a customer.
+ *
+ * @param silverRatePerGram Her local buying rate in rupees, not spot.
  */
 export function calculateProductPrice(
   product: ProductPricing,
-  silverRatePerGram: number
+  silverRatePerGram: number,
+  labourPerGram: number = DEFAULT_LABOUR_PER_GRAM
 ): PriceBreakdown {
-  // If fixed price is set, use it
   if (product.fixedPrice) {
     return {
       silverCost: 0,
-      makingCharges: 0,
-      subtotal: product.fixedPrice,
-      profit: 0,
+      labour: 0,
       finalPrice: product.fixedPrice,
-      pricePerGram: silverRatePerGram,
+      silverRatePerGram,
+      labourPerGram,
     };
   }
 
-  // Calculate silver cost
-  const silverCost = Math.round(
-    product.silverWeight * silverRatePerGram * 100
-  ); // in paise
+  const silverCost = Math.round(product.silverWeight * silverRatePerGram * 100);
 
-  // Add making charges
-  const subtotal = silverCost + product.makingCharges;
-
-  // Profit is derived from the rounded total rather than the other way round,
-  // so silverCost + makingCharges + profit always equals finalPrice and the
-  // breakdown shown on the product page adds up to the price charged.
-  const rawProfit = Math.round(product.profitPerGram * product.silverWeight * 100);
-  const finalPrice = roundToRupee(subtotal + rawProfit);
-  const profit = finalPrice - subtotal;
+  // Labour absorbs the rounding so silverCost + labour always equals the price
+  // charged. A breakdown whose lines do not add up invites the question of
+  // which number is real.
+  const rawLabour = Math.round(labourPerGram * product.silverWeight * 100);
+  const finalPrice = roundToRupee(silverCost + rawLabour);
 
   return {
     silverCost,
-    makingCharges: product.makingCharges,
-    subtotal,
-    profit,
+    labour: finalPrice - silverCost,
     finalPrice,
-    pricePerGram: silverRatePerGram,
+    silverRatePerGram,
+    labourPerGram,
   };
 }
 

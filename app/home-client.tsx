@@ -9,7 +9,8 @@ import { ProductCard } from "@/components/product-card";
 import { Reveal, StaggerItem, StaggerReveal } from "@/components/reveal";
 import { NewsletterSignup } from "@/components/newsletter-signup";
 import { LeadCapturePopup } from "@/components/lead-capture-popup";
-import { SilverRateIndicator } from "@/components/silver-rate-indicator";
+import { useSilverRate } from "@/lib/use-silver-rate";
+import { canShowLeadPrompt, markLeadPromptShown } from "@/lib/lead-capture";
 import type { HomeCategory, HomeProduct } from "@/lib/home";
 import {
   blurReveal,
@@ -28,23 +29,26 @@ interface HomeClientProps {
 export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
   const [showLeadPopup, setShowLeadPopup] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const { silverRate, loading: silverRateLoading } = useSilverRate();
 
   useEffect(() => {
-    // Show popup after 10 seconds if not already captured
-    const hasLead = localStorage.getItem("lead_captured");
-    if (!hasLead) {
-      const timer = setTimeout(() => {
-        setShowLeadPopup(true);
-      }, 10000);
-      return () => clearTimeout(timer);
-    }
+    if (!canShowLeadPrompt()) return;
+
+    // Long enough that someone has actually looked at the collection first.
+    // Ten seconds landed while the hero was still animating in.
+    const timer = setTimeout(() => {
+      if (!canShowLeadPrompt()) return;
+      setShowLeadPopup(true);
+      markLeadPromptShown();
+    }, 35000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <div className="min-h-screen bg-ivory-50">
-      <SilverRateIndicator />
 
-      <section className="relative isolate min-h-[calc(100vh-2.5rem)] overflow-hidden bg-charcoal-950 pt-24 text-ivory-50">
+      <section className="pt-below-header relative isolate min-h-screen overflow-hidden bg-charcoal-950 text-ivory-50">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(196,167,100,0.18),transparent_45%),radial-gradient(circle_at_bottom_left,rgba(196,167,100,0.1),transparent_50%),linear-gradient(150deg,#111216_0%,#1b1c22_55%,#111216_100%)]" />
           <div className="noise-overlay absolute inset-0" />
@@ -73,12 +77,31 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
               </motion.h1>
               <motion.p
                 variants={fadeUp}
-                className="mt-7 max-w-2xl text-lg leading-relaxed text-ivory-100/76 md:text-xl"
+                className="mt-7 max-w-2xl text-lg leading-relaxed text-ivory-100/75 md:text-xl"
               >
                 Jaipur aur Udaipur ke karigaron ke haathon se bane, hallmarked 92.5
                 pure silver ke gehne. Har piece ka daam aaj ke chaandi ke bhaav par,
                 bilkul saaf-saaf. Jind, Haryana se poore India tak.
               </motion.p>
+
+              {/* The rate badge used to sit above the hero in the old powder
+                  palette, where the fixed header covered it completely. Since
+                  every price on the site is derived from this number, it belongs
+                  somewhere a customer can actually see it. */}
+              {!silverRateLoading && (
+                <motion.div variants={fadeUp} className="mt-8">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-champagne-400/30 bg-charcoal-950/40 px-5 py-2.5 text-sm text-champagne-200 backdrop-blur-md">
+                    <Sparkles className="h-4 w-4 text-champagne-300" />
+                    <span>
+                      Aaj ka chaandi bhaav:{" "}
+                      <strong className="text-champagne-200">
+                        ₹{silverRate.toFixed(2)}/gram
+                      </strong>
+                    </span>
+                  </div>
+                </motion.div>
+              )}
+
               <motion.div variants={fadeUp} className="mt-10 flex flex-col gap-4 sm:flex-row">
                 <Link href="/shop" className="inline-flex">
                   <motion.span

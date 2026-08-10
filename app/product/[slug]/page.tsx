@@ -88,6 +88,24 @@ export default async function ProductPage({ params }: Props) {
   const parsedProduct = normalizeProduct(product);
   const parsedRelated = normalizeProducts(relatedProducts);
 
+  // Priced on the server so the page, the structured data Google reads and the
+  // cart all quote one figure. The client used to recompute this itself.
+  const priceOf = (item: { silverWeight: number; fixedPrice?: number | null }) =>
+    calculateProductPrice(
+      {
+        silverWeight: item.silverWeight,
+        fixedPrice: item.fixedPrice ?? undefined,
+      },
+      silverRate,
+      silverRateInfo.labourPerGram
+    );
+
+  const breakdown = priceOf(parsedProduct);
+  const relatedWithPrices = parsedRelated.map((item) => ({
+    ...item,
+    price: priceOf(item).finalPrice,
+  }));
+
   const breadcrumbs = [
     { name: "Home", url: SITE_URL },
     { name: "Shop", url: `${SITE_URL}/shop` },
@@ -104,17 +122,7 @@ export default async function ProductPage({ params }: Props) {
           images: parsedProduct.images,
           slug: parsedProduct.slug,
           // Must match the price shown on the page, or Google flags a mismatch.
-          price: (
-            calculateProductPrice(
-              {
-                silverWeight: parsedProduct.silverWeight,
-                makingCharges: parsedProduct.makingCharges,
-                profitPerGram: parsedProduct.profitPerGram,
-                fixedPrice: parsedProduct.fixedPrice ?? undefined,
-              },
-              silverRate
-            ).finalPrice / 100
-          ).toFixed(2),
+          price: (breakdown.finalPrice / 100).toFixed(2),
           inStock: parsedProduct.stock > 0,
         }}
       />
@@ -122,9 +130,9 @@ export default async function ProductPage({ params }: Props) {
 
       <ProductDetailClient
         product={parsedProduct as any}
-        silverRate={silverRate}
+        breakdown={breakdown}
         gst={gst}
-        relatedProducts={parsedRelated as any}
+        relatedProducts={relatedWithPrices as any}
       />
     </>
   );

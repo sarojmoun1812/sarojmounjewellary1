@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { hashPassword } from "@/lib/auth";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 /**
  * First-admin bootstrap.
@@ -30,6 +31,16 @@ function tokensMatch(provided: string, expected: string): boolean {
 
 export async function POST(request: NextRequest) {
   try {
+    // The setup token is the only thing guarding creation of a SUPER_ADMIN, and
+    // it was previously guessable at whatever rate the network allowed. Length
+    // alone is not a defence without a limit on attempts.
+    const limited = enforceRateLimit(request, "admin-init", {
+      limit: 5,
+      windowMs: 15 * 60 * 1000,
+      message: "Too many setup attempts. Please wait 15 minutes and try again.",
+    });
+    if (limited) return limited;
+
     const expectedToken = getSetupToken();
 
     if (!expectedToken) {

@@ -56,9 +56,9 @@ export function GoogleMap({
         style={{ height }}
       >
         {!isLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-powder-50">
+          <div className="absolute inset-0 flex items-center justify-center bg-ivory-100">
             <div className="text-center">
-              <div className="w-12 h-12 border-4 border-powder-200 border-t-powder-600 rounded-full animate-spin mx-auto mb-4" />
+              <div className="w-12 h-12 border-4 border-ivory-300 border-t-champagne-600 rounded-full animate-spin mx-auto mb-4" />
               <p className="text-gray-600">Loading map...</p>
             </div>
           </div>
@@ -83,7 +83,7 @@ export function GoogleMap({
             href={directionsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 bg-powder-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-powder-700 transition-colors text-sm font-medium"
+            className="flex items-center gap-2 bg-charcoal-900 text-white px-4 py-2 rounded-full shadow-lg hover:bg-charcoal-800 transition-colors text-sm font-medium"
           >
             <Navigation className="h-4 w-4" />
             Get Directions
@@ -105,8 +105,8 @@ export function GoogleMap({
         <div className="mt-6 bg-white rounded-xl p-6 shadow-md border border-gray-100">
           <div className="grid md:grid-cols-3 gap-6">
             <div className="flex items-start gap-4">
-              <div className="bg-powder-100 p-3 rounded-xl">
-                <MapPin className="h-6 w-6 text-powder-600" />
+              <div className="bg-champagne-100 p-3 rounded-xl">
+                <MapPin className="h-6 w-6 text-champagne-600" />
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900">Visit Our Store</h4>
@@ -124,13 +124,13 @@ export function GoogleMap({
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="bg-powder-100 p-3 rounded-xl">
-                <Phone className="h-6 w-6 text-powder-600" />
+              <div className="bg-champagne-100 p-3 rounded-xl">
+                <Phone className="h-6 w-6 text-champagne-600" />
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900">Call Us</h4>
                 <p className="text-gray-600 text-sm mt-1">
-                  <a href={`tel:${PHONE_NUMBER}`} className="hover:text-powder-600">
+                  <a href={`tel:${PHONE_NUMBER}`} className="hover:text-champagne-600">
                     {PHONE_DISPLAY}
                   </a>
                 </p>
@@ -138,8 +138,8 @@ export function GoogleMap({
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="bg-powder-100 p-3 rounded-xl">
-                <Clock className="h-6 w-6 text-powder-600" />
+              <div className="bg-champagne-100 p-3 rounded-xl">
+                <Clock className="h-6 w-6 text-champagne-600" />
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900">Store Hours</h4>

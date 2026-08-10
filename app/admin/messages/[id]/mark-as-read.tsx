@@ -37,7 +37,7 @@ export default function MarkAsRead({ id }: { id: string }) {
       ) : (
         <CheckCircle className="h-4 w-4" />
       )}
-      Mark as Read
+      Padh liya, mark karein
     </button>
   );
 }

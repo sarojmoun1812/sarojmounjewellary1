@@ -29,7 +29,7 @@ export function NewsletterSignup() {
       }
 
       setStatus("success");
-      setMessage("Thanks for subscribing! 🎉");
+      setMessage("Shukriya! Aap subscribe ho gaye hain.");
       setEmail("");
       
       setTimeout(() => {
@@ -48,80 +48,77 @@ export function NewsletterSignup() {
     }
   };
 
+  // Form only: the section that hosts this already supplies the heading and the
+  // pitch, so anything more here reads as a duplicate.
   return (
-    <div className="bg-gradient-to-r from-powder-600 to-powder-700 rounded-2xl p-8 md:p-12">
-      <div className="max-w-2xl mx-auto text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-2xl mb-6">
-          <Mail className="h-8 w-8 text-white" />
-        </div>
-        <h3 className="text-2xl md:text-3xl font-heading font-bold text-white mb-4">
-          Stay Updated with Our Latest Collections
-        </h3>
-        <p className="text-powder-100 mb-8">
-          Subscribe to get exclusive offers, new product launches, and silver rate updates.
-        </p>
-
-        <AnimatePresence mode="wait">
-          {status === "success" ? (
-            <motion.div
-              key="success"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="flex items-center justify-center gap-2 text-white"
-            >
-              <CheckCircle className="h-6 w-6" />
-              <span className="text-lg font-medium">{message}</span>
-            </motion.div>
-          ) : (
-            <motion.form
-              key="form"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onSubmit={handleSubmit}
-              className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
-            >
+    <div className="max-w-xl">
+      <AnimatePresence mode="wait">
+        {status === "success" ? (
+          <motion.div
+            key="success"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="flex items-center gap-2 text-charcoal-900"
+          >
+            <CheckCircle className="h-5 w-5 text-champagne-600" />
+            <span className="font-medium">{message}</span>
+          </motion.div>
+        ) : (
+          <motion.form
+            key="form"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-3 sm:flex-row"
+          >
+            <div className="relative flex-1">
+              <Mail
+                className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-charcoal-400"
+                strokeWidth={1.5}
+              />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
+                placeholder="aapka@email.com"
                 required
-                className="flex-1 px-4 py-3 rounded-xl bg-white/20 border border-white/30 text-white placeholder:text-white/70 focus:outline-none focus:ring-2 focus:ring-white/50"
+                aria-label="Email address"
+                className="w-full border border-ivory-300 bg-white py-3.5 pl-11 pr-4 text-charcoal-900 placeholder:text-charcoal-300 focus:border-charcoal-900 focus:outline-none focus:ring-1 focus:ring-charcoal-900"
               />
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="px-6 py-3 bg-white text-powder-700 rounded-xl font-semibold hover:bg-powder-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-70"
-              >
-                {isLoading ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <>
-                    <Send className="h-5 w-5" />
-                    Subscribe
-                  </>
-                )}
-              </button>
-            </motion.form>
-          )}
-        </AnimatePresence>
-
-        {status === "error" && message && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-red-200 mt-3"
-          >
-            {message}
-          </motion.p>
+            </div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="flex items-center justify-center gap-2 bg-charcoal-900 px-8 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-ivory-50 transition-colors can-hover:hover:bg-charcoal-800 disabled:cursor-not-allowed disabled:bg-charcoal-300"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <Send className="h-4 w-4" />
+                  Subscribe
+                </>
+              )}
+            </button>
+          </motion.form>
         )}
+      </AnimatePresence>
 
-        <p className="text-powder-200 text-sm mt-4">
-          No spam, ever. Unsubscribe anytime.
-        </p>
-      </div>
+      {status === "error" && message && (
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mt-3 text-sm text-red-600"
+        >
+          {message}
+        </motion.p>
+      )}
+
+      <p className="mt-4 text-xs text-charcoal-500">
+        Koi spam nahi. Jab chahein unsubscribe kar sakte hain.
+      </p>
     </div>
   );
 }

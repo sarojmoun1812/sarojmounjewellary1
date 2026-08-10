@@ -32,6 +32,15 @@ async function getPage(path, cookie) {
 async function main() {
   const product = await prisma.product.findFirst({ where: { isActive: true } });
 
+  // Read the live rate and labour setting rather than assuming a number, so the
+  // structured-data check keeps working after the daily refresh moves the rate.
+  const [rate, settings] = await Promise.all([
+    prisma.silverRate.findFirst({ orderBy: { updatedAt: "desc" } }),
+    prisma.siteSettings.findUnique({ where: { id: "settings" } }),
+  ]);
+  const silverRatePerGram = rate?.ratePerGram ?? 235;
+  const labourPerGram = settings?.labourPerGram ?? 100;
+
   console.log("\n1. Public pages render");
   const publicPaths = [
     "/",
@@ -72,11 +81,12 @@ async function main() {
       const match = detail.html.match(/"price":"([\d.]+)"/);
       if (!match) return false;
       const schemaPrice = Math.round(parseFloat(match[1]) * 100);
-      const expected = Math.round(
-        product.silverWeight * 235 * 100 +
-          product.makingCharges +
-          product.profitPerGram * product.silverWeight * 100
-      );
+      const expected =
+        Math.round(
+          (Math.round(product.silverWeight * silverRatePerGram * 100) +
+            Math.round(labourPerGram * product.silverWeight * 100)) /
+            100
+        ) * 100;
       return schemaPrice === expected;
     })(),
     "JSON-LD price differs from the page price"

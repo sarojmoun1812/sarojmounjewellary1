@@ -6,22 +6,19 @@ import {
   Package,
   ShoppingBag,
   Users,
-  TrendingUp,
   IndianRupee,
   ArrowUpRight,
   MessageSquare,
   Crown,
   Sparkles,
-  Mail,
-  Eye,
   Phone,
-  Plus,
   ExternalLink,
   Gem,
   Activity,
   Target,
   UserPlus,
 } from "lucide-react";
+import { leadSourceLabel, leadStatusLabel, orderStatusLabel } from "@/lib/admin-labels";
 
 interface DashboardClientProps {
   admin: { name: string; role: string };
@@ -71,42 +68,26 @@ const formatDate = (date: string) => {
   }).format(new Date(date));
 };
 
-const getStatusColor = (status: string) => {
-  const colors: Record<string, string> = {
-    DELIVERED: "bg-emerald-100 text-emerald-700",
-    SHIPPED: "bg-blue-100 text-blue-700",
-    PROCESSING: "bg-amber-100 text-amber-700",
-    CONFIRMED: "bg-purple-100 text-purple-700",
-    PENDING: "bg-yellow-100 text-yellow-700",
-    CANCELLED: "bg-red-100 text-red-700",
-    NEW: "bg-emerald-100 text-emerald-700",
-    CONTACTED: "bg-sky-100 text-sky-700",
-    QUALIFIED: "bg-violet-100 text-violet-700",
-    CONVERTED: "bg-teal-100 text-teal-700",
-    LOST: "bg-gray-100 text-gray-700",
-  };
-  return colors[status] || "bg-gray-100 text-gray-700";
-};
 
 export function DashboardClient({ admin, stats }: DashboardClientProps) {
   const statCards = [
     {
-      label: "Total Revenue",
+      label: "Kul kamai",
       value: formatPrice(stats.totalRevenue),
       icon: IndianRupee,
       gradient: "from-amber-500 to-orange-600",
       shadow: "shadow-amber-500/20",
       href: "/admin/orders",
-      subtitle: `From ${stats.orderCount} orders`,
+      subtitle: `${stats.orderCount} order se`,
     },
     {
-      label: "Products",
+      label: "Items",
       value: stats.productCount,
       icon: Package,
       gradient: "from-blue-500 to-indigo-600",
       shadow: "shadow-blue-500/20",
       href: "/admin/products",
-      subtitle: `${stats.categoryBreakdown.length} categories`,
+      subtitle: `${stats.categoryBreakdown.length} tarah ke`,
     },
     {
       label: "Customers",
@@ -115,16 +96,16 @@ export function DashboardClient({ admin, stats }: DashboardClientProps) {
       gradient: "from-emerald-500 to-teal-600",
       shadow: "shadow-emerald-500/20",
       href: "/admin/customers",
-      subtitle: `${stats.newsletterCount} subscribers`,
+      subtitle: `${stats.newsletterCount} email par jude`,
     },
     {
-      label: "Active Leads",
+      label: "Poochh-taachh",
       value: stats.leadCount,
       icon: Target,
       gradient: "from-rose-500 to-pink-600",
       shadow: "shadow-rose-500/20",
       href: "/admin/leads",
-      subtitle: `${stats.newLeads} new leads`,
+      subtitle: `${stats.newLeads} naye`,
     },
   ];
 
@@ -158,34 +139,20 @@ export function DashboardClient({ admin, stats }: DashboardClientProps) {
                 <Crown className="h-6 w-6 text-amber-400" />
               </div>
               <span className="text-amber-400/80 text-sm font-medium tracking-wider uppercase">
-                Admin Dashboard
+                Aapka portal
               </span>
             </motion.div>
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-              Welcome back, <span className="bg-gradient-to-r from-amber-300 to-rose-300 bg-clip-text text-transparent">{admin.name}</span>
+              Namaste, <span className="bg-gradient-to-r from-amber-300 to-rose-300 bg-clip-text text-transparent">{admin.name}</span>
             </h1>
             <p className="text-white/50 text-sm md:text-base">
-              Here&apos;s your jewellery business at a glance. Silver rate today: <span className="text-amber-400 font-semibold">₹{stats.silverRate.toFixed(2)}/g</span>
+              Aaj ka chaandi bhaav: <span className="text-amber-400 font-semibold">₹{stats.silverRate.toFixed(2)}/gram</span>
             </p>
           </div>
 
-          <div className="flex gap-3">
-            <Link
-              href="/admin/products/new"
-              className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-900 rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-amber-500/25 transition-all hover:-translate-y-0.5"
-            >
-              <Plus className="h-4 w-4" />
-              Add Product
-            </Link>
-            <Link
-              href="/"
-              target="_blank"
-              className="inline-flex items-center gap-2 px-5 py-3 bg-white/10 text-white rounded-xl font-medium text-sm hover:bg-white/20 transition-all backdrop-blur-sm"
-            >
-              <Eye className="h-4 w-4" />
-              View Store
-            </Link>
-          </div>
+          {/* Both of these actions already sit in the sidebar and the top bar.
+              A third copy inside the banner meant three "Naya item jodein"
+              buttons competed for attention on this one screen. */}
         </div>
       </motion.div>
 
@@ -226,9 +193,9 @@ export function DashboardClient({ admin, stats }: DashboardClientProps) {
             </div>
             <div>
               <p className="font-semibold text-amber-800 text-sm">
-                {stats.messageCount} unread message{stats.messageCount > 1 ? "s" : ""}
+                {stats.messageCount} sandesh padhna baaki hai
               </p>
-              <p className="text-xs text-amber-600/70">Click to view and reply</p>
+              <p className="text-xs text-amber-600/70">Dekhne ke liye yahan dabaiye</p>
             </div>
           </Link>
         )}
@@ -242,9 +209,9 @@ export function DashboardClient({ admin, stats }: DashboardClientProps) {
             </div>
             <div>
               <p className="font-semibold text-emerald-800 text-sm">
-                {stats.newLeads} new lead{stats.newLeads > 1 ? "s" : ""} to follow up
+                {stats.newLeads} logon se baat karni hai
               </p>
-              <p className="text-xs text-emerald-600/70">Open CRM to manage</p>
+              <p className="text-xs text-emerald-600/70">Unke number dekhne ke liye dabaiye</p>
             </div>
           </Link>
         )}
@@ -255,12 +222,14 @@ export function DashboardClient({ admin, stats }: DashboardClientProps) {
         {/* Categories */}
         <motion.div variants={itemVariants} className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6">
           <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Gem className="h-5 w-5 text-purple-500" />
-            Product Categories
+            <Gem className="h-5 w-5 text-champagne-500" />
+            Kis tarah ke items hain
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {stats.categoryBreakdown.length === 0 ? (
-              <p className="col-span-full text-gray-400 text-sm py-6 text-center">No products yet. Add your first product!</p>
+              <p className="col-span-full py-6 text-center text-sm text-gray-500">
+                Abhi koi item nahi hai. Pehla item jodiye.
+              </p>
             ) : (
               stats.categoryBreakdown.map((cat, i) => (
                 <motion.div
@@ -286,27 +255,29 @@ export function DashboardClient({ admin, stats }: DashboardClientProps) {
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 text-white">
             <div className="flex items-center gap-2 mb-3">
               <Activity className="h-5 w-5 text-amber-400" />
-              <span className="text-sm font-medium text-white/70">Live Silver Rate</span>
+              <span className="text-sm font-medium text-white/70">Aaj ka chaandi bhaav</span>
             </div>
             <p className="text-3xl font-bold">
               <span className="text-amber-400">₹{stats.silverRate.toFixed(2)}</span>
               <span className="text-lg text-white/40 ml-1">/gram</span>
             </p>
-            <p className="text-xs text-white/40 mt-2">Updated via MetalPriceAPI</p>
+            <p className="text-xs text-white/40 mt-2">
+              Roz subah apne aap update hota hai
+            </p>
           </div>
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
-            <h4 className="text-sm font-semibold text-gray-500 mb-4">Quick Stats</h4>
+            <h4 className="text-sm font-semibold text-gray-500 mb-4">Ek nazar mein</h4>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Newsletter</span>
+                <span className="text-sm text-gray-600">Email par jude log</span>
                 <span className="font-bold text-gray-900">{stats.newsletterCount}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Messages</span>
+                <span className="text-sm text-gray-600">Sandesh</span>
                 <span className="font-bold text-gray-900">{stats.messageCount}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Total Leads</span>
+                <span className="text-sm text-gray-600">Kul poochh-taachh</span>
                 <span className="font-bold text-gray-900">{stats.leadCount}</span>
               </div>
             </div>
@@ -320,19 +291,21 @@ export function DashboardClient({ admin, stats }: DashboardClientProps) {
         <motion.div variants={itemVariants} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           <div className="flex items-center justify-between p-5 border-b border-gray-100">
             <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-              <ShoppingBag className="h-5 w-5 text-amber-500" />
-              Recent Orders
+              <ShoppingBag className="h-5 w-5 text-champagne-500" />
+              Naye orders
             </h3>
-            <Link href="/admin/orders" className="text-xs text-amber-600 hover:text-amber-700 font-medium flex items-center gap-1">
-              View all <ExternalLink className="h-3 w-3" />
+            <Link href="/admin/orders" className="text-xs text-champagne-600 hover:text-champagne-700 font-medium flex items-center gap-1">
+              Sab dekhein <ExternalLink className="h-3 w-3" />
             </Link>
           </div>
           <div className="divide-y divide-gray-50">
             {stats.recentOrders.length === 0 ? (
               <div className="text-center py-12">
                 <ShoppingBag className="h-10 w-10 text-gray-200 mx-auto mb-3" />
-                <p className="text-gray-400 text-sm">No orders yet</p>
-                <p className="text-gray-300 text-xs mt-1">Orders will appear here once customers start buying</p>
+                <p className="text-sm text-gray-500">Abhi koi order nahi</p>
+                <p className="mt-1 text-xs text-gray-400">
+                  Jaise hi koi order karega, yahan dikh jayega.
+                </p>
               </div>
             ) : (
               stats.recentOrders.map((order: any) => (
@@ -352,8 +325,12 @@ export function DashboardClient({ admin, stats }: DashboardClientProps) {
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-gray-900 text-sm">{formatPrice(order.total)}</p>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${getStatusColor(order.status)}`}>
-                      {order.status}
+                    <span
+                      className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                        orderStatusLabel(order.status).className
+                      }`}
+                    >
+                      {orderStatusLabel(order.status).label}
                     </span>
                   </div>
                 </Link>
@@ -366,19 +343,21 @@ export function DashboardClient({ admin, stats }: DashboardClientProps) {
         <motion.div variants={itemVariants} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           <div className="flex items-center justify-between p-5 border-b border-gray-100">
             <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-              <Target className="h-5 w-5 text-rose-500" />
-              CRM - Recent Leads
+              <Target className="h-5 w-5 text-champagne-500" />
+              Nayi poochh-taachh
             </h3>
-            <Link href="/admin/leads" className="text-xs text-rose-600 hover:text-rose-700 font-medium flex items-center gap-1">
-              Open CRM <ExternalLink className="h-3 w-3" />
+            <Link href="/admin/leads" className="text-xs text-champagne-600 hover:text-champagne-700 font-medium flex items-center gap-1">
+              Sab dekhein <ExternalLink className="h-3 w-3" />
             </Link>
           </div>
           <div className="divide-y divide-gray-50">
             {stats.recentLeads.length === 0 ? (
               <div className="text-center py-12">
                 <Target className="h-10 w-10 text-gray-200 mx-auto mb-3" />
-                <p className="text-gray-400 text-sm">No leads yet</p>
-                <p className="text-gray-300 text-xs mt-1">Leads from popups, WhatsApp, and forms appear here</p>
+                <p className="text-sm text-gray-500">Abhi koi poochh-taachh nahi</p>
+                <p className="mt-1 text-xs text-gray-400">
+                  Website par jo apna number dega, wo yahan dikhega.
+                </p>
               </div>
             ) : (
               stats.recentLeads.map((lead: any) => (
@@ -399,11 +378,15 @@ export function DashboardClient({ admin, stats }: DashboardClientProps) {
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${getStatusColor(lead.status)}`}>
-                      {lead.status}
+                    <span
+                      className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                        leadStatusLabel(lead.status).className
+                      }`}
+                    >
+                      {leadStatusLabel(lead.status).label}
                     </span>
                     <p className="text-[10px] text-gray-400 mt-0.5">
-                      {lead.source.replace(/_/g, " ")}
+                      {leadSourceLabel(lead.source)}
                     </p>
                   </div>
                 </Link>

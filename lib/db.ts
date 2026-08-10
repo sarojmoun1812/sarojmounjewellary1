@@ -16,9 +16,11 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
  * already case-insensitive for ASCII.
  */
 export function containsInsensitive(value: string) {
-  const isSqlite = process.env.DATABASE_URL?.startsWith("file:") ?? false;
-
-  return isSqlite
+  return isSqlite()
     ? { contains: value }
     : { contains: value, mode: "insensitive" as const };
+}
+
+function isSqlite(): boolean {
+  return process.env.DATABASE_URL?.startsWith("file:") ?? false;
 }

@@ -19,6 +19,12 @@ import {
   TrendingUp,
   Zap,
 } from "lucide-react";
+import {
+  LEAD_SOURCE_OPTIONS,
+  LEAD_STATUS_OPTIONS,
+  leadSourceLabel,
+  leadStatusLabel,
+} from "@/lib/admin-labels";
 
 interface Lead {
   id: string;
@@ -42,12 +48,12 @@ interface LeadStats {
   lost: number;
 }
 
-const statusConfig: Record<string, { label: string; color: string; bg: string; gradient: string }> = {
-  NEW: { label: "New", color: "text-emerald-700", bg: "bg-emerald-100", gradient: "from-emerald-500 to-green-600" },
-  CONTACTED: { label: "Contacted", color: "text-sky-700", bg: "bg-sky-100", gradient: "from-sky-500 to-blue-600" },
-  QUALIFIED: { label: "Qualified", color: "text-violet-700", bg: "bg-violet-100", gradient: "from-violet-500 to-purple-600" },
-  CONVERTED: { label: "Converted", color: "text-teal-700", bg: "bg-teal-100", gradient: "from-teal-500 to-emerald-600" },
-  LOST: { label: "Lost", color: "text-red-700", bg: "bg-red-100", gradient: "from-red-500 to-rose-600" },
+const statusGradients: Record<string, string> = {
+  NEW: "from-emerald-500 to-green-600",
+  CONTACTED: "from-sky-500 to-blue-600",
+  QUALIFIED: "from-violet-500 to-purple-600",
+  CONVERTED: "from-teal-500 to-emerald-600",
+  LOST: "from-red-500 to-rose-600",
 };
 
 const containerVariants = {
@@ -89,13 +95,15 @@ export function LeadsListClient({
       minute: "2-digit",
     }).format(new Date(date));
 
+  // Short labels here: these are tiles in a row, so the fuller sentences from
+  // leadStatusLabel would wrap badly. The badges on each row use those.
   const pipelineCards = [
-    { key: "all", label: "All Leads", value: stats.total, icon: Users, gradient: "from-gray-500 to-slate-600" },
-    { key: "NEW", label: "New", value: stats.newCount, icon: Zap, gradient: "from-emerald-500 to-green-600" },
-    { key: "CONTACTED", label: "Contacted", value: stats.contacted, icon: Phone, gradient: "from-sky-500 to-blue-600" },
-    { key: "QUALIFIED", label: "Qualified", value: stats.qualified, icon: Target, gradient: "from-violet-500 to-purple-600" },
-    { key: "CONVERTED", label: "Converted", value: stats.converted, icon: CheckCircle, gradient: "from-teal-500 to-emerald-600" },
-    { key: "LOST", label: "Lost", value: stats.lost, icon: XCircle, gradient: "from-red-500 to-rose-600" },
+    { key: "all", label: "Saare", value: stats.total, icon: Users, gradient: "from-gray-500 to-slate-600" },
+    { key: "NEW", label: "Naye", value: stats.newCount, icon: Zap, gradient: statusGradients.NEW },
+    { key: "CONTACTED", label: "Baat ho gayi", value: stats.contacted, icon: Phone, gradient: statusGradients.CONTACTED },
+    { key: "QUALIFIED", label: "Interested", value: stats.qualified, icon: Target, gradient: statusGradients.QUALIFIED },
+    { key: "CONVERTED", label: "Order kiya", value: stats.converted, icon: CheckCircle, gradient: statusGradients.CONVERTED },
+    { key: "LOST", label: "Nahi bani", value: stats.lost, icon: XCircle, gradient: statusGradients.LOST },
   ];
 
   return (
@@ -109,10 +117,13 @@ export function LeadsListClient({
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <TrendingUp className="h-7 w-7 text-rose-500" />
-            CRM / Lead Management
+            <TrendingUp className="h-7 w-7 text-champagne-500" />
+            Poochh-taachh
           </h1>
-          <p className="text-gray-500 text-sm mt-1">Track, manage, and convert your leads into customers</p>
+          <p className="text-gray-500 text-sm mt-1">
+            Jinhone website par apna number diya hai — unse baat karke order
+            banaiye.
+          </p>
         </div>
       </motion.div>
 
@@ -150,41 +161,47 @@ export function LeadsListClient({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by name, phone, or email..."
+              placeholder="Naam, phone ya email se dhoondhein"
               className="bg-transparent text-sm outline-none w-full placeholder:text-gray-400"
             />
           </div>
-          <form className="flex gap-3" method="GET">
+          <form className="flex flex-wrap gap-3" method="GET">
             <select
               name="status"
+              aria-label="Status se filter karein"
               defaultValue={currentStatus}
-              className="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+              className="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-champagne-500/40"
             >
-              <option value="all">All Statuses</option>
-              {Object.entries(statusConfig).map(([key, val]) => (
-                <option key={key} value={key}>{val.label}</option>
+              <option value="all">Saare status</option>
+              {LEAD_STATUS_OPTIONS.map((key) => (
+                <option key={key} value={key}>
+                  {leadStatusLabel(key).label}
+                </option>
               ))}
             </select>
             <select
               name="source"
+              aria-label="Kahan se aaya, uske hisaab se filter karein"
               defaultValue={currentSource}
-              className="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+              className="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-champagne-500/40"
             >
-              <option value="all">All Sources</option>
-              <option value="CONTACT_FORM">Contact Form</option>
-              <option value="PRODUCT_INQUIRY">Product Inquiry</option>
-              <option value="WHATSAPP">WhatsApp</option>
-              <option value="PHONE">Phone</option>
-              <option value="NEWSLETTER">Newsletter</option>
-              <option value="EXIT_POPUP">Exit Popup</option>
-              <option value="CALLBACK">Callback</option>
+              {/* These options are the values the site actually records. The
+                  list previously offered PHONE, EXIT_POPUP and CALLBACK, none
+                  of which anything writes, so those filters always came back
+                  empty. */}
+              <option value="all">Kahin se bhi</option>
+              {LEAD_SOURCE_OPTIONS.map((key) => (
+                <option key={key} value={key}>
+                  {leadSourceLabel(key)}
+                </option>
+              ))}
             </select>
             <button
               type="submit"
               className="px-5 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
             >
               <Filter className="h-4 w-4" />
-              Filter
+              Dhoondhein
             </button>
           </form>
         </div>
@@ -195,13 +212,16 @@ export function LeadsListClient({
         {filteredLeads.length === 0 ? (
           <div className="text-center py-16">
             <Target className="h-12 w-12 text-gray-200 mx-auto mb-4" />
-            <p className="text-gray-400 font-medium">No leads found</p>
-            <p className="text-gray-300 text-sm mt-1">Leads from your website will appear here automatically</p>
+            <p className="font-medium text-gray-500">Koi naam nahi mila</p>
+            <p className="mt-1 text-sm text-gray-400">
+              Website par jo bhi apna number dega, wo yahan apne aap dikhega.
+            </p>
           </div>
         ) : (
           <div className="divide-y divide-gray-50">
             {filteredLeads.map((lead, i) => {
-              const config = statusConfig[lead.status] || statusConfig.NEW;
+              const status = leadStatusLabel(lead.status);
+              const gradient = statusGradients[lead.status] ?? statusGradients.NEW;
               return (
                 <motion.div
                   key={lead.id}
@@ -214,14 +234,14 @@ export function LeadsListClient({
                     className="group flex items-center justify-between p-4 hover:bg-gray-50/50 transition-colors"
                   >
                     <div className="flex items-center gap-4 flex-1 min-w-0">
-                      <div className={`w-10 h-10 bg-gradient-to-br ${config.gradient} rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-sm`}>
+                      <div className={`w-10 h-10 bg-gradient-to-br ${gradient} rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-sm`}>
                         {lead.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-medium text-gray-900 text-sm">{lead.name}</p>
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${config.bg} ${config.color}`}>
-                            {config.label}
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${status.className}`}>
+                            {status.label}
                           </span>
                         </div>
                         <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
@@ -245,7 +265,7 @@ export function LeadsListClient({
                     <div className="flex items-center gap-4 ml-4">
                       <div className="text-right hidden sm:block">
                         <span className="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">
-                          {lead.source.replace(/_/g, " ")}
+                          {leadSourceLabel(lead.source)}
                         </span>
                         <p className="text-[10px] text-gray-400 mt-1">{formatDate(lead.createdAt)}</p>
                       </div>

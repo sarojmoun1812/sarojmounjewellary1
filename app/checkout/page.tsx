@@ -42,6 +42,12 @@ type PlacedOrder = {
   whatsappUrl: string;
 };
 
+const fieldClass =
+  "w-full border border-ivory-300 bg-white px-4 py-3 text-charcoal-900 placeholder:text-charcoal-300 focus:border-charcoal-900 focus:outline-none focus:ring-1 focus:ring-charcoal-900";
+
+const labelClass =
+  "mb-2 block text-xs font-medium uppercase tracking-[0.14em] text-charcoal-600";
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, removeItem, clearCart } = useCart();
@@ -182,41 +188,40 @@ export default function CheckoutPage() {
 
   if (placedOrder) {
     return (
-      <div className="min-h-screen bg-powder-50 py-16">
-        <div className="max-w-xl mx-auto px-4">
-          <div className="bg-white rounded-3xl p-10 text-center">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Check className="h-10 w-10 text-green-600" />
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-3">
-              Almost done — send us the message
-            </h1>
-            <p className="text-gray-600 mb-8">
-              We&apos;ve saved your order as{" "}
-              <span className="font-semibold text-gray-900">
-                {placedOrder.orderNumber}
-              </span>
-              . WhatsApp should have opened in a new tab. Send the message and
-              we&apos;ll confirm your order and delivery details there.
-            </p>
-
-            <a
-              href={placedOrder.whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 w-full bg-green-600 text-white py-4 rounded-xl font-semibold hover:bg-green-700 transition-colors"
-            >
-              <MessageCircle className="h-5 w-5" />
-              Open WhatsApp
-            </a>
-
-            <button
-              onClick={() => router.push("/shop")}
-              className="w-full mt-3 bg-white text-powder-700 border-2 border-powder-600 py-4 rounded-xl font-semibold hover:bg-powder-50 transition-colors"
-            >
-              Continue shopping
-            </button>
+      <div className="container-luxury py-20">
+        <div className="mx-auto max-w-xl border border-ivory-200 bg-white p-10 text-center">
+          <div className="mx-auto mb-7 flex h-16 w-16 items-center justify-center rounded-full bg-champagne-100">
+            <Check className="h-8 w-8 text-champagne-600" strokeWidth={1.5} />
           </div>
+          <h1 className="font-heading text-3xl font-light text-charcoal-900">
+            Bas ek kadam aur — message bhej dijiye
+          </h1>
+          <p className="mt-4 text-charcoal-500">
+            Aapka order{" "}
+            <span className="font-medium text-charcoal-900">
+              {placedOrder.orderNumber}
+            </span>{" "}
+            save ho gaya hai. WhatsApp naye tab mein khul gaya hoga — message
+            bhejiye aur hum wahin order aur delivery confirm kar denge.
+          </p>
+
+          {/* Green only at the literal handoff, where the WhatsApp cue helps. */}
+          <a
+            href={placedOrder.whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-8 flex w-full items-center justify-center gap-2 bg-[#128C7E] px-6 py-4 text-sm font-medium uppercase tracking-[0.18em] text-white transition-colors can-hover:hover:bg-[#0e6f64]"
+          >
+            <MessageCircle className="h-5 w-5" />
+            WhatsApp Kholein
+          </a>
+
+          <button
+            onClick={() => router.push("/shop")}
+            className="mt-3 w-full border border-charcoal-900 px-6 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-charcoal-900 transition-colors can-hover:hover:bg-charcoal-900 can-hover:hover:text-ivory-50"
+          >
+            Aur Dekhein
+          </button>
         </div>
       </div>
     );
@@ -224,307 +229,303 @@ export default function CheckoutPage() {
 
   if (!isQuoting && (items.length === 0 || !quote || quote.lines.length === 0)) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-20 text-center">
-        <ShoppingBag className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-        <h1 className="text-2xl font-heading font-bold mb-2">
-          Your cart is empty
+      <div className="container-luxury py-24 text-center">
+        <ShoppingBag className="mx-auto mb-6 h-14 w-14 text-champagne-400" strokeWidth={1} />
+        <h1 className="font-heading text-3xl font-light text-charcoal-900">
+          Aapka cart khaali hai
         </h1>
-        <p className="text-gray-600 mb-8">
-          Add a piece you love and we&apos;ll take it from there.
+        <p className="mx-auto mt-3 max-w-md text-charcoal-500">
+          Apni pasand ka piece chuniye, baaki hum sambhaal lenge.
         </p>
-        <Link
-          href="/shop"
-          className="inline-block bg-powder-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-powder-700 transition-colors"
-        >
-          Browse the collection
+        <Link href="/shop" className="mt-10 inline-block">
+          <span className="inline-flex items-center justify-center bg-charcoal-900 px-10 py-4 text-sm font-medium uppercase tracking-[0.18em] text-ivory-50 transition-colors can-hover:hover:bg-charcoal-800">
+            Collection Dekhein
+          </span>
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-powder-50 py-12">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-heading font-bold text-gray-900 mb-3">
-            Complete your order
-          </h1>
-          <p className="text-gray-600">
-            Fill in your details and we&apos;ll continue on WhatsApp — no online
-            payment needed.
-          </p>
-        </div>
+    <div className="container-luxury py-14">
+      <div className="text-center">
+        <p className="section-kicker text-champagne-600">Almost There</p>
+        <h1 className="mt-3 font-heading text-4xl font-light text-charcoal-900">
+          Complete your order
+        </h1>
+        <p className="mx-auto mt-3 max-w-lg text-charcoal-500">
+          Apni details bhariye — baaki baat WhatsApp par hogi. Koi online
+          payment nahi.
+        </p>
+      </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <form
-              onSubmit={handleSubmit}
-              className="bg-white rounded-3xl p-6 sm:p-8 space-y-6"
-            >
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-3">
-                <Truck className="h-6 w-6 text-powder-600" />
-                Your details
-              </h2>
+      <div className="mt-12 grid gap-10 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6 border border-ivory-200 bg-white p-6 sm:p-8"
+          >
+            <h2 className="flex items-center gap-3 font-heading text-xl font-light text-charcoal-900">
+              <Truck className="h-5 w-5 text-champagne-600" strokeWidth={1.5} />
+              Your details
+            </h2>
 
+            <div>
+              <label htmlFor="fullName" className={labelClass}>
+                Poora naam *
+              </label>
+              <input
+                id="fullName"
+                name="fullName"
+                type="text"
+                required
+                value={form.fullName}
+                onChange={handleChange}
+                className={fieldClass}
+                placeholder="Aapka naam"
+              />
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label
-                  htmlFor="fullName"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
-                >
-                  Full name *
+                <label htmlFor="phone" className={labelClass}>
+                  Mobile number *
                 </label>
                 <input
-                  id="fullName"
-                  name="fullName"
-                  type="text"
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  inputMode="numeric"
                   required
-                  value={form.fullName}
+                  value={form.phone}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
-                  placeholder="Your name"
+                  className={fieldClass}
+                  placeholder="10 digit mobile number"
                 />
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="phone"
-                    className="block text-sm font-semibold text-gray-700 mb-2"
-                  >
-                    Mobile number *
-                  </label>
-                  <input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    inputMode="numeric"
-                    required
-                    value={form.phone}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
-                    placeholder="10-digit mobile number"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-semibold text-gray-700 mb-2"
-                  >
-                    Email (optional)
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
-                    placeholder="you@example.com"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-2">
-                <h3 className="text-sm font-semibold text-gray-900 mb-1 flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-powder-600" />
-                  Delivery address
-                </h3>
-                <p className="text-xs text-gray-500 mb-4">
-                  Optional — you can also share this on WhatsApp.
-                </p>
-
-                <div className="space-y-4">
-                  <textarea
-                    name="address"
-                    rows={2}
-                    value={form.address}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent resize-none"
-                    placeholder="House no., street, area"
-                    aria-label="Street address"
-                  />
-
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <input
-                      name="city"
-                      type="text"
-                      value={form.city}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
-                      placeholder="City"
-                      aria-label="City"
-                    />
-                    <input
-                      name="state"
-                      type="text"
-                      value={form.state}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
-                      placeholder="State"
-                      aria-label="State"
-                    />
-                    <input
-                      name="pincode"
-                      type="text"
-                      inputMode="numeric"
-                      value={form.pincode}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent"
-                      placeholder="PIN code"
-                      aria-label="PIN code"
-                    />
-                  </div>
-                </div>
               </div>
 
               <div>
-                <label
-                  htmlFor="notes"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
-                >
-                  Anything you&apos;d like us to know? (optional)
+                <label htmlFor="email" className={labelClass}>
+                  Email (optional)
                 </label>
-                <textarea
-                  id="notes"
-                  name="notes"
-                  rows={2}
-                  value={form.notes}
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={form.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-powder-500 focus:border-transparent resize-none"
-                  placeholder="Sizing, gift wrap, delivery timing…"
+                  className={fieldClass}
+                  placeholder="you@example.com"
                 />
               </div>
+            </div>
 
-              {submitError && (
-                <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 text-sm">
-                  <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                  <span>{submitError}</span>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isSubmitting || isQuoting}
-                className="w-full bg-green-600 text-white py-4 rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    Placing your order…
-                  </>
-                ) : (
-                  <>
-                    <MessageCircle className="h-5 w-5" />
-                    Place order on WhatsApp
-                  </>
-                )}
-              </button>
-
-              <p className="text-xs text-center text-gray-500">
-                We&apos;ll save your order and open WhatsApp so you can send it
-                to us. Nothing is charged online.
+            <div className="pt-2">
+              <h3 className="flex items-center gap-2 text-sm font-medium text-charcoal-900">
+                <MapPin className="h-4 w-4 text-champagne-600" strokeWidth={1.5} />
+                Delivery address
+              </h3>
+              <p className="mb-4 mt-1 text-xs text-charcoal-500">
+                Optional — WhatsApp par bhi bata sakte hain.
               </p>
-            </form>
-          </div>
 
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-3xl p-6 sticky top-8">
-              <h2 className="text-lg font-bold text-gray-900 mb-5">
-                Order summary
-              </h2>
+              <div className="space-y-4">
+                <textarea
+                  name="address"
+                  rows={2}
+                  value={form.address}
+                  onChange={handleChange}
+                  className={`${fieldClass} resize-none`}
+                  placeholder="Ghar no., gali, area"
+                  aria-label="Street address"
+                />
 
-              {isQuoting ? (
-                <div className="flex items-center gap-2 text-gray-500 text-sm py-6">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Checking today&apos;s prices…
+                <div className="grid gap-4 md:grid-cols-3">
+                  <input
+                    name="city"
+                    type="text"
+                    value={form.city}
+                    onChange={handleChange}
+                    className={fieldClass}
+                    placeholder="Sheher"
+                    aria-label="City"
+                  />
+                  <input
+                    name="state"
+                    type="text"
+                    value={form.state}
+                    onChange={handleChange}
+                    className={fieldClass}
+                    placeholder="Rajya"
+                    aria-label="State"
+                  />
+                  <input
+                    name="pincode"
+                    type="text"
+                    inputMode="numeric"
+                    value={form.pincode}
+                    onChange={handleChange}
+                    className={fieldClass}
+                    placeholder="PIN code"
+                    aria-label="PIN code"
+                  />
                 </div>
-              ) : quoteError ? (
-                <div className="text-sm text-red-600">{quoteError}</div>
-              ) : quote ? (
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="notes" className={labelClass}>
+                Kuch aur batana chahte hain? (optional)
+              </label>
+              <textarea
+                id="notes"
+                name="notes"
+                rows={2}
+                value={form.notes}
+                onChange={handleChange}
+                className={`${fieldClass} resize-none`}
+                placeholder="Size, gift wrap, delivery ka time…"
+              />
+            </div>
+
+            {submitError && (
+              <div className="flex items-start gap-2 border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0" />
+                <span>{submitError}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isSubmitting || isQuoting}
+              className="flex w-full items-center justify-center gap-2 bg-charcoal-900 px-6 py-4 text-sm font-medium uppercase tracking-[0.18em] text-ivory-50 transition-colors can-hover:hover:bg-charcoal-800 disabled:cursor-not-allowed disabled:bg-charcoal-300"
+            >
+              {isSubmitting ? (
                 <>
-                  {quote.unavailable.length > 0 && (
-                    <div className="mb-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-3 text-xs">
-                      {quote.unavailable
-                        .map((u) => `${u.name ?? "An item"} is ${u.reason}`)
-                        .join(". ")}
-                      . It has been removed from your cart.
-                    </div>
-                  )}
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Order bheja ja raha hai…
+                </>
+              ) : (
+                <>
+                  <MessageCircle className="h-5 w-5" />
+                  WhatsApp Par Order Karein
+                </>
+              )}
+            </button>
 
-                  <div className="space-y-4 mb-5 pb-5 border-b">
-                    {quote.lines.map((line) => (
-                      <div key={line.productId} className="flex gap-3">
-                        <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-powder-100 flex-shrink-0">
-                          {line.image && (
-                            <Image
-                              src={line.image}
-                              alt={line.name}
-                              fill
-                              sizes="64px"
-                              className="object-cover"
-                            />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-gray-900 text-sm line-clamp-2">
-                            {line.name}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            {line.silverWeight}g · Qty {line.quantity}
-                          </p>
-                          <p className="text-sm font-semibold text-powder-700 mt-1">
-                            {formatPrice(line.lineTotal)}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+            <p className="text-center text-xs text-charcoal-500">
+              Hum aapka order save karke WhatsApp khol denge taaki aap message
+              bhej sakein. Online kuch charge nahi hoga.
+            </p>
+          </form>
+        </div>
+
+        <div className="lg:col-span-1">
+          <div className="sticky top-36 border border-ivory-200 bg-ivory-100/60 p-7">
+            <h2 className="font-heading text-xl font-light text-charcoal-900">
+              Order summary
+            </h2>
+
+            {isQuoting ? (
+              <div className="flex items-center gap-2 py-8 text-sm text-charcoal-500">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Aaj ke daam check kar rahe hain…
+              </div>
+            ) : quoteError ? (
+              <div className="mt-5 text-sm text-red-600">{quoteError}</div>
+            ) : quote ? (
+              <>
+                {quote.unavailable.length > 0 && (
+                  <div className="mt-5 border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+                    {quote.unavailable
+                      .map((u) => `${u.name ?? "An item"} is ${u.reason}`)
+                      .join(". ")}
+                    . It has been removed from your cart.
                   </div>
+                )}
 
-                  <div className="space-y-2 mb-5 pb-5 border-b text-sm">
-                    <div className="flex justify-between text-gray-700">
-                      <span>Subtotal</span>
-                      <span className="font-semibold">
-                        {formatPrice(quote.subtotal)}
-                      </span>
-                    </div>
-                    {quote.gst.amount > 0 && !quote.gst.inclusive && (
-                      <div className="flex justify-between text-gray-700">
-                        <span>GST ({quote.gst.rate}%)</span>
-                        <span className="font-semibold">
-                          {formatPrice(quote.gst.amount)}
-                        </span>
+                <div className="mt-6 space-y-4 border-b border-ivory-300 pb-6">
+                  {quote.lines.map((line) => (
+                    <div key={line.productId} className="flex gap-3">
+                      <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden bg-ivory-200">
+                        {line.image && (
+                          <Image
+                            src={line.image}
+                            alt={line.name}
+                            fill
+                            sizes="64px"
+                            className="object-cover"
+                          />
+                        )}
                       </div>
-                    )}
-                    <div className="flex justify-between text-gray-700">
-                      <span>Shipping</span>
-                      <span className="font-semibold">
-                        {quote.shipping === 0
-                          ? "Free"
-                          : formatPrice(quote.shipping)}
-                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="line-clamp-2 text-sm text-charcoal-900">
+                          {line.name}
+                        </p>
+                        <p className="mt-0.5 text-xs text-charcoal-500">
+                          {line.silverWeight}g · Qty {line.quantity}
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-charcoal-900">
+                          {formatPrice(line.lineTotal)}
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  ))}
+                </div>
 
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-gray-900">Total</span>
-                    <span className="text-2xl font-bold text-powder-700">
-                      {formatPrice(quote.total)}
+                <div className="space-y-3 border-b border-ivory-300 py-6 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-charcoal-500">Subtotal</span>
+                    <span className="text-charcoal-900">
+                      {formatPrice(quote.subtotal)}
                     </span>
                   </div>
-                  {quote.gst.amount > 0 && quote.gst.inclusive && (
-                    <p className="mt-2 text-xs text-gray-500">
-                      Includes {quote.gst.rate}% GST ({formatPrice(quote.gst.amount)})
-                    </p>
+                  {quote.gst.amount > 0 && !quote.gst.inclusive && (
+                    <div className="flex justify-between">
+                      <span className="text-charcoal-500">
+                        GST ({quote.gst.rate}%)
+                      </span>
+                      <span className="text-charcoal-900">
+                        {formatPrice(quote.gst.amount)}
+                      </span>
+                    </div>
                   )}
+                  <div className="flex justify-between">
+                    <span className="text-charcoal-500">Shipping</span>
+                    <span
+                      className={
+                        quote.shipping === 0
+                          ? "font-medium text-champagne-600"
+                          : "text-charcoal-900"
+                      }
+                    >
+                      {quote.shipping === 0
+                        ? "Free"
+                        : formatPrice(quote.shipping)}
+                    </span>
+                  </div>
+                </div>
 
-                  <p className="text-xs text-gray-500 mt-4">
-                    Priced at today&apos;s silver rate. We&apos;ll confirm the
-                    final amount with you on WhatsApp.
+                <div className="flex items-baseline justify-between pt-6">
+                  <span className="text-sm uppercase tracking-[0.18em] text-charcoal-700">
+                    Total
+                  </span>
+                  <span className="font-heading text-2xl text-charcoal-900">
+                    {formatPrice(quote.total)}
+                  </span>
+                </div>
+                {quote.gst.amount > 0 && quote.gst.inclusive && (
+                  <p className="mt-2 text-xs text-charcoal-500">
+                    Includes {quote.gst.rate}% GST ({formatPrice(quote.gst.amount)})
                   </p>
-                </>
-              ) : null}
-            </div>
+                )}
+
+                <p className="mt-4 text-xs text-charcoal-500">
+                  Aaj ke chaandi bhaav par. Final amount hum WhatsApp par confirm
+                  karenge.
+                </p>
+              </>
+            ) : null}
           </div>
         </div>
       </div>

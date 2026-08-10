@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { cartSchema, quoteCart } from "@/lib/orders";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 /**
  * POST /api/cart/quote
@@ -10,6 +11,15 @@ import { cartSchema, quoteCart } from "@/lib/orders";
  */
 export async function POST(request: NextRequest) {
   try {
+    // Each quote runs a database query per line, so this is the cheapest way to
+    // load the free-tier Render database from outside. Generous enough that real
+    // cart editing never trips it.
+    const limited = enforceRateLimit(request, "cart-quote", {
+      limit: 60,
+      windowMs: 60 * 1000,
+    });
+    if (limited) return limited;
+
     const parsed = cartSchema.safeParse(await request.json());
 
     if (!parsed.success) {

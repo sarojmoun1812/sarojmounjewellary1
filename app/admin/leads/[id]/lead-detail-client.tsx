@@ -9,15 +9,17 @@ import {
   Phone,
   Mail,
   MessageSquare,
-  Clock,
   Save,
   Loader2,
   CheckCircle,
-  User,
   Target,
   Send,
-  ExternalLink,
 } from "lucide-react";
+import {
+  LEAD_STATUS_OPTIONS,
+  leadSourceLabel,
+  leadStatusLabel,
+} from "@/lib/admin-labels";
 
 interface Lead {
   id: string;
@@ -32,36 +34,35 @@ interface Lead {
   updatedAt: string;
 }
 
-const statuses = [
-  { value: "NEW", label: "New Lead", color: "bg-emerald-100 text-emerald-700 ring-emerald-500" },
-  { value: "CONTACTED", label: "Contacted", color: "bg-sky-100 text-sky-700 ring-sky-500" },
-  { value: "QUALIFIED", label: "Qualified", color: "bg-violet-100 text-violet-700 ring-violet-500" },
-  { value: "CONVERTED", label: "Converted", color: "bg-teal-100 text-teal-700 ring-teal-500" },
-  { value: "LOST", label: "Lost", color: "bg-red-100 text-red-700 ring-red-500" },
-];
-
 export function LeadDetailClient({ lead }: { lead: Lead }) {
   const router = useRouter();
   const [status, setStatus] = useState(lead.status);
   const [notes, setNotes] = useState(lead.notes || "");
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSave = async () => {
     setIsSaving(true);
+    setError("");
     try {
       const res = await fetch(`/api/admin/leads/${lead.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status, notes }),
       });
-      if (res.ok) {
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
-        router.refresh();
+      // A failed response used to be swallowed here, so a rejected save looked
+      // exactly like a successful one: nothing happened and nothing was said.
+      if (!res.ok) {
+        throw new Error("Save nahi ho paaya. Dobara koshish karein.");
       }
-    } catch (error) {
-      console.error("Failed to update lead:", error);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+      router.refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Save nahi ho paaya. Dobara koshish karein."
+      );
     } finally {
       setIsSaving(false);
     }
@@ -77,7 +78,7 @@ export function LeadDetailClient({ lead }: { lead: Lead }) {
     }).format(new Date(date));
   };
 
-  const whatsappMessage = `Hi ${lead.name}! This is Saroj Moun Jewellery. Thank you for your interest in our silver jewellery collection. How can we help you today?`;
+  const whatsappMessage = `Namaste ${lead.name} ji! Saroj Moun Jewellery se baat kar rahe hain. Aapne hamari chaandi ki jewellery mein interest dikhaya tha — bataiye, kya dekhna chahenge?`;
 
   return (
     <motion.div
@@ -91,23 +92,31 @@ export function LeadDetailClient({ lead }: { lead: Lead }) {
           <ArrowLeft className="h-5 w-5 text-gray-600" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900">Lead Detail</h1>
-          <p className="text-gray-500 text-sm">Manage and follow up with this lead</p>
+          <h1 className="text-2xl font-bold text-gray-900">Poori jaankari</h1>
+          <p className="text-gray-500 text-sm">
+            Baat karke yahan status aur note likh dein.
+          </p>
         </div>
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg transition-all disabled:opacity-50"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-charcoal-900 text-white rounded-xl font-semibold text-sm hover:bg-charcoal-800 transition-all disabled:opacity-50"
         >
           {isSaving ? (
-            <><Loader2 className="h-4 w-4 animate-spin" /> Saving...</>
+            <><Loader2 className="h-4 w-4 animate-spin" /> Save ho raha hai…</>
           ) : saved ? (
-            <><CheckCircle className="h-4 w-4" /> Saved!</>
+            <><CheckCircle className="h-4 w-4" /> Save ho gaya</>
           ) : (
-            <><Save className="h-4 w-4" /> Save Changes</>
+            <><Save className="h-4 w-4" /> Save karein</>
           )}
         </button>
       </div>
+
+      {error && (
+        <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Info */}
@@ -142,7 +151,7 @@ export function LeadDetailClient({ lead }: { lead: Lead }) {
                 className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-50 text-blue-700 rounded-xl font-medium text-sm hover:bg-blue-100 transition-colors"
               >
                 <Phone className="h-4 w-4" />
-                Call Now
+                Call karein
               </a>
               <a
                 href={`https://wa.me/${lead.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(whatsappMessage)}`}
@@ -170,7 +179,7 @@ export function LeadDetailClient({ lead }: { lead: Lead }) {
             <div className="bg-white rounded-2xl border border-gray-100 p-6">
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                 <MessageSquare className="h-5 w-5 text-gray-400" />
-                Message from Lead
+                Unhone ye likha hai
               </h3>
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-gray-700 text-sm leading-relaxed">{lead.message}</p>
@@ -181,17 +190,19 @@ export function LeadDetailClient({ lead }: { lead: Lead }) {
           {/* Notes / Follow-up */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <Target className="h-5 w-5 text-amber-500" />
-              CRM Notes &amp; Follow-up
+              <Target className="h-5 w-5 text-champagne-500" />
+              Aapke notes
             </h3>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={6}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-400 text-sm resize-none"
-              placeholder="Add notes about this lead... e.g.&#10;- Called on 15 Feb, interested in necklace set&#10;- Follow up on 20 Feb with pricing&#10;- Sent WhatsApp catalogue"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-champagne-500/40 focus:border-champagne-400 text-sm resize-none"
+              placeholder="Yahan apne liye likhein, jaise:&#10;- 15 Feb ko baat hui, necklace set pasand aaya&#10;- 20 Feb ko phir call karna hai&#10;- WhatsApp par photos bheji"
             />
-            <p className="text-xs text-gray-400 mt-2">These notes are only visible to admins</p>
+            <p className="text-xs text-gray-400 mt-2">
+              Ye notes sirf aapko dikhte hain, customer ko nahi.
+            </p>
           </div>
         </div>
 
@@ -199,41 +210,50 @@ export function LeadDetailClient({ lead }: { lead: Lead }) {
         <div className="space-y-6">
           {/* Status */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">Lead Status</h3>
+            <h3 className="font-semibold text-gray-900 mb-4">Kahan tak baat pahunchi</h3>
             <div className="space-y-2">
-              {statuses.map((s) => (
-                <button
-                  key={s.value}
-                  onClick={() => setStatus(s.value)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                    status === s.value
-                      ? `${s.color} ring-2 ring-offset-1`
-                      : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <div className={`w-2.5 h-2.5 rounded-full ${
-                    status === s.value ? "bg-current" : "bg-gray-300"
-                  }`} />
-                  {s.label}
-                </button>
-              ))}
+              {LEAD_STATUS_OPTIONS.map((value) => {
+                const option = leadStatusLabel(value);
+                const selected = status === value;
+                return (
+                  <button
+                    key={value}
+                    onClick={() => setStatus(value)}
+                    aria-pressed={selected}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                      selected
+                        ? `${option.className} ring-2 ring-current ring-offset-1`
+                        : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    <div
+                      className={`h-2.5 w-2.5 flex-shrink-0 rounded-full ${
+                        selected ? "bg-current" : "bg-gray-300"
+                      }`}
+                    />
+                    <span className="text-left">{option.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           {/* Meta Info */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">Details</h3>
+            <h3 className="font-semibold text-gray-900 mb-4">Jaankari</h3>
             <div className="space-y-4 text-sm">
               <div>
-                <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Source</p>
-                <p className="font-medium text-gray-900">{lead.source.replace(/_/g, " ")}</p>
+                <p className="mb-1 text-xs text-gray-400">Kahan se aaye</p>
+                <p className="font-medium text-gray-900">
+                  {leadSourceLabel(lead.source)}
+                </p>
               </div>
               <div>
-                <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Created</p>
+                <p className="mb-1 text-xs text-gray-400">Kab aaye</p>
                 <p className="font-medium text-gray-900">{formatDate(lead.createdAt)}</p>
               </div>
               <div>
-                <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Last Updated</p>
+                <p className="mb-1 text-xs text-gray-400">Aakhri badlaav</p>
                 <p className="font-medium text-gray-900">{formatDate(lead.updatedAt)}</p>
               </div>
             </div>

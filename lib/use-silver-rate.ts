@@ -1,39 +1,64 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { fetchSilverRate } from "@/lib/pricing";
+import { useEffect, useState } from "react";
+import {
+  DEFAULT_LABOUR_PER_GRAM,
+  FALLBACK_SILVER_RATE_PER_GRAM,
+  isPlausibleRate,
+} from "@/lib/pricing";
 
 /**
- * React hook to fetch and manage current silver rate
- * Auto-refreshes every 6 hours
+ * The current silver rate and labour charge, for the few places that need them
+ * in the browser: the rate badge and the live price preview in the admin form.
+ *
+ * The fallback used to be ₹95/g, which is under half the real market rate, so a
+ * failed fetch quietly halved every price shown. It now shares the same
+ * constant as the server.
+ *
+ * updatedAt is whatever the server reports, not the moment the fetch returned.
+ * Stamping it with the current time made a week-old rate look freshly updated,
+ * which is exactly the situation someone needs to be able to see.
  */
 export function useSilverRate() {
-  const [silverRate, setSilverRate] = useState<number>(95.0); // Default fallback
+  const [silverRate, setSilverRate] = useState(FALLBACK_SILVER_RATE_PER_GRAM);
+  const [labourPerGram, setLabourPerGram] = useState(DEFAULT_LABOUR_PER_GRAM);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
-    async function loadSilverRate() {
-      setLoading(true);
+    let cancelled = false;
+
+    async function load() {
       try {
-        const rate = await fetchSilverRate();
-        setSilverRate(rate);
-        setLastUpdated(new Date());
+        const res = await fetch("/api/silver-rate");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
+        if (cancelled) return;
+
+        if (isPlausibleRate(data.ratePerGram)) {
+          setSilverRate(data.ratePerGram);
+        }
+        if (typeof data.labourPerGram === "number" && data.labourPerGram > 0) {
+          setLabourPerGram(data.labourPerGram);
+        }
+        setLastUpdated(data.updatedAt ? new Date(data.updatedAt) : null);
       } catch (error) {
-        console.error("Failed to load silver rate:", error);
-        setSilverRate(95.0); // Fallback
+        console.error("[silver-rate] Could not load the rate:", error);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
 
-    loadSilverRate();
+    load();
 
-    // Refresh every 6 hours
-    const interval = setInterval(loadSilverRate, 6 * 60 * 60 * 1000);
+    const interval = setInterval(load, 6 * 60 * 60 * 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
   }, []);
 
-  return { silverRate, loading, lastUpdated };
+  return { silverRate, labourPerGram, loading, lastUpdated };
 }

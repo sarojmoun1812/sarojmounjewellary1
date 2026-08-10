@@ -54,8 +54,6 @@ async function main() {
       slug: "royal-peacock-temple-necklace",
       description: "Exquisite handcrafted temple necklace featuring intricate peacock motifs. This stunning piece showcases traditional Indian craftsmanship with modern elegance. Perfect for weddings, festivals, and special celebrations. Each detail is carefully carved by skilled artisans.",
       silverWeight: 55.5,
-      makingCharges: 150000, // ₹1500 in paise
-      profitPerGram: 100,
       category: "Necklaces",
       images: [
         PLACEHOLDER_IMAGE,
@@ -73,8 +71,6 @@ async function main() {
       slug: "traditional-heavy-kada",
       description: "Bold and beautiful traditional silver kada for men and women. This heavyweight piece features classic design patterns that have been passed down through generations. A statement piece that adds elegance to any outfit.",
       silverWeight: 45.0,
-      makingCharges: 120000, // ₹1200 in paise
-      profitPerGram: 100,
       category: "Kadas",
       images: [
         PLACEHOLDER_IMAGE,
@@ -92,8 +88,6 @@ async function main() {
       slug: "elegant-jhumka-earrings",
       description: "Timeless jhumka earrings that blend traditional charm with contemporary style. Features delicate bell-shaped design with intricate detailing. Lightweight and comfortable for all-day wear.",
       silverWeight: 18.5,
-      makingCharges: 80000, // ₹800 in paise
-      profitPerGram: 100,
       category: "Earrings",
       images: [
         PLACEHOLDER_IMAGE,
@@ -111,8 +105,6 @@ async function main() {
       slug: "designer-oxidized-ring",
       description: "Stunning oxidized silver ring with intricate carved patterns. The antique finish gives it a unique vintage look. Adjustable size makes it perfect for gifting.",
       silverWeight: 8.5,
-      makingCharges: 50000, // ₹500 in paise
-      profitPerGram: 100,
       category: "Rings",
       images: [
         PLACEHOLDER_IMAGE,
@@ -130,8 +122,6 @@ async function main() {
       slug: "minimalist-chain-necklace",
       description: "Sleek and simple silver chain necklace for everyday elegance. This minimalist piece can be worn alone or layered with other necklaces. Perfect for work, casual outings, or special occasions.",
       silverWeight: 12.0,
-      makingCharges: 40000, // ₹400 in paise
-      profitPerGram: 100,
       category: "Necklaces",
       images: [
         PLACEHOLDER_IMAGE,
@@ -149,8 +139,6 @@ async function main() {
       slug: "antique-temple-earrings",
       description: "Beautiful temple-style earrings inspired by ancient Indian temple architecture. Features goddess motifs and intricate detailing. A perfect blend of tradition and artistry.",
       silverWeight: 22.0,
-      makingCharges: 90000, // ₹900 in paise
-      profitPerGram: 100,
       category: "Earrings",
       images: [
         PLACEHOLDER_IMAGE,
@@ -168,8 +156,6 @@ async function main() {
       slug: "sleek-silver-bangle-set",
       description: "Set of 4 elegant silver bangles with smooth polished finish. These stackable bangles add grace to any outfit. Perfect for daily wear or special occasions.",
       silverWeight: 40.0,
-      makingCharges: 100000, // ₹1000 in paise
-      profitPerGram: 100,
       category: "Kadas",
       images: [
         PLACEHOLDER_IMAGE,
@@ -187,8 +173,6 @@ async function main() {
       slug: "statement-cocktail-ring",
       description: "Bold statement ring perfect for parties and special events. Features a large dome design with geometric patterns. A conversation starter piece that showcases your unique style.",
       silverWeight: 15.0,
-      makingCharges: 70000, // ₹700 in paise
-      profitPerGram: 100,
       category: "Rings",
       images: [
         PLACEHOLDER_IMAGE,

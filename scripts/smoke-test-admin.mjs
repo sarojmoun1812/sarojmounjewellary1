@@ -74,8 +74,6 @@ async function main() {
     description: "Created by the admin smoke test.",
     category: "Rings",
     silverWeight: 10,
-    makingCharges: 50000, // ₹500 in paise
-    profitPerGram: 100,
     images: ["https://res.cloudinary.com/demo/image/upload/sample.jpg"],
     tags: ["test", "silver"],
     stock: 7,
@@ -114,33 +112,35 @@ async function main() {
   const productId = created.json?.product?.id;
 
   console.log("\n3. Validation");
+  // The admin form no longer asks for a slug, so a repeated name must not be an
+  // error she cannot act on — it gets a numeric suffix instead.
   const dupe = await api("POST", "/api/admin/products", {
-    name: "Dupe",
-    slug: SLUG,
+    name: "Smoke Test Piece",
     description: "x",
     category: "Rings",
     silverWeight: 1,
-    makingCharges: 1,
   });
-  check("duplicate slug rejected", dupe.status === 400, `got ${dupe.status}`);
+  check("repeated name gets its own link", dupe.status === 201, `got ${dupe.status}`);
+  check(
+    "suffixed slug differs from the original",
+    dupe.json?.product?.slug && dupe.json.product.slug !== SLUG,
+    `got ${dupe.json?.product?.slug}`
+  );
+  const dupeId = dupe.json?.product?.id;
 
-  const badSlug = await api("POST", "/api/admin/products", {
-    name: "Bad",
-    slug: "Not A Slug!",
+  const noName = await api("POST", "/api/admin/products", {
+    name: "   ",
     description: "x",
     category: "Rings",
     silverWeight: 1,
-    makingCharges: 1,
   });
-  check("malformed slug rejected", badSlug.status === 400, `got ${badSlug.status}`);
+  check("blank name rejected", noName.status === 400, `got ${noName.status}`);
 
   const negWeight = await api("POST", "/api/admin/products", {
-    name: "Bad",
-    slug: "negative-weight",
+    name: "Bad Weight",
     description: "x",
     category: "Rings",
     silverWeight: -5,
-    makingCharges: 1,
   });
   check("negative weight rejected", negWeight.status === 400, `got ${negWeight.status}`);
 
@@ -154,9 +154,9 @@ async function main() {
   );
   check("images are an array on read", Array.isArray(fetched.json?.product?.images));
   check(
-    "making charges are in paise (₹500 => 50000)",
-    fetched.json?.product?.makingCharges === 50000,
-    `got ${fetched.json?.product?.makingCharges}`
+    "weight in grams round-trips",
+    fetched.json?.product?.silverWeight === 10,
+    `got ${fetched.json?.product?.silverWeight}`
   );
 
   console.log("\n5. Editing (previously sent PUT to a PATCH-only route)");
@@ -169,16 +169,16 @@ async function main() {
 
   const updated = await api("PATCH", `/api/admin/products/${productId}`, {
     name: "Smoke Test Piece (edited)",
-    makingCharges: 75000, // ₹750 in paise
+    silverWeight: 12.5,
     stock: 3,
     tags: ["updated"],
   });
   check("PATCH succeeds", updated.status === 200, JSON.stringify(updated.json));
   check("name updated", updated.json?.product?.name === "Smoke Test Piece (edited)");
   check(
-    "making charges updated in paise",
-    updated.json?.product?.makingCharges === 75000,
-    `got ${updated.json?.product?.makingCharges}`
+    "weight updated",
+    updated.json?.product?.silverWeight === 12.5,
+    `got ${updated.json?.product?.silverWeight}`
   );
   check("stock updated", updated.json?.product?.stock === 3);
   check(
@@ -219,7 +219,26 @@ async function main() {
   const goodRate = await api("POST", "/api/silver-rate", { ratePerGram: 240 });
   check("valid rate accepted", goodRate.status === 200, JSON.stringify(goodRate.json));
 
-  console.log("\n9. Delete");
+  console.log("\n9. Photo upload and the daily rate job are protected");
+  const anonUpload = await fetch(`${BASE}/api/admin/upload`, { method: "POST" });
+  check(
+    "upload rejects an unauthenticated request",
+    anonUpload.status === 401,
+    `got ${anonUpload.status}`
+  );
+
+  // Only meaningful when CRON_SECRET is configured; without it the endpoint is
+  // deliberately open so a local run still works.
+  if (process.env.CRON_SECRET) {
+    const anonCron = await fetch(`${BASE}/api/cron/silver-rate`);
+    check(
+      "the daily rate job rejects a request with no secret",
+      anonCron.status === 401,
+      `got ${anonCron.status}`
+    );
+  }
+
+  console.log("\n10. Delete");
   const del = await api("DELETE", `/api/admin/products/${productId}`);
   check("product deleted", del.status === 200);
   check(
@@ -227,7 +246,8 @@ async function main() {
     (await prisma.product.findUnique({ where: { slug: SLUG } })) === null
   );
 
-  console.log("\n10. Cleanup");
+  console.log("\n11. Cleanup");
+  if (dupeId) await api("DELETE", `/api/admin/products/${dupeId}`);
   await prisma.silverRate.deleteMany({ where: { source: { startsWith: "Manual" } } });
   await prisma.adminSession.deleteMany({});
   console.log("  test data removed, sessions cleared");

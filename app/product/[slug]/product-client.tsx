@@ -22,7 +22,7 @@ import {
   Check,
 } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
-import { calculateProductPrice, formatPrice } from "@/lib/pricing";
+import { formatPrice, type PriceBreakdown } from "@/lib/pricing";
 import type { GstSettings } from "@/lib/tax";
 import { ProductInquiryForm } from "@/components/product-inquiry-form";
 import { Reveal, StaggerItem, StaggerReveal } from "@/components/reveal";
@@ -35,8 +35,6 @@ interface Product {
   slug: string;
   description: string;
   silverWeight: number;
-  makingCharges: number;
-  profitPerGram: number;
   fixedPrice: number | null;
   category: string;
   images: string[];
@@ -47,16 +45,21 @@ interface Product {
   tags: string[];
 }
 
+/** Related products arrive already priced, in paise. */
+interface RelatedProduct extends Product {
+  price: number;
+}
+
 interface ProductDetailClientProps {
   product: Product;
-  silverRate: number;
+  breakdown: PriceBreakdown;
   gst: GstSettings;
-  relatedProducts: Product[];
+  relatedProducts: RelatedProduct[];
 }
 
 export function ProductDetailClient({
   product,
-  silverRate,
+  breakdown: priceBreakdown,
   gst,
   relatedProducts,
 }: ProductDetailClientProps) {
@@ -68,17 +71,6 @@ export function ProductDetailClient({
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
-
-  // Calculate price
-  const priceBreakdown = calculateProductPrice(
-    {
-      silverWeight: product.silverWeight,
-      makingCharges: product.makingCharges,
-      profitPerGram: product.profitPerGram,
-      fixedPrice: product.fixedPrice || undefined,
-    },
-    silverRate
-  );
 
   const images = product.images.length > 0 ? product.images : ["/peacock-jewellery.jpeg"];
 
@@ -239,40 +231,18 @@ export function ProductDetailClient({
               <p className="text-charcoal-600 leading-relaxed">{product.description}</p>
             </div>
 
-            {/* Price Section */}
-            <div className="bg-ivory-100 p-6 space-y-4">
+            {/* Price Section
+                One all-inclusive figure, with no split into silver cost and
+                making charges. The weight is still shown in the details below,
+                which is what a buyer checks; itemising the labour margin only
+                invites haggling over it. */}
+            <div className="bg-ivory-100 p-6 space-y-3">
               <div className="flex items-baseline gap-3">
                 <span className="text-3xl font-heading font-medium text-charcoal-900">
                   {formatPrice(priceBreakdown.finalPrice)}
                 </span>
                 <span className="text-sm text-charcoal-500">(incl. all charges)</span>
               </div>
-
-              {/* Price Breakdown */}
-              {!product.fixedPrice && (
-                <div className="space-y-2 text-sm border-t border-ivory-200 pt-4">
-                  <div className="flex justify-between text-charcoal-600">
-                    <span>Silver ({product.silverWeight}g × ₹{silverRate}/g)</span>
-                    <span>{formatPrice(priceBreakdown.silverCost)}</span>
-                  </div>
-                  <div className="flex justify-between text-charcoal-600">
-                    <span>Making Charges</span>
-                    <span>{formatPrice(priceBreakdown.makingCharges)}</span>
-                  </div>
-                  {/* Without this line the figures above do not sum to the total,
-                      which undermines the whole point of showing a breakdown. */}
-                  {priceBreakdown.profit > 0 && (
-                    <div className="flex justify-between text-charcoal-600">
-                      <span>Craftsmanship &amp; finishing</span>
-                      <span>{formatPrice(priceBreakdown.profit)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between font-medium text-charcoal-900 pt-2 border-t border-ivory-200">
-                    <span>{gst.gstInclusive || gst.gstRate <= 0 ? "Total" : "Subtotal"}</span>
-                    <span>{formatPrice(priceBreakdown.finalPrice)}</span>
-                  </div>
-                </div>
-              )}
 
               <p className="text-xs text-charcoal-500 italic">
                 * Prices follow the live silver rate
@@ -319,20 +289,26 @@ export function ProductDetailClient({
 
             {/* Action Buttons */}
             <div className="space-y-3">
+              {/* Both buttons are disabled when nothing is left. They used to
+                  stay active, so a sold-out piece could be added to the cart and
+                  ordered — the shortfall only surfaced when she read the
+                  WhatsApp message and had to go back and apologise. */}
               <button
                 onClick={handleBuyNow}
-                className="w-full bg-charcoal-900 text-ivory-50 py-4 font-medium tracking-wider uppercase hover:bg-charcoal-800 transition-colors flex items-center justify-center gap-2"
+                disabled={product.stock <= 0}
+                className="w-full bg-charcoal-900 text-ivory-50 py-4 font-medium tracking-wider uppercase transition-colors flex items-center justify-center gap-2 hover:bg-charcoal-800 disabled:cursor-not-allowed disabled:bg-charcoal-300"
               >
                 <Zap className="h-5 w-5" />
-                Buy Now
+                {product.stock > 0 ? "Order Now" : "Out of Stock"}
               </button>
 
               <button
                 onClick={handleAddToCart}
-                className={`w-full border py-4 font-medium tracking-wider uppercase transition-all flex items-center justify-center gap-2 ${
+                disabled={product.stock <= 0}
+                className={`w-full border py-4 font-medium tracking-wider uppercase transition-all flex items-center justify-center gap-2 disabled:cursor-not-allowed disabled:border-charcoal-200 disabled:text-charcoal-300 ${
                   addedToCart
                     ? "bg-green-500 text-white border-green-500"
-                    : "border-charcoal-900 text-charcoal-900 hover:bg-charcoal-900 hover:text-ivory-50"
+                    : "border-charcoal-900 text-charcoal-900 can-hover:hover:bg-charcoal-900 can-hover:hover:text-ivory-50"
                 }`}
               >
                 {addedToCart ? (
@@ -347,6 +323,14 @@ export function ProductDetailClient({
                   </>
                 )}
               </button>
+
+              {/* Says so here rather than only at checkout: a first-time visitor
+                  otherwise expects a card form and abandons at the last step. */}
+              <p className="text-center text-xs text-charcoal-500">
+                {product.stock > 0
+                  ? "Koi online payment nahi — order WhatsApp par confirm hoga."
+                  : "Ye piece abhi khatam hai. WhatsApp par poochhein, dobara ban sakta hai."}
+              </p>
 
               <div className="grid grid-cols-2 gap-3">
                 <button
@@ -440,16 +424,6 @@ export function ProductDetailClient({
             </Reveal>
             <StaggerReveal className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
               {relatedProducts.map((relatedProduct) => {
-                const relatedPrice = calculateProductPrice(
-                  {
-                    silverWeight: relatedProduct.silverWeight,
-                    makingCharges: relatedProduct.makingCharges,
-                    profitPerGram: relatedProduct.profitPerGram,
-                    fixedPrice: relatedProduct.fixedPrice || undefined,
-                  },
-                  silverRate
-                );
-
                 return (
                   <StaggerItem key={relatedProduct.id}>
                   <Link
@@ -467,7 +441,7 @@ export function ProductDetailClient({
                     <h3 className="font-heading text-charcoal-900 group-hover:text-champagne-600 transition-colors line-clamp-2 mb-1">
                       {relatedProduct.name}
                     </h3>
-                    <p className="text-charcoal-600">{formatPrice(relatedPrice.finalPrice)}</p>
+                    <p className="text-charcoal-600">{formatPrice(relatedProduct.price)}</p>
                   </Link>
                   </StaggerItem>
                 );

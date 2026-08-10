@@ -1,38 +1,87 @@
+import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { prisma } from "./db";
 
-// Simple password hashing (in production, use bcrypt)
+/**
+ * Password storage.
+ *
+ * bcrypt with a work factor, not a plain digest. The previous implementation was
+ * SHA-256 over `password + AUTH_SECRET`, which is a keyed digest rather than a
+ * password hash: no per-password salt and no deliberate cost. SHA-256 is built
+ * to be fast, so a leaked database — a Render breach, a stray backup — would let
+ * someone try billions of candidate passwords per second offline. A short,
+ * memorable password like the one this shop uses would fall in under a second.
+ * bcrypt at cost 12 makes each guess take roughly a quarter of a second.
+ *
+ * Hashes written by the old scheme still verify, and are quietly upgraded to
+ * bcrypt the next time that password is used successfully — see needsRehash.
+ */
+
+const BCRYPT_COST = 12;
+
 export async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, BCRYPT_COST);
+}
+
+/** True for a hash written by the old SHA-256 scheme. */
+export function needsRehash(hash: string): boolean {
+  return !/^\$2[aby]?\$/.test(hash);
+}
+
+/** Verifies against the legacy SHA-256 + AUTH_SECRET scheme. */
+async function verifyLegacyPassword(
+  password: string,
+  hash: string
+): Promise<boolean> {
   const authSecret = process.env.AUTH_SECRET;
+  if (!authSecret) return false;
 
-  // Without this guard a missing AUTH_SECRET silently hashes
-  // `password + "undefined"`, so every deployment that forgot to set it shares
-  // the same predictable hashes. Refusing is the safe outcome.
-  if (!authSecret) {
-    throw new Error("AUTH_SECRET is not set; refusing to hash a password.");
+  const data = new TextEncoder().encode(password + authSecret);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  const computed = Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+
+  // Constant-time comparison so response timing cannot be used to guess a hash.
+  if (computed.length !== hash.length) return false;
+
+  let mismatch = 0;
+  for (let i = 0; i < computed.length; i++) {
+    mismatch |= computed.charCodeAt(i) ^ hash.charCodeAt(i);
   }
-
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password + authSecret);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  return mismatch === 0;
 }
 
 export async function verifyPassword(
   password: string,
   hash: string
 ): Promise<boolean> {
-  const passwordHash = await hashPassword(password);
-
-  // Constant-time comparison so response timing cannot be used to guess a hash.
-  if (passwordHash.length !== hash.length) return false;
-
-  let mismatch = 0;
-  for (let i = 0; i < passwordHash.length; i++) {
-    mismatch |= passwordHash.charCodeAt(i) ^ hash.charCodeAt(i);
+  if (needsRehash(hash)) {
+    return verifyLegacyPassword(password, hash);
   }
-  return mismatch === 0;
+
+  try {
+    return await bcrypt.compare(password, hash);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Replaces a legacy hash with a bcrypt one. Called after a successful login so
+ * the upgrade happens without anyone having to reset a password, and without
+ * needing to know the plaintext at migration time.
+ */
+export async function upgradePasswordHash(adminId: string, password: string) {
+  try {
+    await prisma.admin.update({
+      where: { id: adminId },
+      data: { passwordHash: await hashPassword(password) },
+    });
+  } catch (error) {
+    // A failed upgrade must not fail the login; the old hash still works.
+    console.error("[auth] Could not upgrade a password hash to bcrypt:", error);
+  }
 }
 
 // Generate session token

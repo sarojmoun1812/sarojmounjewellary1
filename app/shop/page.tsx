@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { normalizeProducts } from "@/lib/products";
+import { calculateProductPrice } from "@/lib/pricing";
 import { getCurrentSilverRate } from "@/lib/silver-rate";
 import { ShopPageClient } from "./shop-client";
 
@@ -24,6 +25,7 @@ async function getProducts(category?: string) {
     if (category && category !== "all") {
       where.category = category;
     }
+
 
     const products = await prisma.product.findMany({
       where,
@@ -59,20 +61,45 @@ export default async function ShopPage({
 }: {
   searchParams: { category?: string; sort?: string };
 }) {
-  const [rawProducts, categories, silverRate] = await Promise.all([
-    getProducts(searchParams.category),
+  const [categories, silverRate] = await Promise.all([
     getCategories(),
     getCurrentSilverRate(),
   ]);
 
-  const products = normalizeProducts(rawProducts);
+  // Links from the sitemap and from older bookmarks are lowercased, but products
+  // store "Necklaces". Matching the requested value against what is actually in
+  // the catalogue keeps the filter exact without being case-sensitive; before
+  // this, "?category=necklaces" quietly rendered an empty shop.
+  const requested = searchParams.category;
+  const category =
+    requested && requested !== "all"
+      ? categories.find((c) => c.toLowerCase() === requested.toLowerCase()) ??
+        requested
+      : requested;
+
+  const rawProducts = await getProducts(category);
+
+  // Priced here rather than in the browser. The client used to recompute every
+  // price from the raw weight and rate, which meant the grid could quietly show
+  // a different figure than the cart charged if either input disagreed.
+  const products = normalizeProducts(rawProducts).map((product) => ({
+    ...product,
+    price: calculateProductPrice(
+      {
+        silverWeight: product.silverWeight,
+        fixedPrice: product.fixedPrice ?? undefined,
+      },
+      silverRate.ratePerGram,
+      silverRate.labourPerGram
+    ).finalPrice,
+  }));
 
   return (
     <ShopPageClient
       products={products as any}
       categories={categories}
       silverRate={silverRate.ratePerGram}
-      selectedCategory={searchParams.category}
+      selectedCategory={category}
     />
   );
 }

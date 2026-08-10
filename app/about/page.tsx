@@ -128,7 +128,7 @@ export default function AboutPage() {
               <div className="elevated-card gradient-border h-full rounded-[2rem] border-charcoal-200/80 bg-charcoal-950 p-10 text-ivory-50">
                 <Sparkles className="mb-6 h-10 w-10 text-champagne-300" />
                 <h3 className="font-heading text-2xl font-light md:text-3xl">Our vision</h3>
-                <p className="mt-4 text-base leading-relaxed text-ivory-100/72">
+                <p className="mt-4 text-base leading-relaxed text-ivory-100/75">
                   To become India&apos;s most trusted online destination for silver jewellery, known for our quality,
                   transparency, and the joy we bring to customers through every piece they wear.
                 </p>
@@ -149,7 +149,7 @@ export default function AboutPage() {
           <StaggerReveal className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { t: "100% hallmarked", d: "Certified silver in every piece" },
-              { t: "Transparent pricing", d: "Live silver rates with clear breakdowns" },
+              { t: "Fair pricing", d: "Priced on the day's live silver rate" },
               { t: "Beautiful packaging", d: "Gifting-ready presentation" },
               { t: "Order on WhatsApp", d: "Talk to us directly before you pay" },
               { t: "Fast delivery", d: "Reliable shipping across India" },

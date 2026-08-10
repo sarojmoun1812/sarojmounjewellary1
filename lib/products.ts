@@ -73,8 +73,6 @@ const productFields = {
     .regex(slugPattern, "Use lowercase letters, numbers and hyphens only"),
   description: z.string().trim().min(1, "Description is required"),
   silverWeight: z.number().positive("Weight must be greater than 0"),
-  makingCharges: z.number().int().min(0),
-  profitPerGram: z.number().min(0),
   fixedPrice: z.number().int().positive().nullable(),
   category: z.string().trim().min(1, "Category is required"),
   images: z.array(z.string().trim().min(1)),
@@ -88,9 +86,25 @@ const productFields = {
   tags: z.array(z.string().trim().min(1)),
 };
 
+/**
+ * Turns a product name into a URL-safe slug.
+ *
+ * The admin form no longer asks for a slug. "URL name" meant nothing to the
+ * people running the shop, and a mistyped one produced a broken link that only
+ * showed up when a customer tapped it.
+ */
+export function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export const productCreateSchema = z.object({
   ...productFields,
-  profitPerGram: productFields.profitPerGram.default(100),
+  // Derived from the name when absent, so the form need not ask for it.
+  slug: productFields.slug.optional(),
   fixedPrice: productFields.fixedPrice.default(null),
   images: productFields.images.default([]),
   stock: productFields.stock.default(0),
@@ -109,8 +123,13 @@ export const productUpdateSchema = z.object(productFields).partial();
 export type ProductCreateInput = z.infer<typeof productCreateSchema>;
 export type ProductUpdateInput = z.infer<typeof productUpdateSchema>;
 
-/** Maps validated input to Prisma data, encoding the array columns. */
-export function toProductCreateData(input: ProductCreateInput) {
+/**
+ * Maps validated input to Prisma data, encoding the array columns. The slug is
+ * passed in separately because resolving a unique one needs the database.
+ */
+export function toProductCreateData(
+  input: ProductCreateInput & { slug: string }
+) {
   return {
     ...input,
     images: serializeStringArray(input.images),

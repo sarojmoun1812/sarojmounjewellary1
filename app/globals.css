@@ -101,6 +101,13 @@
 }
 
 @layer utilities {
+  /* Clears the fixed header on pages whose hero runs full-bleed underneath it.
+     SiteChrome measures the header and publishes --header-height; the fallback
+     covers the first paint before that effect runs. */
+  .pt-below-header {
+    padding-top: calc(var(--header-height, 7.5rem) + 2rem);
+  }
+
   /* Luxury Animations */
   .animate-fade-in {
     animation: fadeIn 0.8s ease-out forwards;

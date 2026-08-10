@@ -1,13 +1,23 @@
-import { prisma, containsInsensitive } from "@/lib/db";
-import { getCurrentAdmin } from "@/lib/auth";
-import { normalizeProducts } from "@/lib/products";
-import { redirect } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
-import { Plus, Edit, Trash2, Eye, EyeOff, Search } from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Eye, EyeOff, ImageOff, Pencil, Plus, Search } from "lucide-react";
+import { getCurrentAdmin } from "@/lib/auth";
+import { containsInsensitive, prisma } from "@/lib/db";
+import { calculateProductPrice, formatPrice } from "@/lib/pricing";
+import { normalizeProducts } from "@/lib/products";
+import { getCurrentSilverRate } from "@/lib/silver-rate";
 
-// Force dynamic rendering
 export const dynamic = "force-dynamic";
+
+/**
+ * The item list.
+ *
+ * A six-column table used to live here, which meant sideways scrolling on the
+ * phone this is mostly used from — and the price, the number they most want to
+ * check, was not shown at all. Cards fit a narrow screen and each one carries
+ * the live price so they can confirm at a glance that a piece is priced sanely.
+ */
 
 async function getProducts(search?: string, category?: string) {
   const where: any = {};
@@ -15,7 +25,7 @@ async function getProducts(search?: string, category?: string) {
   if (search) {
     where.OR = [
       { name: containsInsensitive(search) },
-      { slug: containsInsensitive(search) },
+      { category: containsInsensitive(search) },
     ];
   }
 
@@ -23,18 +33,16 @@ async function getProducts(search?: string, category?: string) {
     where.category = category;
   }
 
-  return prisma.product.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-  });
+  return prisma.product.findMany({ where, orderBy: { createdAt: "desc" } });
 }
 
 async function getCategories() {
-  const products = await prisma.product.findMany({
+  const rows = await prisma.product.findMany({
     select: { category: true },
     distinct: ["category"],
+    orderBy: { category: "asc" },
   });
-  return products.map((p) => p.category);
+  return rows.map((row) => row.category);
 }
 
 export default async function ProductsPage({
@@ -45,212 +53,195 @@ export default async function ProductsPage({
   const admin = await getCurrentAdmin();
   if (!admin) redirect("/admin/login");
 
-  const params = await searchParams;
-  const [rawProducts, categories] = await Promise.all([
-    getProducts(params.search, params.category),
+  const [rawProducts, categories, silverRate] = await Promise.all([
+    getProducts(searchParams.search, searchParams.category),
     getCategories(),
+    getCurrentSilverRate(),
   ]);
-  const products = normalizeProducts(rawProducts);
 
-  const formatPrice = (paise: number) => {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0,
-    }).format(paise / 100);
-  };
+  const products = normalizeProducts(rawProducts).map((product) => ({
+    ...product,
+    price: calculateProductPrice(
+      {
+        silverWeight: product.silverWeight,
+        fixedPrice: product.fixedPrice ?? undefined,
+      },
+      silverRate.ratePerGram,
+      silverRate.labourPerGram
+    ).finalPrice,
+  }));
+
+  const isFiltered = Boolean(searchParams.search || searchParams.category);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-          <p className="text-gray-600 mt-1">
-            Manage your product catalog ({products.length} products)
+          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">Saara saaman</h1>
+          <p className="mt-0.5 text-sm text-slate-500">
+            {products.length} item website par hain · chandi ka aaj ka rate ₹
+            {silverRate.ratePerGram}/g
           </p>
         </div>
         <Link
           href="/admin/products/new"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-powder-600 text-white rounded-lg hover:bg-powder-700 transition-colors font-medium"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
         >
           <Plus className="h-4 w-4" />
-          Add Product
+          Naya item jodein
         </Link>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
-        <form className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              name="search"
-              defaultValue={params.search}
-              placeholder="Search products..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
-            />
-          </div>
-          <select
-            name="category"
-            defaultValue={params.category}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-powder-500"
-          >
-            <option value="">All Categories</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-          <button
-            type="submit"
-            className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-          >
-            Filter
-          </button>
-        </form>
-      </div>
-
-      {/* Products Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
-                  Product
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
-                  Category
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
-                  Silver (g)
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
-                  Stock
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
-                  Status
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {products.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="text-center py-12 text-gray-500">
-                    No products found.{" "}
-                    <Link
-                      href="/admin/products/new"
-                      className="text-powder-600 hover:underline"
-                    >
-                      Add your first product
-                    </Link>
-                  </td>
-                </tr>
-              ) : (
-                products.map((product) => (
-                  <tr key={product.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                          {product.images[0] ? (
-                            <Image
-                              src={product.images[0]}
-                              alt={product.name}
-                              width={48}
-                              height={48}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
-                              No img
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900 line-clamp-1">
-                            {product.name}
-                          </p>
-                          <p className="text-sm text-gray-500 line-clamp-1">
-                            {product.slug}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-sm text-gray-600">
-                        {product.category}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-sm text-gray-600">
-                        {product.silverWeight}g
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`text-sm font-medium ${
-                          product.stock > 10
-                            ? "text-green-600"
-                            : product.stock > 0
-                            ? "text-amber-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {product.stock}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        {product.isActive ? (
-                          <span className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
-                            <Eye className="h-3 w-3" />
-                            Active
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
-                            <EyeOff className="h-3 w-3" />
-                            Hidden
-                          </span>
-                        )}
-                        {product.featured && (
-                          <span className="text-xs px-2 py-1 bg-powder-100 text-powder-700 rounded-full">
-                            Featured
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <Link
-                          href={`/admin/products/${product.id}`}
-                          className="p-2 text-gray-600 hover:text-powder-600 hover:bg-powder-50 rounded-lg transition-colors"
-                          title="Edit"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Link>
-                        <Link
-                          href={`/product/${product.slug}`}
-                          target="_blank"
-                          className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="View"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      <form className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            name="search"
+            defaultValue={searchParams.search}
+            placeholder="Item ka naam likhein..."
+            aria-label="Item dhoondhein"
+            className="w-full rounded-xl border border-slate-200 py-3 pl-10 pr-4 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+          />
         </div>
-      </div>
+        <select
+          name="category"
+          defaultValue={searchParams.category}
+          aria-label="Category chunein"
+          className="rounded-xl border border-slate-200 px-4 py-3 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+        >
+          <option value="">Sabhi category</option>
+          {categories.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+        <button
+          type="submit"
+          className="rounded-xl bg-slate-100 px-6 py-3 font-medium text-slate-700 transition-colors hover:bg-slate-200"
+        >
+          Dhoondhein
+        </button>
+      </form>
+
+      {products.length === 0 ? (
+        <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center">
+          <p className="font-medium text-slate-700">
+            {isFiltered ? "Koi item nahi mila." : "Abhi koi item nahi hai."}
+          </p>
+          <p className="mt-1 text-sm text-slate-500">
+            {isFiltered
+              ? "Doosra naam ya category try karein."
+              : "Pehla item jodkar shuru karein."}
+          </p>
+          {isFiltered ? (
+            <Link
+              href="/admin/products"
+              className="mt-4 inline-block rounded-xl bg-slate-100 px-5 py-2.5 text-sm font-medium text-slate-700"
+            >
+              Poori list dekhein
+            </Link>
+          ) : (
+            <Link
+              href="/admin/products/new"
+              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white"
+            >
+              <Plus className="h-4 w-4" />
+              Naya item jodein
+            </Link>
+          )}
+        </div>
+      ) : (
+        <ul className="space-y-3">
+          {products.map((product) => (
+            <li
+              key={product.id}
+              className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-3 sm:p-4"
+            >
+              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100">
+                {product.images[0] ? (
+                  <Image
+                    src={product.images[0]}
+                    alt={product.name}
+                    fill
+                    sizes="80px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full flex-col items-center justify-center gap-1 text-slate-400">
+                    <ImageOff className="h-5 w-5" />
+                    <span className="text-[10px]">Photo nahi</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-semibold text-slate-900">
+                  {product.name}
+                </p>
+                <p className="mt-0.5 text-sm text-slate-500">
+                  {product.category} · {product.silverWeight}g chandi
+                </p>
+                <p className="mt-1 font-semibold text-emerald-700">
+                  {formatPrice(product.price)}
+                </p>
+
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                      product.stock > 0
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "bg-red-50 text-red-700"
+                    }`}
+                  >
+                    {product.stock > 0
+                      ? `${product.stock} piece hain`
+                      : "Stock khatam"}
+                  </span>
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                      product.isActive
+                        ? "bg-slate-100 text-slate-600"
+                        : "bg-amber-50 text-amber-700"
+                    }`}
+                  >
+                    {product.isActive ? (
+                      <>
+                        <Eye className="h-3 w-3" />
+                        Website par hai
+                      </>
+                    ) : (
+                      <>
+                        <EyeOff className="h-3 w-3" />
+                        Chhupa hua
+                      </>
+                    )}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex shrink-0 flex-col gap-2">
+                <Link
+                  href={`/admin/products/${product.id}`}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+                >
+                  <Pencil className="h-4 w-4" />
+                  Badlein
+                </Link>
+                <Link
+                  href={`/product/${product.slug}`}
+                  target="_blank"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
+                >
+                  <Eye className="h-4 w-4" />
+                  Dekhein
+                </Link>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

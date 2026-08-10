@@ -12,10 +12,12 @@ model Product {
   name           String
   slug           String   @unique
   description    String
+  // The only pricing input she enters. Price is weight x (silver rate +
+  // labour per gram); per-product making charges and profit were removed
+  // because she prices every piece the same way and the extra fields only
+  // created a second, contradictory source of truth. Labour is one setting.
   silverWeight   Float    // in grams (e.g., 25.5)
-  makingCharges  Int      // fixed making charges in paise
-  profitPerGram  Float    @default(100.0) // profit per gram in rupees (₹100/gram)
-  fixedPrice     Int?     // optional fixed price override in paise
+  fixedPrice     Int?     // optional override in paise, for one-off pieces
   category       String
   images         String   @default("[]") // JSON string array of Cloudinary URLs
   stock          Int      @default(0)
@@ -39,7 +41,11 @@ model Product {
 
 model SilverRate {
   id        String   @id @default(uuid())
-  ratePerGram Float  // in rupees
+  // The rate products are priced from, in rupees per gram. This is the local
+  // retail rate she buys at, not the international spot price: the refresh job
+  // takes spot from the feed and adds silverRatePremiumPercent before storing,
+  // so everything reading this column gets a directly usable figure.
+  ratePerGram Float
   source    String   @default("MetalPriceAPI")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -192,6 +198,15 @@ model SiteSettings {
   // from silver cost + making + profit, which is a pre-tax figure, so the
   // default adds GST as a separate line rather than absorbing it.
   gstInclusive     Boolean @default(false)
+  // Labour and commission, in rupees per gram, added on top of the silver
+  // rate. One value for the whole shop: she quoted a flat rate, and a
+  // per-product copy of it would only drift.
+  labourPerGram   Float    @default(100)
+  // How far above international spot her local buying rate sits, in percent.
+  // The feed reports spot (about Rs 179/g), while she actually buys at around
+  // Rs 235/g, so spot alone would underprice every piece by roughly a quarter.
+  // Calibrated to reproduce Rs 235/g from spot at the time of writing.
+  silverRatePremiumPercent Float @default(31)
   shippingCharge  Int      @default(0)
   freeShippingMin Int?     // minimum order for free shipping in paise
   socialFacebook  String?

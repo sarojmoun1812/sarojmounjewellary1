@@ -1,21 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingBag, Menu, X, Search, User } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { ShoppingBag, Menu, X } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { hasDarkHero } from "@/lib/nav";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const totalItems = useCart((state) => state.getTotalItems());
+  const pathname = usePathname();
+
+  // Light text only while genuinely over dark artwork. On every other route, and
+  // on a dark-hero route once the hero has scrolled away, the bar takes its own
+  // opaque background — otherwise the logo and links were white on ivory.
+  const overDarkHero = hasDarkHero(pathname) && !scrolled;
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
-    window.addEventListener("scroll", handleScroll);
+    // Run once on mount: a page restored mid-scroll would otherwise render the
+    // transparent bar over light content until the first scroll event.
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -28,10 +39,12 @@ export function Navbar() {
   return (
     <>
       <motion.nav
-        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-500 ${
-          scrolled
-            ? "border-b border-ivory-200/80 bg-ivory-50/92 shadow-[0_12px_44px_rgba(17,18,22,0.07)] backdrop-blur-xl"
-            : "border-b border-transparent bg-transparent"
+        // Positioning belongs to the fixed header stack in SiteChrome, which
+        // holds the announcement strip above this bar.
+        className={`transition-all duration-500 ${
+          overDarkHero
+            ? "border-b border-transparent bg-transparent"
+            : "border-b border-ivory-200/80 bg-ivory-50/95 shadow-[0_12px_44px_rgba(17,18,22,0.07)] backdrop-blur-xl"
         }`}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -46,9 +59,9 @@ export function Navbar() {
                   key={link.href}
                   href={link.href}
                   className={`group relative text-xs font-medium uppercase tracking-[0.15em] transition-colors duration-300 ${
-                    scrolled
-                      ? "text-charcoal-700 hover:text-charcoal-900"
-                      : "text-white/90 hover:text-white"
+                    overDarkHero
+                      ? "text-white/90 hover:text-white"
+                      : "text-charcoal-700 hover:text-charcoal-900"
                   }`}
                 >
                   <span className="relative inline-block">
@@ -62,7 +75,7 @@ export function Navbar() {
             {/* Mobile Menu Button */}
             <button
               className={`lg:hidden p-2 transition-colors ${
-                scrolled ? "text-charcoal-800" : "text-white"
+                overDarkHero ? "text-white" : "text-charcoal-800"
               }`}
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Toggle menu"
@@ -76,42 +89,36 @@ export function Navbar() {
               className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center group"
             >
               <span className={`text-xl md:text-2xl font-heading font-light tracking-[0.1em] transition-colors duration-300 ${
-                scrolled ? "text-charcoal-900" : "text-white"
+                overDarkHero ? "text-white" : "text-charcoal-900"
               }`}>
                 SAROJ MOUN
               </span>
               <span className={`text-[10px] tracking-[0.3em] uppercase transition-colors duration-300 ${
-                scrolled ? "text-champagne-600" : "text-champagne-300"
+                overDarkHero ? "text-champagne-300" : "text-champagne-600"
               }`}>
                 JEWELLERY
               </span>
             </Link>
 
             {/* Right - Icons */}
+            {/* A magnifying glass that opened nothing and a person icon that led
+                to the shop owner's admin login used to sit here. There are no
+                customer accounts, so both only invited misdirected clicks. */}
             <div className="flex items-center gap-6">
-              <button 
-                className={`hidden sm:block p-2 transition-colors ${
-                  scrolled ? "text-charcoal-700 hover:text-charcoal-900" : "text-white/90 hover:text-white"
-                }`}
-                aria-label="Search"
-              >
-                <Search className="h-5 w-5" strokeWidth={1.5} />
-              </button>
-
               <Link
-                href="/admin"
-                className={`hidden sm:block p-2 transition-colors ${
-                  scrolled ? "text-charcoal-700 hover:text-charcoal-900" : "text-white/90 hover:text-white"
-                }`}
-                aria-label="Account"
+                href="/cart"
+                className="relative p-2 group"
+                aria-label={
+                  totalItems > 0
+                    ? `Cart, ${totalItems} item${totalItems === 1 ? "" : "s"}`
+                    : "Cart"
+                }
               >
-                <User className="h-5 w-5" strokeWidth={1.5} />
-              </Link>
-
-              <Link href="/cart" className="relative p-2 group">
                 <ShoppingBag 
                   className={`h-5 w-5 transition-colors ${
-                    scrolled ? "text-charcoal-700 group-hover:text-charcoal-900" : "text-white/90 group-hover:text-white"
+                    overDarkHero
+                      ? "text-white/90 group-hover:text-white"
+                      : "text-charcoal-700 group-hover:text-charcoal-900"
                   }`} 
                   strokeWidth={1.5} 
                 />

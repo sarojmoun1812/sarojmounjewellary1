@@ -60,11 +60,10 @@ export async function getHomeData(): Promise<HomeData> {
       price: calculateProductPrice(
         {
           silverWeight: product.silverWeight,
-          makingCharges: product.makingCharges,
-          profitPerGram: product.profitPerGram,
           fixedPrice: product.fixedPrice ?? undefined,
         },
-        silverRate.ratePerGram
+        silverRate.ratePerGram,
+        silverRate.labourPerGram
       ).finalPrice,
       image: product.images[0] ?? FALLBACK_IMAGE,
       badge: product.bestseller

@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ShoppingCart, Heart, Sparkles } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
-import { calculateProductPrice, formatPrice } from "@/lib/pricing";
+import { formatPrice } from "@/lib/pricing";
 import { Reveal, StaggerItem, StaggerReveal } from "@/components/reveal";
 import { revealLeft } from "@/lib/motion";
 
@@ -16,19 +16,20 @@ interface Product {
   slug: string;
   description: string;
   silverWeight: number;
-  makingCharges: number;
-  profitPerGram: number;
   fixedPrice: number | null;
   category: string;
   images: string[];
   stock: number;
   featured: boolean;
   bestseller: boolean;
+  /** Already priced on the server, in paise. */
+  price: number;
 }
 
 interface ShopPageClientProps {
   products: Product[];
   categories: string[];
+  /** Shown in the hero banner only; prices arrive already calculated. */
   silverRate: number;
   selectedCategory?: string;
 }
@@ -64,30 +65,10 @@ export function ShopPageClient({
     // Sort
     switch (sortBy) {
       case "price-low":
-        filtered.sort((a, b) => {
-          const priceA = calculateProductPrice({
-            ...a,
-            fixedPrice: a.fixedPrice || undefined,
-          }, silverRate).finalPrice;
-          const priceB = calculateProductPrice({
-            ...b,
-            fixedPrice: b.fixedPrice || undefined,
-          }, silverRate).finalPrice;
-          return priceA - priceB;
-        });
+        filtered.sort((a, b) => a.price - b.price);
         break;
       case "price-high":
-        filtered.sort((a, b) => {
-          const priceA = calculateProductPrice({
-            ...a,
-            fixedPrice: a.fixedPrice || undefined,
-          }, silverRate).finalPrice;
-          const priceB = calculateProductPrice({
-            ...b,
-            fixedPrice: b.fixedPrice || undefined,
-          }, silverRate).finalPrice;
-          return priceB - priceA;
-        });
+        filtered.sort((a, b) => b.price - a.price);
         break;
       case "newest":
         // Already sorted by createdAt desc from server
@@ -99,27 +80,27 @@ export function ShopPageClient({
     }
 
     return filtered;
-  }, [products, activeCategory, sortBy, silverRate]);
+  }, [products, activeCategory, sortBy]);
 
   const handleAddToCart = (product: Product) => {
-    const price = calculateProductPrice({
-      ...product,
-      fixedPrice: product.fixedPrice || undefined,
-    }, silverRate).finalPrice;
     addItem({
       id: product.id,
       name: product.name,
       slug: product.slug,
-      price,
+      price: product.price,
       image: product.images[0] || "/peacock-jewellery.jpeg",
     });
   };
 
   return (
-    <div className="min-h-screen bg-ivory-50 pt-24">
+    <div className="min-h-screen bg-ivory-50">
+      {/* The wrapper used to carry pt-24, which put an ivory band behind the
+          header and pushed this hero below it — so the bar sat transparent over
+          cream and vanished. The hero now runs to the top of the viewport and
+          its content clears the header instead. */}
       <section
         ref={heroRef}
-        className="relative isolate min-h-[min(52vh,520px)] overflow-hidden border-b border-ivory-200/60"
+        className="relative isolate min-h-[min(62vh,600px)] overflow-hidden border-b border-ivory-200/60"
       >
         <motion.div className="absolute inset-0 h-[115%] w-full" style={{ y: heroY }}>
           <Image
@@ -133,7 +114,7 @@ export function ShopPageClient({
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(17,18,22,0.15),rgba(17,18,22,0.78)),linear-gradient(110deg,rgba(17,18,22,0.88)_0%,rgba(17,18,22,0.5)_50%,rgba(17,18,22,0.85)_100%)]" />
           <div className="noise-overlay absolute inset-0" />
         </motion.div>
-        <div className="relative z-10 flex min-h-[min(52vh,520px)] items-center px-6 py-16">
+        <div className="pt-below-header relative z-10 flex min-h-[min(62vh,600px)] items-center px-6 pb-16">
           <div className="container-luxury w-full">
             <Reveal variants={revealLeft} className="mx-auto max-w-3xl text-center md:text-left">
               <div className="glass-dark gradient-border inline-block rounded-[2rem] px-8 py-10 md:px-12 md:py-12">
@@ -221,11 +202,6 @@ export function ShopPageClient({
         ) : (
           <StaggerReveal className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4">
               {filteredProducts.map((product) => {
-              const priceData = calculateProductPrice({
-                ...product,
-                fixedPrice: product.fixedPrice || undefined,
-              }, silverRate);
-              
               return (
                 <StaggerItem key={product.id} className="group">
                   <Link href={`/product/${product.slug}`}>
@@ -288,7 +264,7 @@ export function ShopPageClient({
                     </Link>
                     <div className="flex items-baseline gap-2">
                       <p className="text-lg font-medium text-charcoal-900">
-                        {formatPrice(priceData.finalPrice)}
+                        {formatPrice(product.price)}
                       </p>
                       <p className="text-xs text-charcoal-400">
                         {product.silverWeight}g Silver
