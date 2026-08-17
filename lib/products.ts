@@ -8,6 +8,22 @@ import { z } from "zod";
  * array yields the character "[", which is truthy and fails far from the cause.
  */
 
+/** Placeholder / stock hosts that must never appear as real product photos. */
+const DUMMY_IMAGE_MARKERS = [
+  "/peacock-jewellery.jpeg",
+  "peacock-jewellery.jpeg",
+  "images.unsplash.com",
+  "via.placeholder.com",
+  "samplelib.com",
+];
+
+/** True when a URL is a real uploaded photo, not a seed/stock placeholder. */
+export function isRealProductImage(url: string): boolean {
+  const value = url.trim().toLowerCase();
+  if (!value) return false;
+  return !DUMMY_IMAGE_MARKERS.some((marker) => value.includes(marker));
+}
+
 export function parseStringArray(value: unknown): string[] {
   if (Array.isArray(value)) {
     return value.filter((item): item is string => typeof item === "string");
@@ -42,7 +58,8 @@ export type WithParsedArrays<T extends RawArrayFields> = Omit<T, "images" | "tag
 export function normalizeProduct<T extends RawArrayFields>(product: T): WithParsedArrays<T> {
   return {
     ...product,
-    images: parseStringArray(product.images),
+    // Drop seed/stock placeholders so the shop never shows dummy jewellery photos.
+    images: parseStringArray(product.images).filter(isRealProductImage),
     tags: parseStringArray(product.tags),
   };
 }
@@ -76,6 +93,7 @@ const productFields = {
   fixedPrice: z.number().int().positive().nullable(),
   category: z.string().trim().min(1, "Category is required"),
   images: z.array(z.string().trim().min(1)),
+  videoUrl: z.union([z.string().trim().url(), z.literal(""), z.null()]),
   stock: z.number().int().min(0),
   material: z.string().trim().min(1),
   featured: z.boolean(),
@@ -107,6 +125,9 @@ export const productCreateSchema = z.object({
   slug: productFields.slug.optional(),
   fixedPrice: productFields.fixedPrice.default(null),
   images: productFields.images.default([]),
+  videoUrl: productFields.videoUrl.default(null).transform((value) =>
+    value && value.length > 0 ? value : null
+  ),
   stock: productFields.stock.default(0),
   material: productFields.material.default("925 Silver"),
   featured: productFields.featured.default(false),
@@ -132,6 +153,7 @@ export function toProductCreateData(
 ) {
   return {
     ...input,
+    videoUrl: input.videoUrl && input.videoUrl.length > 0 ? input.videoUrl : null,
     images: serializeStringArray(input.images),
     tags: serializeStringArray(input.tags),
   };
@@ -141,5 +163,8 @@ export function toProductUpdateData(input: ProductUpdateInput) {
   const data: Record<string, unknown> = { ...input };
   if (input.images !== undefined) data.images = serializeStringArray(input.images);
   if (input.tags !== undefined) data.tags = serializeStringArray(input.tags);
+  if (input.videoUrl !== undefined) {
+    data.videoUrl = input.videoUrl && input.videoUrl.length > 0 ? input.videoUrl : null;
+  }
   return data;
 }

@@ -1,9 +1,4 @@
-// Replaces stock-photo product images with an obvious placeholder.
-//
-// The catalogue was seeded with Unsplash photos of other people's jewellery.
-// The licence permits commercial use, but a customer who orders from one of
-// those photos receives a different item, which is the part that matters. A
-// visible placeholder is honest and makes the missing photography obvious.
+// Removes stock / dummy product images so the catalogue only shows real photos.
 //
 // Usage: node scripts/clear-stock-photos.mjs [--dry-run]
 
@@ -12,18 +7,19 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const PLACEHOLDER_IMAGE = "/peacock-jewellery.jpeg";
-const STOCK_PHOTO_HOSTS = [
+const DUMMY_MARKERS = [
   "images.unsplash.com",
   "via.placeholder.com",
   "samplelib.com",
   "sample-videos.com",
+  "peacock-jewellery.jpeg",
 ];
 
 const dryRun = process.argv.includes("--dry-run");
 
-function isStockPhoto(url) {
-  return STOCK_PHOTO_HOSTS.some((host) => url.includes(host));
+function isDummyPhoto(url) {
+  const value = String(url).toLowerCase();
+  return DUMMY_MARKERS.some((marker) => value.includes(marker));
 }
 
 async function main() {
@@ -42,33 +38,34 @@ async function main() {
     }
     if (!Array.isArray(images)) images = [];
 
-    const kept = images.filter((url) => typeof url === "string" && !isStockPhoto(url));
+    const kept = images.filter(
+      (url) => typeof url === "string" && url.trim() && !isDummyPhoto(url)
+    );
     if (kept.length === images.length) continue;
 
-    const next = kept.length > 0 ? kept : [PLACEHOLDER_IMAGE];
     changed++;
 
     console.log(
       `${dryRun ? "would update" : "updating"}  ${product.name}` +
-        `\n    ${images.length} image(s) -> ${next.length}, ` +
-        `${images.length - kept.length} stock photo(s) removed`
+        `\n    ${images.length} image(s) -> ${kept.length}, ` +
+        `${images.length - kept.length} dummy photo(s) removed`
     );
 
     if (!dryRun) {
       await prisma.product.update({
         where: { id: product.id },
-        data: { images: JSON.stringify(next) },
+        data: { images: JSON.stringify(kept) },
       });
     }
   }
 
   console.log(
     changed === 0
-      ? "\nNo stock photos found — every product image is her own.\n"
+      ? "\nNo dummy photos found — every product image is her own.\n"
       : `\n${changed} of ${products.length} product(s) ${
           dryRun ? "would be" : "were"
         } updated.\n` +
-          "Upload real photographs from the admin panel to replace the placeholder.\n"
+          "Upload real photographs from the admin panel.\n"
   );
 }
 

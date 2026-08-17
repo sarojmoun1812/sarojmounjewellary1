@@ -19,7 +19,8 @@ model Product {
   silverWeight   Float    // in grams (e.g., 25.5)
   fixedPrice     Int?     // optional override in paise, for one-off pieces
   category       String
-  images         String   @default("[]") // JSON string array of Cloudinary URLs
+  images         String   @default("[]") // JSON string array of image URLs
+  videoUrl       String?  // optional product video (Blob or Cloudinary)
   stock          Int      @default(0)
   material       String   @default("925 Silver")
   featured       Boolean  @default(false)

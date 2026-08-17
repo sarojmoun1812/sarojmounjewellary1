@@ -38,6 +38,7 @@ interface Product {
   fixedPrice: number | null;
   category: string;
   images: string[];
+  videoUrl?: string | null;
   stock: number;
   material: string;
   featured: boolean;
@@ -72,7 +73,8 @@ export function ProductDetailClient({
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
 
-  const images = product.images.length > 0 ? product.images : ["/peacock-jewellery.jpeg"];
+  const images = product.images;
+  const hasMedia = images.length > 0 || Boolean(product.videoUrl);
 
   const handleAddToCart = () => {
     addItem(
@@ -81,7 +83,7 @@ export function ProductDetailClient({
         name: product.name,
         slug: product.slug,
         price: priceBreakdown.finalPrice,
-        image: images[0],
+        image: images[0] || "",
       },
       quantity
     );
@@ -138,68 +140,72 @@ export function ProductDetailClient({
         </nav>
 
         <div className="grid gap-12 lg:grid-cols-2">
-          {/* Image Gallery */}
+          {/* Image / video gallery */}
           <Reveal variants={revealLeft}>
-            {/* Main Image */}
             <div className="media-frame relative mb-4 aspect-square overflow-hidden rounded-[2rem] bg-charcoal-900">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={selectedImageIndex}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="relative w-full h-full"
-                >
-                  <Image
-                    src={images[selectedImageIndex]}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                </motion.div>
-              </AnimatePresence>
+              {images.length > 0 ? (
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={selectedImageIndex}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="relative h-full w-full"
+                  >
+                    <Image
+                      src={images[selectedImageIndex]}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                      priority
+                    />
+                  </motion.div>
+                </AnimatePresence>
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-charcoal-800 to-charcoal-950 px-8 text-center">
+                  <p className="text-sm tracking-wide text-ivory-100/60">
+                    Photo jaldi add hogi
+                  </p>
+                </div>
+              )}
 
-              {/* Navigation Arrows */}
               {images.length > 1 && (
                 <>
                   <button
                     onClick={prevImage}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-ivory-50/90 hover:bg-ivory-50 p-3 transition-all"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-ivory-50/90 p-3 transition-all hover:bg-ivory-50"
                   >
                     <ChevronLeft className="h-5 w-5 text-charcoal-900" />
                   </button>
                   <button
                     onClick={nextImage}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-ivory-50/90 hover:bg-ivory-50 p-3 transition-all"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-ivory-50/90 p-3 transition-all hover:bg-ivory-50"
                   >
                     <ChevronRight className="h-5 w-5 text-charcoal-900" />
                   </button>
                 </>
               )}
 
-              {/* Badges */}
-              <div className="absolute top-4 left-4 flex flex-col gap-2">
+              <div className="absolute left-4 top-4 flex flex-col gap-2">
                 {product.bestseller && (
-                  <span className="bg-champagne-500 text-charcoal-900 px-3 py-1 text-xs font-medium tracking-wider uppercase">
+                  <span className="bg-champagne-500 px-3 py-1 text-xs font-medium uppercase tracking-wider text-charcoal-900">
                     Bestseller
                   </span>
                 )}
                 {product.stock < 5 && product.stock > 0 && (
-                  <span className="bg-red-500 text-white px-3 py-1 text-xs font-medium tracking-wider uppercase">
+                  <span className="bg-red-500 px-3 py-1 text-xs font-medium uppercase tracking-wider text-white">
                     Only {product.stock} left
                   </span>
                 )}
               </div>
             </div>
 
-            {/* Thumbnail Images */}
             {images.length > 1 && (
-              <div className="grid grid-cols-4 gap-3">
+              <div className="mb-4 grid grid-cols-4 gap-3">
                 {images.map((image, index) => (
                   <button
-                    key={index}
+                    key={image}
                     onClick={() => setSelectedImageIndex(index)}
                     className={`relative aspect-square overflow-hidden transition-all ${
                       selectedImageIndex === index
@@ -216,6 +222,26 @@ export function ProductDetailClient({
                   </button>
                 ))}
               </div>
+            )}
+
+            {product.videoUrl && (
+              <div className="overflow-hidden rounded-[1.5rem] border border-ivory-200 bg-charcoal-950">
+                <video
+                  src={product.videoUrl}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="aspect-video w-full"
+                >
+                  Aapka browser video play nahi kar pata.
+                </video>
+              </div>
+            )}
+
+            {!hasMedia && (
+              <p className="mt-3 text-sm text-charcoal-500">
+                Is item ki photo/video abhi upload nahi hui.
+              </p>
             )}
           </Reveal>
 
@@ -431,12 +457,18 @@ export function ProductDetailClient({
                     className="group block"
                   >
                     <div className="relative mb-3 aspect-square overflow-hidden rounded-[1.15rem] border border-ivory-200/80 bg-ivory-100 shadow-sm transition-shadow duration-300 group-hover:shadow-md">
-                      <Image
-                        src={relatedProduct.images[0] || "/peacock-jewellery.jpeg"}
-                        alt={relatedProduct.name}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
+                      {relatedProduct.images[0] ? (
+                        <Image
+                          src={relatedProduct.images[0]}
+                          alt={relatedProduct.name}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center bg-gradient-to-br from-ivory-100 to-ivory-200 text-xs text-charcoal-400">
+                          Photo soon
+                        </div>
+                      )}
                     </div>
                     <h3 className="font-heading text-charcoal-900 group-hover:text-champagne-600 transition-colors line-clamp-2 mb-1">
                       {relatedProduct.name}

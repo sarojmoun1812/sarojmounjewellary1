@@ -25,7 +25,7 @@ export function ProductCard({ id, name, slug, price, image, badge }: ProductCard
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addItem({ id, name, slug, price, image });
+    addItem({ id, name, slug, price, image: image || "" });
   };
 
   return (
@@ -35,26 +35,28 @@ export function ProductCard({ id, name, slug, price, image, badge }: ProductCard
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
     >
       <Link href={`/product/${slug}`} className="block rounded-[1.7rem] bg-ivory-50/90 p-3">
-        {/* Image */}
         <div className="relative mb-4 aspect-[3/4] overflow-hidden rounded-[1.25rem] border border-ivory-200/70 bg-ivory-100 transition-shadow duration-500 group-hover:shadow-[0_22px_55px_rgba(196,167,100,0.22)]">
-          <Image
-            src={image}
-            alt={name}
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-          />
+          {image ? (
+            <Image
+              src={image}
+              alt={name}
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center bg-gradient-to-br from-ivory-100 via-ivory-50 to-champagne-100/50 px-4 text-center text-xs uppercase tracking-[0.18em] text-charcoal-400">
+              Photo soon
+            </div>
+          )}
 
-          {/* Hover overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/25 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-          {/* Badge */}
           {badge && (
             <span className="absolute left-3 top-3 bg-champagne-500 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-charcoal-900 shadow-sm">
               {badge}
             </span>
           )}
 
-          {/* Wishlist icon */}
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -69,7 +71,6 @@ export function ProductCard({ id, name, slug, price, image, badge }: ProductCard
             />
           </button>
 
-          {/* Quick add to cart */}
           <div className="absolute bottom-0 left-0 right-0 transition-transform duration-300 can-hover:translate-y-full can-hover:group-hover:translate-y-0">
             <button
               onClick={handleAddToCart}
@@ -81,7 +82,6 @@ export function ProductCard({ id, name, slug, price, image, badge }: ProductCard
           </div>
         </div>
 
-        {/* Product info */}
         <div className="space-y-1.5 px-0.5">
           <h3 className="line-clamp-2 text-sm font-medium leading-snug text-charcoal-800 transition-colors group-hover:text-champagne-700">
             {name}

@@ -12,7 +12,6 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Shop Silver Jewellery Collection | Saroj Moun",
     description: "Handcrafted 925 sterling silver jewellery with hallmark certification. Browse necklaces, earrings, kadas and more.",
-    images: ["/peacock-jewellery.jpeg"],
   },
 };
 

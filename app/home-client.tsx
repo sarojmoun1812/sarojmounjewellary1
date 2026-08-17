@@ -160,15 +160,19 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
               animate="visible"
               className="relative"
             >
-              <div className="media-frame aspect-[4/5] overflow-hidden rounded-[2rem]">
-                <Image
-                  src="/peacock-jewellery.jpeg"
-                  alt="Handcrafted silver temple necklace and kadas by Saroj Moun"
-                  fill
-                  priority
-                  className="object-cover"
-                  sizes="(max-width: 1280px) 100vw, 45vw"
-                />
+              <div className="media-frame relative aspect-[4/5] overflow-hidden rounded-[2rem]">
+                {featuredProducts[0]?.image ? (
+                  <Image
+                    src={featuredProducts[0].image}
+                    alt={featuredProducts[0].name}
+                    fill
+                    priority
+                    className="object-cover"
+                    sizes="(max-width: 1280px) 100vw, 45vw"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(196,167,100,0.4),transparent_50%),linear-gradient(165deg,#1a1712_0%,#0f1014_55%,#241c14_100%)]" />
+                )}
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(17,18,22,0.08),rgba(17,18,22,0.72))]" />
                 <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
                   <div className="glass-dark rounded-[1.6rem] p-5">
@@ -288,15 +292,19 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
                 <StaggerItem key={category.name}>
                   <Link
                     href={`/shop?category=${encodeURIComponent(category.slug)}`}
-                    className="group media-frame block aspect-[3/4] rounded-[1.8rem]"
+                    className="group media-frame relative block aspect-[3/4] rounded-[1.8rem]"
                   >
-                    <Image
-                      src={category.image}
-                      alt={category.name}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                      sizes="(max-width: 768px) 50vw, 25vw"
-                    />
+                    {category.image ? (
+                      <Image
+                        src={category.image}
+                        alt={category.name}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-charcoal-800 via-charcoal-900 to-charcoal-950" />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950 via-charcoal-950/10 to-transparent" />
                     <div className="absolute inset-x-0 bottom-0 p-6">
                       <div className="glass-dark rounded-[1.4rem] p-4">

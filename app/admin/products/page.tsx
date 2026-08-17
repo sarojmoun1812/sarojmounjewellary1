@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Eye, EyeOff, ImageOff, Pencil, Plus, Search } from "lucide-react";
+import { DeleteProductButton } from "@/components/admin/delete-product-button";
 import { getCurrentAdmin } from "@/lib/auth";
 import { containsInsensitive, prisma } from "@/lib/db";
 import { calculateProductPrice, formatPrice } from "@/lib/pricing";
@@ -237,6 +238,10 @@ export default async function ProductsPage({
                   <Eye className="h-4 w-4" />
                   Dekhein
                 </Link>
+                <DeleteProductButton
+                  productId={product.id}
+                  productName={product.name}
+                />
               </div>
             </li>
           ))}

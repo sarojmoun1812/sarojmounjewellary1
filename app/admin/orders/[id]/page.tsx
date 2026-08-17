@@ -88,7 +88,11 @@ export default async function OrderDetailPage({
                 // images is a JSON string in the database. Indexing it directly
                 // yielded "[", so every row asked the browser for /[ and showed
                 // a broken thumbnail.
-                const thumbnail = parseStringArray(item.product.images)[0];
+                const thumbnail = parseStringArray(item.product.images).filter(
+                  (url) =>
+                    !url.toLowerCase().includes("peacock-jewellery") &&
+                    !url.includes("images.unsplash.com")
+                )[0];
 
                 return (
                   <div key={item.id} className="flex gap-4 py-4 first:pt-0 last:pb-0">

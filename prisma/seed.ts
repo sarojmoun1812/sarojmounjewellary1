@@ -4,11 +4,10 @@ import { FALLBACK_SILVER_RATE_PER_GRAM } from "../lib/pricing";
 const prisma = new PrismaClient();
 
 /**
- * Seeded products deliberately share one obvious placeholder rather than stock
- * photos of other people's jewellery. Pretty stock images made the catalogue
- * look finished, which is how it shipped with none of her own photography.
+ * Seeded products start with no photos. A shared placeholder made the shop look
+ * finished with someone else's jewellery; empty galleries make the missing
+ * photography obvious until she uploads her own.
  */
-const PLACEHOLDER_IMAGE = "/peacock-jewellery.jpeg";
 
 async function main() {
   console.log("🌱 Seeding database...");
@@ -55,9 +54,7 @@ async function main() {
       description: "Exquisite handcrafted temple necklace featuring intricate peacock motifs. This stunning piece showcases traditional Indian craftsmanship with modern elegance. Perfect for weddings, festivals, and special celebrations. Each detail is carefully carved by skilled artisans.",
       silverWeight: 55.5,
       category: "Necklaces",
-      images: [
-        PLACEHOLDER_IMAGE,
-      ],
+      images: [],
       stock: 5,
       material: "925 Sterling Silver",
       featured: true,
@@ -72,9 +69,7 @@ async function main() {
       description: "Bold and beautiful traditional silver kada for men and women. This heavyweight piece features classic design patterns that have been passed down through generations. A statement piece that adds elegance to any outfit.",
       silverWeight: 45.0,
       category: "Kadas",
-      images: [
-        PLACEHOLDER_IMAGE,
-      ],
+      images: [],
       stock: 8,
       material: "925 Sterling Silver",
       featured: true,
@@ -89,9 +84,7 @@ async function main() {
       description: "Timeless jhumka earrings that blend traditional charm with contemporary style. Features delicate bell-shaped design with intricate detailing. Lightweight and comfortable for all-day wear.",
       silverWeight: 18.5,
       category: "Earrings",
-      images: [
-        PLACEHOLDER_IMAGE,
-      ],
+      images: [],
       stock: 12,
       material: "925 Sterling Silver",
       featured: true,
@@ -106,9 +99,7 @@ async function main() {
       description: "Stunning oxidized silver ring with intricate carved patterns. The antique finish gives it a unique vintage look. Adjustable size makes it perfect for gifting.",
       silverWeight: 8.5,
       category: "Rings",
-      images: [
-        PLACEHOLDER_IMAGE,
-      ],
+      images: [],
       stock: 20,
       material: "925 Sterling Silver (Oxidized)",
       featured: false,
@@ -123,9 +114,7 @@ async function main() {
       description: "Sleek and simple silver chain necklace for everyday elegance. This minimalist piece can be worn alone or layered with other necklaces. Perfect for work, casual outings, or special occasions.",
       silverWeight: 12.0,
       category: "Necklaces",
-      images: [
-        PLACEHOLDER_IMAGE,
-      ],
+      images: [],
       stock: 15,
       material: "925 Sterling Silver",
       featured: false,
@@ -140,9 +129,7 @@ async function main() {
       description: "Beautiful temple-style earrings inspired by ancient Indian temple architecture. Features goddess motifs and intricate detailing. A perfect blend of tradition and artistry.",
       silverWeight: 22.0,
       category: "Earrings",
-      images: [
-        PLACEHOLDER_IMAGE,
-      ],
+      images: [],
       stock: 7,
       material: "925 Sterling Silver",
       featured: true,
@@ -157,9 +144,7 @@ async function main() {
       description: "Set of 4 elegant silver bangles with smooth polished finish. These stackable bangles add grace to any outfit. Perfect for daily wear or special occasions.",
       silverWeight: 40.0,
       category: "Kadas",
-      images: [
-        PLACEHOLDER_IMAGE,
-      ],
+      images: [],
       stock: 6,
       material: "925 Sterling Silver",
       featured: false,
@@ -174,9 +159,7 @@ async function main() {
       description: "Bold statement ring perfect for parties and special events. Features a large dome design with geometric patterns. A conversation starter piece that showcases your unique style.",
       silverWeight: 15.0,
       category: "Rings",
-      images: [
-        PLACEHOLDER_IMAGE,
-      ],
+      images: [],
       stock: 10,
       material: "925 Sterling Silver",
       featured: true,

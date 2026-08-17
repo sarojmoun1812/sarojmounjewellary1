@@ -36,6 +36,7 @@ export default function EditProductPage() {
           category: product.category ?? "",
           stock: product.stock?.toString() ?? "0",
           images: Array.isArray(product.images) ? product.images : [],
+          videoUrl: product.videoUrl ?? "",
           featured: product.featured ?? false,
           bestseller: product.bestseller ?? false,
           isActive: product.isActive ?? true,

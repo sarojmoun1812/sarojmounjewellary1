@@ -88,9 +88,12 @@ export function ShopPageClient({
       name: product.name,
       slug: product.slug,
       price: product.price,
-      image: product.images[0] || "/peacock-jewellery.jpeg",
+      image: product.images[0] || "",
     });
   };
+
+  const heroImage =
+    products.find((product) => product.images[0])?.images[0] ?? null;
 
   return (
     <div className="min-h-screen bg-ivory-50">
@@ -103,14 +106,18 @@ export function ShopPageClient({
         className="relative isolate min-h-[min(62vh,600px)] overflow-hidden border-b border-ivory-200/60"
       >
         <motion.div className="absolute inset-0 h-[115%] w-full" style={{ y: heroY }}>
-          <Image
-            src="/peacock-jewellery.jpeg"
-            alt="Handcrafted silver jewellery by Saroj Moun"
-            fill
-            className="object-cover"
-            priority
-            sizes="100vw"
-          />
+          {heroImage ? (
+            <Image
+              src={heroImage}
+              alt="Handcrafted silver jewellery by Saroj Moun"
+              fill
+              className="object-cover"
+              priority
+              sizes="100vw"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(196,167,100,0.35),transparent_55%),linear-gradient(160deg,#1a1712_0%,#0f1014_55%,#1c1812_100%)]" />
+          )}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(17,18,22,0.15),rgba(17,18,22,0.78)),linear-gradient(110deg,rgba(17,18,22,0.88)_0%,rgba(17,18,22,0.5)_50%,rgba(17,18,22,0.85)_100%)]" />
           <div className="noise-overlay absolute inset-0" />
         </motion.div>
@@ -206,15 +213,21 @@ export function ShopPageClient({
                 <StaggerItem key={product.id} className="group">
                   <Link href={`/product/${product.slug}`}>
                     <div className="relative mb-4 aspect-square overflow-hidden rounded-[1.25rem] border border-ivory-200/80 bg-ivory-100 shadow-[0_16px_45px_rgba(37,33,23,0.06)] transition-shadow duration-500 group-hover:shadow-[0_24px_60px_rgba(196,167,100,0.15)]">
-                      <Image
-                        src={product.images[0] || "/peacock-jewellery.jpeg"}
-                        alt={product.name}
-                        fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                      
+                      {product.images[0] ? (
+                        <Image
+                          src={product.images[0]}
+                          alt={product.name}
+                          fill
+                          className="object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center bg-gradient-to-br from-ivory-100 via-ivory-50 to-champagne-100/40 px-4 text-center text-sm text-charcoal-400">
+                          Photo jaldi add hogi
+                        </div>
+                      )}
+
                       {/* Overlay on hover */}
-                      <div className="absolute inset-0 bg-charcoal-900/0 group-hover:bg-charcoal-900/20 transition-colors duration-300" />
+                      <div className="absolute inset-0 bg-charcoal-900/0 transition-colors duration-300 group-hover:bg-charcoal-900/20" />
                       
                       {/* Badges */}
                       <div className="absolute top-3 left-3 flex flex-col gap-2">

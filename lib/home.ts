@@ -18,6 +18,7 @@ export interface HomeProduct {
   name: string;
   slug: string;
   price: number;
+  /** Empty when no real photo has been uploaded yet. */
   image: string;
   badge?: string;
 }
@@ -28,9 +29,6 @@ export interface HomeCategory {
   image: string;
   count: number;
 }
-
-/** Shown when a product or category has no photo uploaded yet. */
-const FALLBACK_IMAGE = "/peacock-jewellery.jpeg";
 
 export interface HomeData {
   featuredProducts: HomeProduct[];
@@ -65,7 +63,7 @@ export async function getHomeData(): Promise<HomeData> {
         silverRate.ratePerGram,
         silverRate.labourPerGram
       ).finalPrice,
-      image: product.images[0] ?? FALLBACK_IMAGE,
+      image: product.images[0] ?? "",
       badge: product.bestseller
         ? "Bestseller"
         : product.featured
@@ -80,7 +78,7 @@ export async function getHomeData(): Promise<HomeData> {
       const existing = byCategory.get(product.category);
       if (existing) {
         existing.count += 1;
-        if (existing.image === FALLBACK_IMAGE && product.images[0]) {
+        if (!existing.image && product.images[0]) {
           existing.image = product.images[0];
         }
         continue;
@@ -88,7 +86,7 @@ export async function getHomeData(): Promise<HomeData> {
       byCategory.set(product.category, {
         name: product.category,
         slug: product.category.toLowerCase(),
-        image: product.images[0] ?? FALLBACK_IMAGE,
+        image: product.images[0] ?? "",
         count: 1,
       });
     }

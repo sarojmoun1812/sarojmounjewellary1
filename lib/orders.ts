@@ -2,7 +2,7 @@ import { z } from "zod";
 import { prisma } from "./db";
 import { calculateProductPrice } from "./pricing";
 import { getCurrentSilverRate } from "./silver-rate";
-import { parseStringArray } from "./products";
+import { isRealProductImage, parseStringArray } from "./products";
 import {
   calculateShipping,
   DEFAULT_SHIPPING_SETTINGS,
@@ -158,7 +158,7 @@ export async function quoteCart(items: CartItemInput[]): Promise<CartQuote> {
       productId: product.id,
       name: product.name,
       slug: product.slug,
-      image: parseStringArray(product.images)[0] ?? null,
+      image: parseStringArray(product.images).filter(isRealProductImage)[0] ?? null,
       silverWeight: product.silverWeight,
       quantity: grantedQuantity,
       unitPrice: finalPrice,

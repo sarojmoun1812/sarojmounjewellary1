@@ -12,6 +12,7 @@ import {
   Save,
   Star,
   Trash2,
+  Video,
   X,
 } from "lucide-react";
 import { calculateProductPrice, formatPrice } from "@/lib/pricing";
@@ -57,6 +58,7 @@ export type ProductFormValues = {
   category: string;
   stock: string;
   images: string[];
+  videoUrl: string;
   featured: boolean;
   bestseller: boolean;
   isActive: boolean;
@@ -72,6 +74,7 @@ export const EMPTY_PRODUCT: ProductFormValues = {
   category: "",
   stock: "1",
   images: [],
+  videoUrl: "",
   featured: false,
   bestseller: false,
   isActive: true,
@@ -95,7 +98,8 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
   );
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   const [error, setError] = useState("");
   const [showExtras, setShowExtras] = useState(false);
 
@@ -114,33 +118,35 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
     return calculateProductPrice({ silverWeight: weight }, silverRate, labourPerGram);
   }, [values.silverWeight, silverRate, labourPerGram]);
 
-  const handleUpload = async (files: FileList | null) => {
+  const uploadFile = async (file: File): Promise<string> => {
+    const body = new FormData();
+    body.append("file", file);
+    const res = await fetch("/api/admin/upload", { method: "POST", body });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.error || "Upload nahi hua.");
+    }
+    return data.url as string;
+  };
+
+  const handleImageUpload = async (files: FileList | null) => {
     if (!files?.length) return;
 
-    setUploading(true);
+    setUploadingImages(true);
     setError("");
 
-    // Uploaded one at a time so a single oversized photo does not take the
-    // whole batch down with it, and so the ones that worked are kept.
+    // One at a time so a single bad file does not discard the rest.
     const uploaded: string[] = [];
     let failure = "";
 
     for (const file of Array.from(files)) {
       try {
-        const body = new FormData();
-        body.append("file", file);
-
-        const res = await fetch("/api/admin/upload", { method: "POST", body });
-        const data = await res.json().catch(() => ({}));
-
-        if (!res.ok) {
-          failure = data.error || "Photo upload nahi hui.";
-          continue;
-        }
-
-        uploaded.push(data.url);
-      } catch {
-        failure = "Internet check karein, photo upload nahi hui.";
+        uploaded.push(await uploadFile(file));
+      } catch (err) {
+        failure =
+          err instanceof Error
+            ? err.message
+            : "Internet check karein, photo upload nahi hui.";
       }
     }
 
@@ -152,7 +158,28 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
     }
     if (failure) setError(failure);
 
-    setUploading(false);
+    setUploadingImages(false);
+  };
+
+  const handleVideoUpload = async (files: FileList | null) => {
+    const file = files?.[0];
+    if (!file) return;
+
+    setUploadingVideo(true);
+    setError("");
+
+    try {
+      const url = await uploadFile(file);
+      set("videoUrl", url);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Internet check karein, video upload nahi hui."
+      );
+    } finally {
+      setUploadingVideo(false);
+    }
   };
 
   const removeImage = (index: number) =>
@@ -189,6 +216,7 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
       category: values.category,
       stock: parseInt(values.stock, 10) || 0,
       images: values.images,
+      videoUrl: values.videoUrl.trim() || null,
       material: "925 Silver",
       featured: values.featured,
       bestseller: values.bestseller,
@@ -278,17 +306,17 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
       <form onSubmit={handleSubmit} className="space-y-5">
         <section className="rounded-2xl border border-gray-200 bg-white p-5">
           <h2 className="text-base font-semibold text-gray-900">
-            1. Photo daalein
+            1. Photos aur video
           </h2>
           <p className="mt-1 text-sm text-gray-500">
-            Pehli photo website par dikhegi. Achhi roshni mein khinchi photo sabse
-            sahi lagti hai.
+            Kai photos ek saath select kar sakte hain. Pehli photo website par
+            dikhegi. Video optional hai — item ghumate hue dikhana achha lagta hai.
           </p>
 
           <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
             {values.images.map((url, index) => (
               <div
-                key={url}
+                key={`${url}-${index}`}
                 className="group relative aspect-square overflow-hidden rounded-xl border border-gray-200 bg-gray-100"
               >
                 <Image
@@ -304,8 +332,6 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
                     Main
                   </span>
                 ) : (
-                  // Always visible rather than shown on hover: on a phone there
-                  // is no hover, so a hidden control is simply unreachable.
                   <button
                     type="button"
                     onClick={() => makeMainImage(index)}
@@ -329,7 +355,7 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
 
             <label
               className={`flex aspect-square cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-gray-300 text-gray-500 transition-colors hover:border-emerald-500 hover:text-emerald-600 ${
-                uploading ? "pointer-events-none opacity-50" : ""
+                uploadingImages ? "pointer-events-none opacity-50" : ""
               }`}
             >
               <input
@@ -337,9 +363,12 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
                 className="hidden"
                 accept="image/*"
                 multiple
-                onChange={(event) => handleUpload(event.target.files)}
+                onChange={(event) => {
+                  handleImageUpload(event.target.files);
+                  event.target.value = "";
+                }}
               />
-              {uploading ? (
+              {uploadingImages ? (
                 <>
                   <Loader2 className="h-7 w-7 animate-spin" />
                   <span className="text-xs">Ho raha hai...</span>
@@ -347,10 +376,67 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
               ) : (
                 <>
                   <Camera className="h-7 w-7" />
-                  <span className="text-xs font-medium">Photo jodein</span>
+                  <span className="text-xs font-medium">Photos jodein</span>
+                  <span className="px-1 text-center text-[10px] leading-tight">
+                    Kai ek saath
+                  </span>
                 </>
               )}
             </label>
+          </div>
+
+          <div className="mt-5 border-t border-gray-100 pt-5">
+            <p className="text-sm font-medium text-gray-800">Video (optional)</p>
+            <p className="mt-0.5 text-xs text-gray-500">
+              MP4 ya WebM, 40 MB tak. Ek hi video.
+            </p>
+
+            {values.videoUrl ? (
+              <div className="relative mt-3 overflow-hidden rounded-xl border border-gray-200 bg-black">
+                <video
+                  src={values.videoUrl}
+                  controls
+                  playsInline
+                  className="max-h-64 w-full"
+                />
+                <button
+                  type="button"
+                  onClick={() => set("videoUrl", "")}
+                  aria-label="Video hatayein"
+                  className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-red-600 px-3 py-1.5 text-xs font-medium text-white"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  Hatayein
+                </button>
+              </div>
+            ) : (
+              <label
+                className={`mt-3 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 px-4 py-8 text-gray-500 transition-colors hover:border-emerald-500 hover:text-emerald-600 ${
+                  uploadingVideo ? "pointer-events-none opacity-50" : ""
+                }`}
+              >
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="video/mp4,video/webm,video/quicktime"
+                  onChange={(event) => {
+                    handleVideoUpload(event.target.files);
+                    event.target.value = "";
+                  }}
+                />
+                {uploadingVideo ? (
+                  <>
+                    <Loader2 className="h-7 w-7 animate-spin" />
+                    <span className="text-sm">Video upload ho rahi hai...</span>
+                  </>
+                ) : (
+                  <>
+                    <Video className="h-7 w-7" />
+                    <span className="text-sm font-medium">Video jodein</span>
+                  </>
+                )}
+              </label>
+            )}
           </div>
         </section>
 
@@ -600,26 +686,34 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
                 />
               </div>
 
-              {mode === "edit" && (
-                <div className="border-t border-gray-100 pt-5">
-                  <button
-                    type="button"
-                    onClick={handleDelete}
-                    disabled={deleting}
-                    className="inline-flex items-center gap-2 rounded-xl border border-red-200 px-4 py-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
-                  >
-                    {deleting ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-4 w-4" />
-                    )}
-                    Item hamesha ke liye hatayein
-                  </button>
-                </div>
-              )}
             </div>
           )}
         </section>
+
+        {mode === "edit" && (
+          <section className="rounded-2xl border border-red-200 bg-red-50/60 p-5">
+            <h2 className="text-base font-semibold text-red-800">
+              Item delete karein
+            </h2>
+            <p className="mt-1 text-sm text-red-700/80">
+              Delete karne par ye list se hat jayega. Agar pehle orders aa chuke
+              hain to sirf website se chhup jayega.
+            </p>
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleting}
+              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+            >
+              {deleting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+              Item hamesha ke liye hatayein
+            </button>
+          </section>
+        )}
 
         {/* Pinned so the save button is reachable without scrolling to the end
             of a long form on a phone. */}
@@ -633,7 +727,7 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
             </Link>
             <button
               type="submit"
-              disabled={saving || uploading}
+              disabled={saving || uploadingImages || uploadingVideo}
               className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
             >
               {saving ? (

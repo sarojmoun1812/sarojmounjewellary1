@@ -10,7 +10,7 @@
  * is the harmless outcome. The other way round it would silently render white
  * text on white and hide its first hundred pixels behind the bar.
  */
-const DARK_HERO_ROUTES = new Set(["/", "/shop"]);
+const DARK_HERO_ROUTES = new Set(["/", "/shop", "/connect"]);
 
 export function hasDarkHero(pathname: string): boolean {
   return DARK_HERO_ROUTES.has(pathname);
