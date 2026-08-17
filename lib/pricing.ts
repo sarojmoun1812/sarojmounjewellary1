@@ -41,7 +41,7 @@ export function roundToRupee(paise: number): number {
 }
 
 /** Labour and commission per gram, in rupees, when no setting is stored. */
-export const DEFAULT_LABOUR_PER_GRAM = 100;
+export const DEFAULT_LABOUR_PER_GRAM = 130;
 
 export interface ProductPricing {
   silverWeight: number; // grams
@@ -110,6 +110,11 @@ export function formatPrice(priceInPaise: number): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   })}`;
+}
+
+/** Label shown next to a product price on the public site. */
+export function priceTypeLabel(fixedPrice?: number | null): string {
+  return fixedPrice ? "(Fixed price)" : "(Wholesale prices)";
 }
 
 /**

@@ -30,7 +30,7 @@ const settingsSchema = z.object({
   gstInclusive: z.boolean().default(false),
   // Labour and commission per gram. Zero would sell her work for the price of
   // the metal alone, so it has a floor; the ceiling catches a stray extra digit.
-  labourPerGram: z.number().min(1, "Majoori 1 se zyada honi chahiye").max(10000).default(100),
+  labourPerGram: z.number().min(1, "Majoori 1 se zyada honi chahiye").max(10000).default(130),
   // How far above international spot her buying rate sits. A wrong value here
   // moves every price in the shop at once, so the band is deliberately narrow.
   silverRatePremiumPercent: z

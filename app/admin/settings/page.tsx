@@ -45,7 +45,7 @@ export default function SettingsPage() {
     gst: "",
     gstRate: "0",
     gstInclusive: false,
-    labourPerGram: "100",
+    labourPerGram: "130",
     silverRatePremiumPercent: "31",
     shippingCharge: "0",
     freeShippingMin: "",
@@ -78,7 +78,7 @@ export default function SettingsPage() {
             labourPerGram:
               data.settings.labourPerGram != null
                 ? String(data.settings.labourPerGram)
-                : "100",
+                : "130",
             silverRatePremiumPercent:
               data.settings.silverRatePremiumPercent != null
                 ? String(data.settings.silverRatePremiumPercent)
@@ -115,7 +115,7 @@ export default function SettingsPage() {
         body: JSON.stringify({
           ...settings,
           gstRate: parseFloat(settings.gstRate || "0") || 0,
-          labourPerGram: parseFloat(settings.labourPerGram || "100") || 100,
+          labourPerGram: parseFloat(settings.labourPerGram || "130") || 130,
           silverRatePremiumPercent:
             parseFloat(settings.silverRatePremiumPercent || "31") || 0,
           shippingCharge: Math.round(parseFloat(settings.shippingCharge || "0") * 100),
@@ -202,7 +202,7 @@ export default function SettingsPage() {
                 className="w-full rounded-lg border border-gray-200 px-4 py-3 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
               <p className="mt-1.5 text-xs text-gray-500">
-                Abhi ₹{settings.labourPerGram || "100"}/gram lag raha hai. Ye
+                Abhi ₹{settings.labourPerGram || "130"}/gram lag raha hai. Ye
                 badalne par saare item ka price badal jayega.
               </p>
             </div>

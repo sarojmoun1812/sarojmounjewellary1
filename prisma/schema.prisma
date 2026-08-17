@@ -202,7 +202,7 @@ model SiteSettings {
   // Labour and commission, in rupees per gram, added on top of the silver
   // rate. One value for the whole shop: she quoted a flat rate, and a
   // per-product copy of it would only drift.
-  labourPerGram   Float    @default(100)
+  labourPerGram   Float    @default(130)
   // How far above international spot her local buying rate sits, in percent.
   // The feed reports spot (about Rs 179/g), while she actually buys at around
   // Rs 235/g, so spot alone would underprice every piece by roughly a quarter.

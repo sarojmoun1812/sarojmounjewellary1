@@ -81,7 +81,7 @@ export default function TermsPage() {
           details.
         </p>
         <ul>
-          <li>7-day return and exchange window</li>
+          <li>Faulty, damaged or wrong pieces can be returned after WhatsApp approval</li>
           <li>Pieces must be unused and in their original packaging</li>
           <li>Customised or engraved items cannot be returned</li>
         </ul>

@@ -20,6 +20,7 @@ export interface HomeProduct {
   price: number;
   /** Empty when no real photo has been uploaded yet. */
   image: string;
+  fixedPrice?: number | null;
   badge?: string;
 }
 
@@ -64,6 +65,7 @@ export async function getHomeData(): Promise<HomeData> {
         silverRate.labourPerGram
       ).finalPrice,
       image: product.images[0] ?? "",
+      fixedPrice: product.fixedPrice ?? null,
       badge: product.bestseller
         ? "Bestseller"
         : product.featured

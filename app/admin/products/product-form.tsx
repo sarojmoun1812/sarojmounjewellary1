@@ -59,6 +59,7 @@ export type ProductFormValues = {
   stock: string;
   images: string[];
   videoUrl: string;
+  fixedPrice: string;
   featured: boolean;
   bestseller: boolean;
   isActive: boolean;
@@ -75,6 +76,7 @@ export const EMPTY_PRODUCT: ProductFormValues = {
   stock: "1",
   images: [],
   videoUrl: "",
+  fixedPrice: "",
   featured: false,
   bestseller: false,
   isActive: true,
@@ -113,10 +115,18 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
   ) => setValues((current) => ({ ...current, [key]: value }));
 
   const preview = useMemo(() => {
+    const fixedRupees = parseFloat(values.fixedPrice);
+    if (Number.isFinite(fixedRupees) && fixedRupees > 0) {
+      return calculateProductPrice(
+        { silverWeight: 1, fixedPrice: Math.round(fixedRupees * 100) },
+        silverRate ?? 0,
+        labourPerGram
+      );
+    }
     const weight = parseFloat(values.silverWeight);
     if (!Number.isFinite(weight) || weight <= 0 || !silverRate) return null;
     return calculateProductPrice({ silverWeight: weight }, silverRate, labourPerGram);
-  }, [values.silverWeight, silverRate, labourPerGram]);
+  }, [values.silverWeight, values.fixedPrice, silverRate, labourPerGram]);
 
   const uploadFile = async (file: File): Promise<string> => {
     const body = new FormData();
@@ -205,6 +215,12 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
       return;
     }
 
+    const fixedRupees = parseFloat(values.fixedPrice);
+    const hasFixed =
+      values.fixedPrice.trim() !== "" &&
+      Number.isFinite(fixedRupees) &&
+      fixedRupees > 0;
+
     setSaving(true);
 
     // Only the fields this form owns are sent. The payload is never the raw
@@ -213,6 +229,7 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
       name: values.name.trim(),
       description: values.description.trim(),
       silverWeight: weight,
+      fixedPrice: hasFixed ? Math.round(fixedRupees * 100) : null,
       category: values.category,
       stock: parseInt(values.stock, 10) || 0,
       images: values.images,
@@ -569,11 +586,19 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
             </p>
             {preview ? (
               <p className="mt-2 text-xs leading-relaxed text-emerald-800">
-                Chandi {values.silverWeight}g × ₹{preview.silverRatePerGram}/g ={" "}
-                {formatPrice(preview.silverCost)}
-                <br />
-                Majoori {values.silverWeight}g × ₹{preview.labourPerGram}/g ={" "}
-                {formatPrice(preview.labour)}
+                {values.fixedPrice.trim()
+                  ? "Fixed price — website par “(Fixed price)” dikhega."
+                  : (
+                    <>
+                      Chandi {values.silverWeight}g × ₹{preview.silverRatePerGram}/g ={" "}
+                      {formatPrice(preview.silverCost)}
+                      <br />
+                      Majoori {values.silverWeight}g × ₹{preview.labourPerGram}/g ={" "}
+                      {formatPrice(preview.labour)}
+                      <br />
+                      Website par “(Wholesale prices)” dikhega.
+                    </>
+                  )}
               </p>
             ) : (
               <p className="mt-2 text-xs text-emerald-800">
@@ -630,6 +655,30 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
                   checked={values.bestseller}
                   onChange={(checked) => set("bestseller", checked)}
                 />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="product-fixed-price"
+                  className="mb-1.5 block text-sm font-medium text-gray-700"
+                >
+                  Fixed price (₹) — optional
+                </label>
+                <input
+                  id="product-fixed-price"
+                  type="number"
+                  inputMode="decimal"
+                  min="1"
+                  step="1"
+                  value={values.fixedPrice}
+                  onChange={(event) => set("fixedPrice", event.target.value)}
+                  placeholder="khaali chhod dein to wholesale price chalega"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                />
+                <p className="mt-1.5 text-xs text-gray-500">
+                  Bharni par website par &quot;(Fixed price)&quot; dikhega. Khaali
+                  chhodne par &quot;(Wholesale prices)&quot; dikhega.
+                </p>
               </div>
 
               <div>

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { ArrowRight, Shield, Truck, RefreshCw, Sparkles, Instagram } from "lucide-react";
+import { ArrowRight, Shield, Truck, Sparkles, Instagram, MessageCircle } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
 import { Reveal, StaggerItem, StaggerReveal } from "@/components/reveal";
 import { NewsletterSignup } from "@/components/newsletter-signup";
@@ -144,7 +144,7 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
                 {[
                   { icon: Shield, label: "Hallmarked 92.5" },
                   { icon: Truck, label: "Free Shipping Above ₹2,999" },
-                  { icon: RefreshCw, label: "7-Day Returns" },
+                  { icon: Sparkles, label: "Wholesale Prices" },
                 ].map((item) => (
                   <div key={item.label} className="glass-dark flex items-center gap-3 rounded-full px-4 py-3">
                     <item.icon className="h-4 w-4 text-champagne-300" />
@@ -250,7 +250,7 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
                 {[
                   { value: "925", label: "Certified purity" },
                   { value: "Live", label: "Silver rate pricing" },
-                  { value: "7 Day", label: "Easy returns" },
+                  { value: "Fair", label: "Wholesale prices" },
                 ].map((item) => (
                   <div key={item.label} className="elevated-card rounded-[1.6rem] p-5">
                     <p className="font-heading text-3xl text-charcoal-900">{item.value}</p>
@@ -413,9 +413,9 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
                 desc: "Complimentary delivery on all orders above ₹2,999 across India",
               },
               {
-                icon: RefreshCw,
-                title: "Easy Returns",
-                desc: "7-day returns on unworn pieces in their original packaging",
+                icon: MessageCircle,
+                title: "WhatsApp Orders",
+                desc: "Wholesale prices and fixed-price pieces — order confirmed on WhatsApp",
               },
             ].map((item) => (
               <StaggerItem key={item.title}>

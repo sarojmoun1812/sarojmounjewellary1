@@ -8,16 +8,18 @@ const nextConfig = {
     serverComponentsExternalPackages: ["@vercel/blob"],
   },
   images: {
-    // Only the two hosts her photographs are actually served from. Vercel Blob
-    // is the default upload target; Cloudinary stays supported for keys that
-    // are already configured. images.unsplash.com was allowed here while the
-    // catalogue was seeded with stock photos of other people's jewellery; those
-    // have been removed, and leaving the host whitelisted would let them
-    // quietly come back.
+    // Vercel Blob URLs vary by store id (xxx.public.blob.vercel-storage.com).
+    // A single wildcard + the bare host keeps uploaded photos rendering in
+    // next/image instead of failing silently as broken thumbnails.
     remotePatterns: [
       {
         protocol: "https",
         hostname: "*.public.blob.vercel-storage.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "public.blob.vercel-storage.com",
         pathname: "/**",
       },
       {

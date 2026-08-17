@@ -37,16 +37,17 @@ const RETURN_STEPS = [
 export default function ReturnPolicyPage() {
   return (
     <PolicyLayout
-      kicker="Hassle-Free Returns"
+      kicker="Returns & Refunds"
       icon={RefreshCw}
       title="Return & Refund Policy"
-      updated="December 24, 2025"
+      updated="August 17, 2026"
     >
-      <PolicySection title="7-day returns">
+      <PolicySection title="How returns work">
         <p>
-          We want you to be completely happy with your purchase. If you are not,
-          you can return or exchange your order within <strong>7 days</strong> of
-          delivery.
+          Jewellery is a personal purchase. If something is wrong with your
+          order — damage in transit, a manufacturing fault, or the wrong piece —
+          message us on WhatsApp and we will sort it out. There is no automatic
+          7-day return window for change-of-mind returns.
         </p>
       </PolicySection>
 
@@ -57,12 +58,10 @@ export default function ReturnPolicyPage() {
             Eligible for return
           </p>
           <ul>
-            <li>The piece is unused and in original condition</li>
-            <li>Original packaging, tags and certificate are intact</li>
-            <li>No scratches, stains or damage</li>
-            <li>Returned within 7 days of delivery</li>
             <li>The piece arrived faulty or damaged</li>
             <li>The wrong piece was delivered</li>
+            <li>The piece is unused and in original condition (when we approve)</li>
+            <li>Original packaging, tags and certificate are intact</li>
           </ul>
         </div>
       </PolicySection>
@@ -78,7 +77,7 @@ export default function ReturnPolicyPage() {
             <li>Pieces bought during a special sale, unless faulty</li>
             <li>Items without their original packaging or tags</li>
             <li>Pieces showing signs of wear or damage</li>
-            <li>Returns requested more than 7 days after delivery</li>
+            <li>Change-of-mind returns without prior approval</li>
           </ul>
         </div>
       </PolicySection>

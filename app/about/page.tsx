@@ -94,7 +94,7 @@ export default function AboutPage() {
               {
                 icon: Shield,
                 title: "Trust",
-                body: "Transparent pricing, a real person on the other end, and hassle-free returns build lasting relationships.",
+                body: "Transparent pricing, a real person on the other end, and WhatsApp support build lasting relationships.",
               },
             ].map((v) => (
               <StaggerItem key={v.title}>
@@ -153,7 +153,7 @@ export default function AboutPage() {
               { t: "Beautiful packaging", d: "Gifting-ready presentation" },
               { t: "Order on WhatsApp", d: "Talk to us directly before you pay" },
               { t: "Fast delivery", d: "Reliable shipping across India" },
-              { t: "Easy returns", d: "7-day return window" },
+              { t: "Wholesale prices", d: "Fair rates on every piece" },
               { t: "Warranty", d: "Support for manufacturing defects" },
               { t: "Support", d: "WhatsApp & email for queries" },
             ].map((item) => (

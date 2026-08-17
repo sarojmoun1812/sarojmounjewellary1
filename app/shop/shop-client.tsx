@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ShoppingCart, Heart, Sparkles } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
-import { formatPrice } from "@/lib/pricing";
+import { formatPrice, priceTypeLabel } from "@/lib/pricing";
 import { Reveal, StaggerItem, StaggerReveal } from "@/components/reveal";
 import { revealLeft } from "@/lib/motion";
 
@@ -218,7 +218,8 @@ export function ShopPageClient({
                           src={product.images[0]}
                           alt={product.name}
                           fill
-                          className="object-cover transition-transform duration-700 group-hover:scale-110"
+                          className="object-contain p-4 transition-transform duration-700 group-hover:scale-105"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 40vw, 25vw"
                         />
                       ) : (
                         <div className="flex h-full items-center justify-center bg-gradient-to-br from-ivory-100 via-ivory-50 to-champagne-100/40 px-4 text-center text-sm text-charcoal-400">
@@ -227,7 +228,7 @@ export function ShopPageClient({
                       )}
 
                       {/* Overlay on hover */}
-                      <div className="absolute inset-0 bg-charcoal-900/0 transition-colors duration-300 group-hover:bg-charcoal-900/20" />
+                      <div className="absolute inset-0 bg-charcoal-900/0 transition-colors duration-300 group-hover:bg-charcoal-900/10" />
                       
                       {/* Badges */}
                       <div className="absolute top-3 left-3 flex flex-col gap-2">
@@ -275,12 +276,15 @@ export function ShopPageClient({
                         {product.name}
                       </h3>
                     </Link>
-                    <div className="flex items-baseline gap-2">
+                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                       <p className="text-lg font-medium text-charcoal-900">
                         {formatPrice(product.price)}
                       </p>
+                      <p className="text-xs font-medium text-champagne-700">
+                        {priceTypeLabel(product.fixedPrice)}
+                      </p>
                       <p className="text-xs text-charcoal-400">
-                        {product.silverWeight}g Silver
+                        · {product.silverWeight}g Silver
                       </p>
                     </div>
                   </div>
@@ -305,8 +309,7 @@ export function ShopPageClient({
                 earrings, kadas, and rings.
               </p>
               <p className="mt-4 leading-relaxed text-charcoal-600">
-                With transparent pricing based on current silver rates and weight, you always know exactly what you&apos;re
-                paying for. Enjoy free shipping on orders above ₹2,999 and our 7-day easy return policy.
+                With transparent wholesale pricing based on current silver rates and weight — or a fixed price on special pieces — you always know exactly what you&apos;re paying for. Enjoy free shipping on orders above ₹2,999.
               </p>
             </Reveal>
           </div>

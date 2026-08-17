@@ -22,7 +22,7 @@ import {
   Check,
 } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
-import { formatPrice, type PriceBreakdown } from "@/lib/pricing";
+import { formatPrice, priceTypeLabel, type PriceBreakdown } from "@/lib/pricing";
 import type { GstSettings } from "@/lib/tax";
 import { ProductInquiryForm } from "@/components/product-inquiry-form";
 import { Reveal, StaggerItem, StaggerReveal } from "@/components/reveal";
@@ -142,7 +142,7 @@ export function ProductDetailClient({
         <div className="grid gap-12 lg:grid-cols-2">
           {/* Image / video gallery */}
           <Reveal variants={revealLeft}>
-            <div className="media-frame relative mb-4 aspect-square overflow-hidden rounded-[2rem] bg-charcoal-900">
+            <div className="media-frame relative mb-4 aspect-square overflow-hidden rounded-[2rem] bg-ivory-100">
               {images.length > 0 ? (
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -157,14 +157,15 @@ export function ProductDetailClient({
                       src={images[selectedImageIndex]}
                       alt={product.name}
                       fill
-                      className="object-cover"
+                      className="object-contain p-3 sm:p-5"
                       priority
+                      sizes="(max-width: 1024px) 100vw, 50vw"
                     />
                   </motion.div>
                 </AnimatePresence>
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-charcoal-800 to-charcoal-950 px-8 text-center">
-                  <p className="text-sm tracking-wide text-ivory-100/60">
+                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-ivory-100 to-ivory-200 px-8 text-center">
+                  <p className="text-sm tracking-wide text-charcoal-400">
                     Photo jaldi add hogi
                   </p>
                 </div>
@@ -207,7 +208,7 @@ export function ProductDetailClient({
                   <button
                     key={image}
                     onClick={() => setSelectedImageIndex(index)}
-                    className={`relative aspect-square overflow-hidden transition-all ${
+                    className={`relative aspect-square overflow-hidden rounded-xl border border-ivory-200 bg-ivory-50 transition-all ${
                       selectedImageIndex === index
                         ? "ring-2 ring-champagne-500"
                         : "opacity-70 hover:opacity-100"
@@ -217,7 +218,8 @@ export function ProductDetailClient({
                       src={image}
                       alt={`${product.name} ${index + 1}`}
                       fill
-                      className="object-cover"
+                      className="object-contain p-1.5"
+                      sizes="120px"
                     />
                   </button>
                 ))}
@@ -263,15 +265,19 @@ export function ProductDetailClient({
                 which is what a buyer checks; itemising the labour margin only
                 invites haggling over it. */}
             <div className="bg-ivory-100 p-6 space-y-3">
-              <div className="flex items-baseline gap-3">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <span className="text-3xl font-heading font-medium text-charcoal-900">
                   {formatPrice(priceBreakdown.finalPrice)}
                 </span>
-                <span className="text-sm text-charcoal-500">(incl. all charges)</span>
+                <span className="text-sm font-medium text-champagne-700">
+                  {priceTypeLabel(product.fixedPrice)}
+                </span>
               </div>
 
               <p className="text-xs text-charcoal-500 italic">
-                * Prices follow the live silver rate
+                {product.fixedPrice
+                  ? "* Special piece — fixed price"
+                  : "* Wholesale prices follow the live silver rate"}
                 {gst.gstRate > 0
                   ? gst.gstInclusive
                     ? ` and include ${gst.gstRate}% GST`
@@ -393,8 +399,8 @@ export function ProductDetailClient({
                 <div className="w-12 h-12 bg-ivory-100 flex items-center justify-center mx-auto mb-2">
                   <Shield className="h-5 w-5 text-champagne-600" />
                 </div>
-                <p className="text-xs font-medium text-charcoal-700">7-Day Returns</p>
-                <p className="text-xs text-charcoal-500">Easy refunds</p>
+                <p className="text-xs font-medium text-charcoal-700">Wholesale prices</p>
+                <p className="text-xs text-charcoal-500">Fair &amp; transparent</p>
               </div>
 
               <div className="text-center">
@@ -462,7 +468,8 @@ export function ProductDetailClient({
                           src={relatedProduct.images[0]}
                           alt={relatedProduct.name}
                           fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          className="object-contain p-3 transition-transform duration-500 group-hover:scale-105"
+                          sizes="(max-width: 768px) 45vw, 20vw"
                         />
                       ) : (
                         <div className="flex h-full items-center justify-center bg-gradient-to-br from-ivory-100 to-ivory-200 text-xs text-charcoal-400">
@@ -473,7 +480,12 @@ export function ProductDetailClient({
                     <h3 className="font-heading text-charcoal-900 group-hover:text-champagne-600 transition-colors line-clamp-2 mb-1">
                       {relatedProduct.name}
                     </h3>
-                    <p className="text-charcoal-600">{formatPrice(relatedProduct.price)}</p>
+                    <p className="text-charcoal-600">
+                      {formatPrice(relatedProduct.price)}{" "}
+                      <span className="text-xs text-champagne-700">
+                        {priceTypeLabel(relatedProduct.fixedPrice)}
+                      </span>
+                    </p>
                   </Link>
                   </StaggerItem>
                 );
