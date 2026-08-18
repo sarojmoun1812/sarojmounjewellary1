@@ -1,6 +1,7 @@
 import { prisma } from "./db";
 import { formatPrice } from "./pricing";
 import { WHATSAPP_NUMBER } from "./constants";
+import { absoluteUrl } from "./site";
 import type { PricedLine } from "./orders";
 import type { GstBreakdown } from "./tax";
 
@@ -34,6 +35,14 @@ export async function getWhatsAppNumber(): Promise<string> {
   );
 }
 
+/** Makes a product photo URL absolute so it opens from the WhatsApp chat. */
+function absoluteMediaUrl(url: string | null | undefined): string | null {
+  if (!url?.trim()) return null;
+  const value = url.trim();
+  if (/^https?:\/\//i.test(value)) return value;
+  return absoluteUrl(value.startsWith("/") ? value : `/${value}`);
+}
+
 type OrderMessageInput = {
   phoneNumber: string;
   orderNumber: string;
@@ -57,6 +66,10 @@ type OrderMessageInput = {
 /**
  * Builds the wa.me link the customer sends. The message is the order record in
  * her chat, so it has to be readable on its own without opening the admin panel.
+ *
+ * WhatsApp's click-to-chat URL only carries text — it cannot attach image files.
+ * Putting each item's main photo URL in the message lets her tap it (and often
+ * see a preview) so she knows exactly which piece was ordered.
  */
 export function buildWhatsAppOrderUrl({
   phoneNumber,
@@ -81,15 +94,22 @@ export function buildWhatsAppOrderUrl({
     `Items:`,
   ];
 
-  for (const line of lines) {
+  for (const [index, line] of lines.entries()) {
+    const photo = absoluteMediaUrl(line.image);
+    const productPage = absoluteUrl(`/product/${line.slug}`);
+
     parts.push(
-      `• ${line.name} (${line.silverWeight}g) × ${line.quantity} — ${formatPrice(
-        line.lineTotal
-      )}`
+      `${index + 1}. ${line.name}`,
+      `   ${line.silverWeight}g × ${line.quantity} — ${formatPrice(line.lineTotal)}`,
+      `   Product: ${productPage}`
     );
+    if (photo) {
+      parts.push(`   Photo: ${photo}`);
+    }
+    parts.push(``);
   }
 
-  parts.push(``, `Subtotal: ${formatPrice(subtotal)}`);
+  parts.push(`Subtotal: ${formatPrice(subtotal)}`);
   if (gst && gst.amount > 0 && !gst.inclusive) {
     parts.push(`GST (${gst.rate}%): ${formatPrice(gst.amount)}`);
   }
