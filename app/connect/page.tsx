@@ -1,20 +1,19 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { ConnectPageClient } from "./connect-client";
 
-export const metadata: Metadata = {
-  title: "Connect",
+export const metadata: Metadata = pageMetadata({
+  title: "Connect with Saroj Moun Jewellery",
   description:
-    "Connect with Saroj Moun Jewellery & Fashion — shop the website, follow on Instagram, and watch on YouTube.",
-  alternates: {
-    canonical: "/connect",
-  },
-  openGraph: {
-    title: "Connect | Saroj Moun Jewellery & Fashion",
-    description:
-      "One place for Saroj Moun — website, Instagram, and YouTube.",
-    url: "/connect",
-  },
-};
+    "Connect with Saroj Moun Jewellery in Jind — shop handcrafted 925 silver jewellery online, follow on Instagram, and watch on YouTube.",
+  path: "/connect",
+  keywords: [
+    "Saroj Moun Jewellery",
+    "Saroj Moun Instagram",
+    "silver jewellery Jind",
+    "925 silver jewellery",
+  ],
+});
 
 export default function ConnectPage() {
   return <ConnectPageClient />;

@@ -83,6 +83,14 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
                 pure silver ke gehne. Har piece ka daam aaj ke chaandi ke bhaav par,
                 bilkul saaf-saaf. Jind, Haryana se poore India tak.
               </motion.p>
+              <motion.p
+                variants={fadeUp}
+                className="mt-4 max-w-2xl text-base leading-relaxed text-ivory-100/60 md:text-lg"
+              >
+                Handcrafted 925 sterling silver jewellery from Saroj Moun Jewellery
+                in Jind, Haryana — hallmark-certified necklaces, earrings, rings and
+                kadas at wholesale prices on the live silver rate.
+              </motion.p>
 
               {/* The rate badge used to sit above the hero in the old powder
                   palette, where the fixed header covered it completely. Since
@@ -236,15 +244,17 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
             <Reveal variants={revealRight}>
               <p className="section-kicker text-champagne-700">Hamari Pehchaan</p>
               <h2 className="mt-5 text-4xl font-heading font-light leading-tight text-charcoal-950 md:text-6xl">
-                Peedhiyon Ki Virasat,
-                <br />
-                <span className="text-gradient-gold italic">Aaj Ki Presentation.</span>
+                Handcrafted 925 silver jewellery from Jind, Haryana
               </h2>
+              <p className="mt-4 max-w-2xl text-xl font-heading font-light leading-snug text-charcoal-700 md:text-2xl">
+                Peedhiyon Ki Virasat,{" "}
+                <span className="text-gradient-gold italic">Aaj Ki Presentation.</span>
+              </p>
               <p className="mt-6 max-w-2xl text-base leading-8 text-charcoal-600 md:text-lg">
-                Saroj Moun Jewellery ki shuruaat ek sapne se hui, jahan craftsmanship sirf
-                design tak simit nahi tha, balki har customer ko khaas mehsoos karana bhi uska
-                hissa tha. Hum 925 sterling silver, thoughtful detailing aur bharose ko ek hi
-                experience mein pesh karte hain.
+                Saroj Moun Jewellery crafts hallmark-certified 925 sterling silver
+                jewellery in Jind, Haryana — necklaces, earrings, rings, kadas and
+                oxidized temple pieces made by Jaipur and Udaipur karigars, priced
+                fairly on the day&apos;s live silver rate.
               </p>
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
                 {[
@@ -284,7 +294,7 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
             <Reveal className="mb-14 text-center">
               <p className="section-kicker text-champagne-300">Explore</p>
               <h2 className="mt-5 text-4xl font-heading font-light md:text-5xl">
-                Shop By Category
+                Shop silver jewellery by category
               </h2>
             </Reveal>
             <StaggerReveal className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">
@@ -339,10 +349,10 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
               <div className="max-w-xl">
                 <p className="section-kicker text-champagne-700">Curated Selection</p>
                 <h2 className="mt-4 text-4xl font-heading font-light text-charcoal-950 md:text-5xl">
-                  Our Picks
+                  Featured 925 silver jewellery
                 </h2>
                 <p className="mt-4 text-sm leading-relaxed text-charcoal-600 md:text-base">
-                  Handpicked 925 sterling pieces — hallmark trust, roz ya tyohaar dono ke liye.
+                  Handpicked hallmark silver pieces from Saroj Moun — for everyday wear and celebrations.
                 </p>
               </div>
               <Link

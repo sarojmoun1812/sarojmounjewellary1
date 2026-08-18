@@ -45,6 +45,10 @@ export default function AboutPage() {
                   trendsetter—her style and suggestions are celebrated throughout Jind and beyond.
                 </p>
                 <p>
+                  You may also see us written as Saroj Moun Jewellary, Saroj Mohan Jewellery, Saroj Moon Jewellery, or
+                  similar spellings — same brand, same shop in Jind. The official name is Saroj Moun Jewellery.
+                </p>
+                <p>
                   Saroj&apos;s achievements are not hers alone—her journey is powered by the unwavering support of her
                   husband, a dedicated police officer who stands by her side in every challenge, and her two
                   children—a son and a daughter, with her daughter being an IIT Madras graduate and a lead developer at

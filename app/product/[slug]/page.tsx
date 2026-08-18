@@ -24,18 +24,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const product = normalizeProduct(raw);
-  const keywords =
-    product.tags.length > 0
-      ? product.tags.join(", ")
-      : `${product.category}, silver jewellery, 925 silver`;
+  const keywords = [
+    product.name,
+    "Saroj Moun Jewellery",
+    "Saroj Moun Jewellary",
+    "Saroj Mohan Jewellery",
+    "Saroj Moon Jewellery",
+    product.category,
+    "925 silver jewellery",
+    "handcrafted silver jewellery",
+    "silver jewellery Jind",
+    ...product.tags,
+  ];
 
   return {
-    title: `${product.name} | Saroj Moun Jewellery`,
-    description: product.metaDescription || product.description.slice(0, 160),
+    title: product.metaTitle?.trim() || `${product.name} in 925 Silver`,
+    description:
+      product.metaDescription ||
+      `${product.description.slice(0, 140)} Handcrafted 925 silver from Saroj Moun Jewellery, Jind, Haryana.`,
     keywords,
+    alternates: { canonical: `/product/${product.slug}` },
     openGraph: {
       title: product.name,
       description: product.description.slice(0, 200),
+      url: `${SITE_URL}/product/${product.slug}`,
       ...(product.images.length > 0 ? { images: [product.images[0]] } : {}),
       type: "website",
     },
