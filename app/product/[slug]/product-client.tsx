@@ -43,6 +43,8 @@ interface Product {
   material: string;
   featured: boolean;
   bestseller: boolean;
+  /** Added in the last two weeks. */
+  isNew?: boolean;
   tags: string[];
 }
 
@@ -189,14 +191,18 @@ export function ProductDetailClient({
               )}
 
               <div className="absolute left-4 top-4 flex flex-col gap-2">
-                {product.bestseller && (
+                {product.stock <= 0 ? (
+                  <span className="bg-charcoal-900 px-3 py-1 text-xs font-medium uppercase tracking-wider text-ivory-50">
+                    Sold Out
+                  </span>
+                ) : product.isNew ? (
+                  <span className="bg-champagne-500 px-3 py-1 text-xs font-medium uppercase tracking-wider text-charcoal-900">
+                    New!
+                  </span>
+                ) : null}
+                {product.bestseller && product.stock > 0 && !product.isNew && (
                   <span className="bg-champagne-500 px-3 py-1 text-xs font-medium uppercase tracking-wider text-charcoal-900">
                     Bestseller
-                  </span>
-                )}
-                {product.stock < 5 && product.stock > 0 && (
-                  <span className="bg-red-500 px-3 py-1 text-xs font-medium uppercase tracking-wider text-white">
-                    Only {product.stock} left
                   </span>
                 )}
               </div>
@@ -314,7 +320,7 @@ export function ProductDetailClient({
               </div>
               {product.stock > 0 && quantity >= product.stock && (
                 <p className="text-xs text-amber-700 mt-2">
-                  Only {product.stock} in stock.
+                  Maximum available quantity selected.
                 </p>
               )}
             </div>

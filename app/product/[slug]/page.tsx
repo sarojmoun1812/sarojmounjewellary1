@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { normalizeProduct, normalizeProducts } from "@/lib/products";
+import { normalizeProduct, normalizeProducts, isNewArrival } from "@/lib/products";
 import { getCurrentSilverRate } from "@/lib/silver-rate";
 import { calculateProductPrice } from "@/lib/pricing";
 import { getGstSettings } from "@/lib/orders";
@@ -129,7 +129,12 @@ export default async function ProductPage({ params }: Props) {
       <BreadcrumbSchema items={breadcrumbs} />
 
       <ProductDetailClient
-        product={parsedProduct as any}
+        product={
+          {
+            ...parsedProduct,
+            isNew: isNewArrival(parsedProduct.createdAt),
+          } as any
+        }
         breakdown={breakdown}
         gst={gst}
         relatedProducts={relatedWithPrices as any}

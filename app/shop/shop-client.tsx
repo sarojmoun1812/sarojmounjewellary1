@@ -22,6 +22,8 @@ interface Product {
   stock: number;
   featured: boolean;
   bestseller: boolean;
+  /** Added in the last two weeks. */
+  isNew?: boolean;
   /** Already priced on the server, in paise. */
   price: number;
 }
@@ -232,21 +234,28 @@ export function ShopPageClient({
                     <div className="absolute inset-0 bg-charcoal-900/0 transition-colors duration-300 group-hover:bg-charcoal-900/10" />
 
                     <div className="absolute left-3 top-3 flex flex-col gap-2">
-                      {product.bestseller && (
+                      {product.stock <= 0 ? (
+                        <span className="bg-charcoal-900 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-ivory-50">
+                          Sold Out
+                        </span>
+                      ) : product.isNew ? (
                         <span className="bg-champagne-500 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-charcoal-900">
+                          New!
+                        </span>
+                      ) : null}
+                      {product.bestseller && product.stock > 0 && !product.isNew && (
+                        <span className="bg-champagne-500/90 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-charcoal-900">
                           Bestseller
                         </span>
                       )}
-                      {product.featured && !product.bestseller && (
-                        <span className="bg-charcoal-900 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-ivory-50">
-                          Featured
-                        </span>
-                      )}
-                      {product.stock < 5 && product.stock > 0 && (
-                        <span className="bg-red-500 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-white">
-                          Low Stock
-                        </span>
-                      )}
+                      {product.featured &&
+                        !product.bestseller &&
+                        !product.isNew &&
+                        product.stock > 0 && (
+                          <span className="bg-charcoal-900 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-ivory-50">
+                            Featured
+                          </span>
+                        )}
                     </div>
 
                     <div className="absolute bottom-3 right-3 flex gap-2 transition-opacity duration-300 can-hover:opacity-0 can-hover:group-hover:opacity-100">

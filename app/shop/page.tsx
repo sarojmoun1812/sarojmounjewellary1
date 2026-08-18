@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { prisma } from "@/lib/db";
-import { normalizeProducts } from "@/lib/products";
+import { normalizeProducts, isNewArrival } from "@/lib/products";
 import { calculateProductPrice } from "@/lib/pricing";
 import { getCurrentSilverRate } from "@/lib/silver-rate";
 import { ShopPageClient } from "./shop-client";
@@ -83,6 +83,7 @@ export default async function ShopPage({
   // a different figure than the cart charged if either input disagreed.
   const products = normalizeProducts(rawProducts).map((product) => ({
     ...product,
+    isNew: isNewArrival(product.createdAt),
     price: calculateProductPrice(
       {
         silverWeight: product.silverWeight,

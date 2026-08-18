@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { calculateProductPrice } from "@/lib/pricing";
-import { normalizeProducts } from "@/lib/products";
+import { normalizeProducts, isNewArrival } from "@/lib/products";
 import { getCurrentSilverRate } from "@/lib/silver-rate";
 
 /**
@@ -66,11 +66,16 @@ export async function getHomeData(): Promise<HomeData> {
       ).finalPrice,
       image: product.images[0] ?? "",
       fixedPrice: product.fixedPrice ?? null,
-      badge: product.bestseller
-        ? "Bestseller"
-        : product.featured
-        ? "Featured"
-        : undefined,
+      badge:
+        product.stock <= 0
+          ? "Sold Out"
+          : isNewArrival(product.createdAt)
+          ? "New!"
+          : product.bestseller
+          ? "Bestseller"
+          : product.featured
+          ? "Featured"
+          : undefined,
     }));
 
     // One tile per category that actually has stock listed, with a real count

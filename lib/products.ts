@@ -24,6 +24,17 @@ export function isRealProductImage(url: string): boolean {
   return !DUMMY_IMAGE_MARKERS.some((marker) => value.includes(marker));
 }
 
+/** True when a product was added within the last `days` days (default 14). */
+export function isNewArrival(
+  createdAt: Date | string | null | undefined,
+  days = 14
+): boolean {
+  if (!createdAt) return false;
+  const created = new Date(createdAt).getTime();
+  if (!Number.isFinite(created)) return false;
+  return Date.now() - created < days * 24 * 60 * 60 * 1000;
+}
+
 export function parseStringArray(value: unknown): string[] {
   if (Array.isArray(value)) {
     return value.filter((item): item is string => typeof item === "string");
