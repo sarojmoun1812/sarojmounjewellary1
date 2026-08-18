@@ -54,9 +54,11 @@ interface StaggerProps {
 }
 
 /**
- * Staggered scroll reveal. Direct children should be `StaggerItem` / `MotionRevealItem`
- * (each is a `motion.div` with `fadeUp` variants) so `staggerChildren` from `staggerContainer` applies.
- * Plain `Reveal` here will not stagger — use `StaggerItem` for each row/card.
+ * Staggered scroll reveal. Direct children should be `StaggerItem`.
+ *
+ * On long product grids, `whileInView` alone has left children stuck at
+ * opacity 0 on mobile. `animate` on mount covers the common case; `whileInView`
+ * still covers sections that start far below the fold.
  */
 export function StaggerReveal({ children, className }: StaggerProps) {
   const prefersReducedMotion = useReducedMotion();
@@ -70,6 +72,7 @@ export function StaggerReveal({ children, className }: StaggerProps) {
       className={cn(className)}
       variants={staggerContainer}
       initial="hidden"
+      animate="visible"
       whileInView="visible"
       viewport={viewportOnce}
     >

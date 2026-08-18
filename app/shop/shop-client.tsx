@@ -4,10 +4,10 @@ import { useState, useMemo, useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart, Heart, Sparkles } from "lucide-react";
+import { ShoppingCart, Sparkles } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { formatPrice, priceTypeLabel } from "@/lib/pricing";
-import { Reveal, StaggerItem, StaggerReveal } from "@/components/reveal";
+import { Reveal } from "@/components/reveal";
 import { revealLeft } from "@/lib/motion";
 
 interface Product {
@@ -195,7 +195,10 @@ export function ShopPageClient({
           </div>
         </div>
 
-        {/* Products Grid */}
+        {/* Products Grid — no scroll-reveal wrapper.
+            StaggerReveal left these cards at opacity:0 on mobile because the
+            tall catalogue never met the old whileInView threshold, so the
+            count said "9 products" while the grid looked empty. */}
         {filteredProducts.length === 0 ? (
           <div className="text-center py-20">
             <Sparkles className="h-16 w-16 text-charcoal-300 mx-auto mb-4" />
@@ -207,91 +210,85 @@ export function ShopPageClient({
             </p>
           </div>
         ) : (
-          <StaggerReveal className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredProducts.map((product) => {
-              return (
-                <StaggerItem key={product.id} className="group">
-                  <Link href={`/product/${product.slug}`}>
-                    <div className="relative mb-4 aspect-square overflow-hidden rounded-[1.25rem] border border-ivory-200/80 bg-ivory-100 shadow-[0_16px_45px_rgba(37,33,23,0.06)] transition-shadow duration-500 group-hover:shadow-[0_24px_60px_rgba(196,167,100,0.15)]">
-                      {product.images[0] ? (
-                        <Image
-                          src={product.images[0]}
-                          alt={product.name}
-                          fill
-                          className="object-contain p-4 transition-transform duration-700 group-hover:scale-105"
-                          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 40vw, 25vw"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center bg-gradient-to-br from-ivory-100 via-ivory-50 to-champagne-100/40 px-4 text-center text-sm text-charcoal-400">
-                          Photo jaldi add hogi
-                        </div>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredProducts.map((product) => (
+              <article key={product.id} className="group">
+                <Link href={`/product/${product.slug}`} className="block">
+                  <div className="relative mb-4 aspect-square overflow-hidden rounded-[1.25rem] border border-ivory-200/80 bg-ivory-100 shadow-[0_16px_45px_rgba(37,33,23,0.06)] transition-shadow duration-500 group-hover:shadow-[0_24px_60px_rgba(196,167,100,0.15)]">
+                    {product.images[0] ? (
+                      <Image
+                        src={product.images[0]}
+                        alt={product.name}
+                        fill
+                        className="object-contain p-4 transition-transform duration-700 group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 40vw, 25vw"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center bg-gradient-to-br from-ivory-100 via-ivory-50 to-champagne-100/40 px-4 text-center text-sm text-charcoal-400">
+                        Photo jaldi add hogi
+                      </div>
+                    )}
+
+                    <div className="absolute inset-0 bg-charcoal-900/0 transition-colors duration-300 group-hover:bg-charcoal-900/10" />
+
+                    <div className="absolute left-3 top-3 flex flex-col gap-2">
+                      {product.bestseller && (
+                        <span className="bg-champagne-500 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-charcoal-900">
+                          Bestseller
+                        </span>
                       )}
-
-                      {/* Overlay on hover */}
-                      <div className="absolute inset-0 bg-charcoal-900/0 transition-colors duration-300 group-hover:bg-charcoal-900/10" />
-                      
-                      {/* Badges */}
-                      <div className="absolute top-3 left-3 flex flex-col gap-2">
-                        {product.bestseller && (
-                          <span className="bg-champagne-500 text-charcoal-900 text-[10px] font-medium tracking-wider uppercase px-2 py-1">
-                            Bestseller
-                          </span>
-                        )}
-                        {product.featured && !product.bestseller && (
-                          <span className="bg-charcoal-900 text-ivory-50 text-[10px] font-medium tracking-wider uppercase px-2 py-1">
-                            Featured
-                          </span>
-                        )}
-                        {product.stock < 5 && product.stock > 0 && (
-                          <span className="bg-red-500 text-white text-[10px] font-medium tracking-wider uppercase px-2 py-1">
-                            Low Stock
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Quick Actions */}
-                      <div className="absolute bottom-3 right-3 flex gap-2 transition-opacity duration-300 can-hover:opacity-0 can-hover:group-hover:opacity-100">
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleAddToCart(product);
-                          }}
-                          className="w-10 h-10 bg-ivory-50 hover:bg-champagne-500 rounded-full flex items-center justify-center shadow-lg transition-colors"
-                        >
-                          <ShoppingCart className="h-4 w-4" />
-                        </button>
-                        <button className="w-10 h-10 bg-ivory-50 hover:bg-red-50 rounded-full flex items-center justify-center shadow-lg transition-colors">
-                          <Heart className="h-4 w-4" />
-                        </button>
-                      </div>
+                      {product.featured && !product.bestseller && (
+                        <span className="bg-charcoal-900 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-ivory-50">
+                          Featured
+                        </span>
+                      )}
+                      {product.stock < 5 && product.stock > 0 && (
+                        <span className="bg-red-500 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-white">
+                          Low Stock
+                        </span>
+                      )}
                     </div>
-                  </Link>
 
-                  <div>
-                    <p className="text-[10px] tracking-wider uppercase text-champagne-600 mb-1">
-                      {product.category}
-                    </p>
-                    <Link href={`/product/${product.slug}`}>
-                      <h3 className="font-heading font-medium text-charcoal-900 mb-2 group-hover:text-champagne-600 transition-colors line-clamp-2">
-                        {product.name}
-                      </h3>
-                    </Link>
-                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                      <p className="text-lg font-medium text-charcoal-900">
-                        {formatPrice(product.price)}
-                      </p>
-                      <p className="text-xs font-medium text-champagne-700">
-                        {priceTypeLabel(product.fixedPrice)}
-                      </p>
-                      <p className="text-xs text-charcoal-400">
-                        · {product.silverWeight}g Silver
-                      </p>
+                    <div className="absolute bottom-3 right-3 flex gap-2 transition-opacity duration-300 can-hover:opacity-0 can-hover:group-hover:opacity-100">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleAddToCart(product);
+                        }}
+                        className="flex h-10 w-10 items-center justify-center rounded-full bg-ivory-50 shadow-lg transition-colors hover:bg-champagne-500"
+                        aria-label={`Add ${product.name} to cart`}
+                      >
+                        <ShoppingCart className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
-                </StaggerItem>
-              );
-            })}
-          </StaggerReveal>
+                </Link>
+
+                <div>
+                  <p className="mb-1 text-[10px] uppercase tracking-wider text-champagne-600">
+                    {product.category}
+                  </p>
+                  <Link href={`/product/${product.slug}`}>
+                    <h3 className="mb-2 font-heading font-medium text-charcoal-900 transition-colors line-clamp-2 group-hover:text-champagne-600">
+                      {product.name}
+                    </h3>
+                  </Link>
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                    <p className="text-lg font-medium text-charcoal-900">
+                      {formatPrice(product.price)}
+                    </p>
+                    <p className="text-xs font-medium text-champagne-700">
+                      {priceTypeLabel(product.fixedPrice)}
+                    </p>
+                    <p className="text-xs text-charcoal-400">
+                      · {product.silverWeight}g Silver
+                    </p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
         )}
 
         {/* SEO Content */}

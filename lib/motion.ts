@@ -4,7 +4,12 @@ export const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
 export const viewportOnce = {
   once: true,
-  amount: 0.2,
+  // Tall grids (shop catalogue) used to stay opacity:0 forever: amount 0.2
+  // meant a large share of a multi-row list had to enter the viewport before
+  // anything appeared. A tiny threshold + bottom margin triggers as soon as
+  // the top of the section peeks into view on mobile.
+  amount: 0.01,
+  margin: "0px 0px 30% 0px",
 } as const;
 
 export const fadeUp: Variants = {
