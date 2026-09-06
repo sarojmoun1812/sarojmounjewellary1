@@ -102,6 +102,10 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
   const [deleting, setDeleting] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{
+    done: number;
+    total: number;
+  } | null>(null);
   const [error, setError] = useState("");
   const [showExtras, setShowExtras] = useState(false);
 
@@ -142,22 +146,25 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
   const handleImageUpload = async (files: FileList | null) => {
     if (!files?.length) return;
 
+    const list = Array.from(files);
     setUploadingImages(true);
+    setUploadProgress({ done: 0, total: list.length });
     setError("");
 
-    // One at a time so a single bad file does not discard the rest.
+    // One at a time so a single bad file does not discard the rest, and so the
+    // count can tick up as each photo lands.
     const uploaded: string[] = [];
-    let failure = "";
+    let failed = 0;
 
-    for (const file of Array.from(files)) {
+    for (const file of list) {
       try {
         uploaded.push(await uploadFile(file));
-      } catch (err) {
-        failure =
-          err instanceof Error
-            ? err.message
-            : "Internet check karein, photo upload nahi hui.";
+      } catch {
+        failed += 1;
       }
+      setUploadProgress((prev) =>
+        prev ? { ...prev, done: prev.done + 1 } : prev
+      );
     }
 
     if (uploaded.length) {
@@ -166,9 +173,14 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
         images: [...current.images, ...uploaded],
       }));
     }
-    if (failure) setError(failure);
+    if (failed > 0) {
+      setError(
+        `${uploaded.length} photo add ho gayi, ${failed} nahi hui. Internet check karke baaki dobara try karein.`
+      );
+    }
 
     setUploadingImages(false);
+    setUploadProgress(null);
   };
 
   const handleVideoUpload = async (files: FileList | null) => {
@@ -388,7 +400,11 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
               {uploadingImages ? (
                 <>
                   <Loader2 className="h-7 w-7 animate-spin" />
-                  <span className="text-xs">Ho raha hai...</span>
+                  <span className="text-xs">
+                    {uploadProgress
+                      ? `${uploadProgress.done}/${uploadProgress.total} ho gayi...`
+                      : "Ho raha hai..."}
+                  </span>
                 </>
               ) : (
                 <>
