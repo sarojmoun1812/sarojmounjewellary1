@@ -263,17 +263,22 @@ export default function CartPage() {
               </div>
             )}
 
-            <Link href="/checkout" className="mt-7 block">
-              <span
-                className={`flex w-full items-center justify-center px-6 py-4 text-sm font-medium uppercase tracking-[0.18em] transition-colors ${
-                  isLoading
-                    ? "cursor-not-allowed bg-charcoal-300 text-ivory-50"
-                    : "bg-charcoal-900 text-ivory-50 can-hover:hover:bg-charcoal-800"
-                }`}
+            {isLoading || !quote ? (
+              <button
+                type="button"
+                disabled
+                className="mt-7 flex w-full cursor-not-allowed items-center justify-center gap-2 bg-charcoal-300 px-6 py-4 text-sm font-medium uppercase tracking-[0.18em] text-ivory-50"
               >
-                Proceed to Checkout
-              </span>
-            </Link>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Pricing…
+              </button>
+            ) : (
+              <Link href="/checkout" className="mt-7 block">
+                <span className="flex w-full items-center justify-center bg-charcoal-900 px-6 py-4 text-sm font-medium uppercase tracking-[0.18em] text-ivory-50 transition-colors can-hover:hover:bg-charcoal-800">
+                  Proceed to Checkout
+                </span>
+              </Link>
+            )}
 
             {/* Set the expectation here rather than at the last step, where a
                 customer looking for a card form would simply leave. */}

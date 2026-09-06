@@ -15,7 +15,9 @@ async function getStats() {
     messageCount,
     recentOrders,
     recentLeads,
-    totalRevenue,
+    paidRevenue,
+    pipelineValue,
+    pendingOrders,
     newsletterCount,
     silverRate,
     categoryBreakdown,
@@ -39,6 +41,15 @@ async function getStats() {
       where: { paymentStatus: "PAID" },
       _sum: { total: true },
     }),
+    // WhatsApp orders stay PENDING until she marks PAID — pipeline value is
+    // what actually reflects business happening on the site.
+    prisma.order.aggregate({
+      where: { status: { not: "CANCELLED" } },
+      _sum: { total: true },
+    }),
+    prisma.order.count({
+      where: { status: "PENDING" },
+    }),
     prisma.newsletter.count({ where: { isSubscribed: true } }),
     prisma.silverRate.findFirst({ orderBy: { updatedAt: "desc" } }),
     prisma.product.groupBy({
@@ -47,6 +58,11 @@ async function getStats() {
       _count: { id: true },
     }),
   ]);
+
+  const rateUpdatedAt = silverRate?.updatedAt ?? null;
+  const isStale =
+    !rateUpdatedAt ||
+    Date.now() - rateUpdatedAt.getTime() > 48 * 60 * 60 * 1000;
 
   return {
     productCount,
@@ -66,9 +82,13 @@ async function getStats() {
       createdAt: l.createdAt.toISOString(),
       updatedAt: l.updatedAt.toISOString(),
     })),
-    totalRevenue: totalRevenue._sum.total || 0,
+    totalRevenue: pipelineValue._sum.total || 0,
+    paidRevenue: paidRevenue._sum.total || 0,
+    pendingOrders,
     newsletterCount,
     silverRate: silverRate?.ratePerGram || 95,
+    silverRateUpdatedAt: rateUpdatedAt?.toISOString() ?? null,
+    silverRateStale: isStale,
     categoryBreakdown: categoryBreakdown.map((c) => ({
       category: c.category,
       count: c._count.id,

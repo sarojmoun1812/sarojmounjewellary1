@@ -7,8 +7,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ShoppingCart,
-  Heart,
-  Share2,
   Truck,
   Shield,
   Award,
@@ -22,6 +20,7 @@ import {
   Check,
 } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
+import { useToast } from "@/components/toast";
 import { formatPrice, priceTypeLabel, type PriceBreakdown } from "@/lib/pricing";
 import type { GstSettings } from "@/lib/tax";
 import { ProductInquiryForm } from "@/components/product-inquiry-form";
@@ -68,10 +67,10 @@ export function ProductDetailClient({
 }: ProductDetailClientProps) {
   const router = useRouter();
   const addItem = useCart((state) => state.addItem);
+  const { showToast } = useToast();
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
 
@@ -79,6 +78,10 @@ export function ProductDetailClient({
   const hasMedia = images.length > 0 || Boolean(product.videoUrl);
 
   const handleAddToCart = () => {
+    if (product.stock <= 0) {
+      showToast("warning", "Yeh piece ab sold out hai.");
+      return;
+    }
     addItem(
       {
         id: product.id,
@@ -90,6 +93,7 @@ export function ProductDetailClient({
       quantity
     );
     setAddedToCart(true);
+    showToast("success", `${product.name} cart mein add ho gaya`);
     setTimeout(() => setAddedToCart(false), 2000);
   };
 

@@ -1,149 +1,57 @@
-# Saroj Moun Jewellery - D2C Silver Jewellery Platform
+# Saroj Moun Jewellery
 
-A modern, scalable e-commerce platform for selling premium handcrafted silver jewellery.
+Handcrafted 925 silver jewellery storefront + admin panel for **Saroj Moun Jewellery** (Jind, Haryana).
 
-## 🚀 Tech Stack
+Orders are confirmed on **WhatsApp** (no card gateway). Prices follow the live silver rate + labour per gram.
 
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS
-- **UI Components**: Radix UI, shadcn/ui, Framer Motion
-- **State Management**: Zustand
-- **Database**: PostgreSQL with Prisma ORM
-- **Payments**: Razorpay
-- **Shipping**: Shiprocket (optional)
-- **Image Storage**: Cloudinary
-- **Deployment**: Vercel (frontend), Railway/Supabase (database)
+## Stack
 
-## 📁 Project Structure
+- **App:** Next.js 14 (App Router), TypeScript, Tailwind CSS
+- **Database:** PostgreSQL + Prisma (production typically on Render)
+- **Hosting:** Vercel (includes daily silver-rate cron)
+- **Uploads:** Vercel Blob (preferred) or Cloudinary
+- **Rates:** MetalPriceAPI → stored local rate + admin premium %
 
-```
-├── app/
-│   ├── api/              # API routes
-│   ├── admin/            # Admin panel
-│   ├── shop/             # Shop pages
-│   ├── cart/             # Cart page
-│   ├── checkout/         # Checkout flow
-│   └── product/          # Product detail pages
-├── components/
-│   ├── ui/               # UI components (shadcn)
-│   ├── navbar.tsx
-│   ├── footer.tsx
-│   └── product-card.tsx
-├── lib/
-│   ├── db.ts            # Prisma client
-│   ├── cart-store.ts    # Cart state management
-│   └── utils.ts         # Utility functions
-└── prisma/
-    └── schema.prisma    # Database schema
-```
-
-## 🛠️ Setup Instructions
-
-### 1. Install Dependencies
+## Local setup
 
 ```bash
 npm install
+cp .env.example .env   # fill real values — never invent secrets
+npm run db:status      # check Postgres
+npm run dev            # http://localhost:3000
 ```
 
-### 2. Set Up Database
+Useful scripts:
 
-Create a `.env` file in the root directory (use `.env.example` as template):
+| Script | Purpose |
+|--------|---------|
+| `npm run admin:create` | Create/reset admin (`ADMIN_EMAIL` + `ADMIN_PASSWORD`) |
+| `npm run smoke` | Smoke-test public + admin pages |
+| `npm run db:push` | Push Prisma schema |
+| `npm run db:seed` | Optional seed data |
 
-```env
-DATABASE_URL="postgresql://user:password@localhost:5432/sarojmoun"
-RAZORPAY_KEY_ID="your_key"
-RAZORPAY_KEY_SECRET="your_secret"
-```
+See `.env.example` for every variable. Prefer copying values from the Vercel project rather than guessing.
 
-### 3. Initialize Database
+## Production shape
 
-```bash
-npx prisma db push
-npx prisma db seed  # (optional, if you create seed data)
-```
+- Public site + `/api/*` on Vercel
+- Admin at `/admin/login`
+- Cron: `/api/cron/silver-rate` (needs `CRON_SECRET`)
+- Domain via `NEXT_PUBLIC_BASE_URL` (e.g. `https://sarojmounjewellary.com`)
 
-### 4. Run Development Server
+## What customers can do
 
-```bash
-npm run dev
-```
+- Browse / search the shop, filter by category, sort by price
+- Add in-stock pieces to cart (server-priced on today’s silver rate)
+- Checkout → WhatsApp order message
 
-Visit [http://localhost:3000](http://localhost:3000)
+## What the admin can do
 
-## 🎨 Design System
+- Products (photos/video, weight or fixed price, stock)
+- Orders, customers, leads, messages, newsletter
+- Site settings (labour/gram, GST, shipping, socials)
+- Manual or cron silver-rate refresh
 
-### Colors
-- **Primary**: `#1C1C1C` (Luxury black)
-- **Accent**: `#C9A24D` (Gold)
-- **Background**: `#FAFAFA`
+## Docs note
 
-### Fonts
-- **Headings**: Playfair Display
-- **Body**: Inter
-
-## 📦 Key Features
-
-### Customer-Facing
-- ✅ Product browsing with filters
-- ✅ Shopping cart with persistence
-- ✅ Checkout with COD/Prepaid options
-- ✅ Razorpay payment integration
-- ✅ Order tracking
-- ✅ Responsive design
-
-### Admin Panel
-- ✅ Product management (CRUD)
-- ✅ Order management
-- ✅ Customer database
-- ✅ Basic analytics
-
-## 🚢 Deployment
-
-### Frontend (Vercel)
-```bash
-vercel deploy
-```
-
-### Database (Railway/Supabase)
-1. Create a PostgreSQL instance
-2. Update `DATABASE_URL` in environment variables
-3. Run migrations: `npx prisma db push`
-
-## 📊 Database Schema
-
-### Core Models
-- **Product**: id, name, slug, price, images, category, stock
-- **Order**: id, customer, items, total, status, payment info
-- **Customer**: id, name, phone, email, orders
-- **Admin**: id, email, passwordHash
-
-## 🔐 Security
-
-- Input validation with Zod
-- Secure password hashing
-- JWT for admin authentication
-- HTTPS only in production
-- Rate limiting on API routes
-
-## 📈 Future Enhancements
-
-- [ ] User accounts & wishlists
-- [ ] Product reviews
-- [ ] Instagram feed integration
-- [ ] Email notifications
-- [ ] Advanced analytics
-- [ ] Inventory alerts
-- [ ] Discount codes
-- [ ] WhatsApp Business API integration
-
-## 🤝 Contributing
-
-This is a private business project. For issues or features, contact the admin.
-
-## 📄 License
-
-Private & Proprietary
-
----
-
-**Built for Saroj Moun Jewellery**  
-Premium Silver Jewellery | Made with ❤️ in India
+Older markdown files in this repo (`STATUS.md`, `FINAL_AUDIT_REPORT.md`, etc.) may still mention Razorpay/Supabase. Trust **`.env.example`**, **`DEPLOYMENT_GUIDE.md`**, and this README for the current system.

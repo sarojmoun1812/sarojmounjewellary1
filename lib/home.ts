@@ -22,6 +22,7 @@ export interface HomeProduct {
   image: string;
   fixedPrice?: number | null;
   badge?: string;
+  stock: number;
 }
 
 export interface HomeCategory {
@@ -66,6 +67,7 @@ export async function getHomeData(): Promise<HomeData> {
       ).finalPrice,
       image: product.images[0] ?? "",
       fixedPrice: product.fixedPrice ?? null,
+      stock: product.stock,
       badge:
         product.stock <= 0
           ? "Sold Out"

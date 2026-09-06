@@ -34,7 +34,7 @@ const ORDER_STATUS: Record<string, StatusLabel> = {
 };
 
 const PAYMENT_STATUS: Record<string, StatusLabel> = {
-  PENDING: { label: "Paisa aana hai", className: "bg-amber-100 text-amber-800" },
+  PENDING: { label: "WhatsApp pe confirm / paisa aana hai", className: "bg-amber-100 text-amber-800" },
   PAID: { label: "Paisa mil gaya", className: "bg-green-100 text-green-800" },
   FAILED: { label: "Payment fail", className: "bg-red-100 text-red-800" },
   REFUNDED: { label: "Paisa wapas kiya", className: "bg-charcoal-100 text-charcoal-700" },

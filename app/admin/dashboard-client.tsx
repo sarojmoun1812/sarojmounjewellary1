@@ -32,8 +32,12 @@ interface DashboardClientProps {
     recentOrders: any[];
     recentLeads: any[];
     totalRevenue: number;
+    paidRevenue: number;
+    pendingOrders: number;
     newsletterCount: number;
     silverRate: number;
+    silverRateUpdatedAt: string | null;
+    silverRateStale: boolean;
     categoryBreakdown: { category: string; count: number }[];
   };
 }
@@ -72,13 +76,13 @@ const formatDate = (date: string) => {
 export function DashboardClient({ admin, stats }: DashboardClientProps) {
   const statCards = [
     {
-      label: "Kul kamai",
+      label: "Orders ki value",
       value: formatPrice(stats.totalRevenue),
       icon: IndianRupee,
       gradient: "from-amber-500 to-orange-600",
       shadow: "shadow-amber-500/20",
       href: "/admin/orders",
-      subtitle: `${stats.orderCount} order se`,
+      subtitle: `${stats.pendingOrders} confirm karne hain · mil gaya ${formatPrice(stats.paidRevenue)}`,
     },
     {
       label: "Items",
@@ -147,7 +151,24 @@ export function DashboardClient({ admin, stats }: DashboardClientProps) {
             </h1>
             <p className="text-white/50 text-sm md:text-base">
               Aaj ka chaandi bhaav: <span className="text-amber-400 font-semibold">₹{stats.silverRate.toFixed(2)}/gram</span>
+              {stats.silverRateUpdatedAt && (
+                <span className="text-white/35">
+                  {" "}
+                  · last update{" "}
+                  {new Intl.DateTimeFormat("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }).format(new Date(stats.silverRateUpdatedAt))}
+                </span>
+              )}
             </p>
+            {stats.silverRateStale && (
+              <p className="mt-3 max-w-xl rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-2 text-sm text-amber-200">
+                Chaandi ka rate purana lag raha hai — Settings mein refresh karein, warna catalogue galat price dikha sakta hai.
+              </p>
+            )}
           </div>
 
           {/* Both of these actions already sit in the sidebar and the top bar.

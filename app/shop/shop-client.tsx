@@ -1,14 +1,17 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart, Sparkles } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Search, ShoppingCart, Sparkles } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { formatPrice, priceTypeLabel } from "@/lib/pricing";
 import { Reveal } from "@/components/reveal";
 import { revealLeft } from "@/lib/motion";
+import { useToast } from "@/components/toast";
+import { getOptimizedImageUrl } from "@/lib/cloudinary";
 
 interface Product {
   id: string;
@@ -34,6 +37,7 @@ interface ShopPageClientProps {
   /** Shown in the hero banner only; prices arrive already calculated. */
   silverRate: number;
   selectedCategory?: string;
+  initialSort?: string;
 }
 
 export function ShopPageClient({
@@ -41,30 +45,68 @@ export function ShopPageClient({
   categories,
   silverRate,
   selectedCategory,
+  initialSort,
 }: ShopPageClientProps) {
   const [activeCategory, setActiveCategory] = useState(selectedCategory || "all");
-  const [sortBy, setSortBy] = useState("featured");
+  const [sortBy, setSortBy] = useState(initialSort || "featured");
+  const [query, setQuery] = useState("");
   const addItem = useCart((state) => state.addItem);
+  const { showToast } = useToast();
+  const router = useRouter();
+  const pathname = usePathname();
   const heroRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
   });
-  const heroY = useTransform(scrollYProgress, [0, 1], prefersReducedMotion ? ["0%", "0%"] : ["0%", "18%"]);
+  const heroY = useTransform(
+    scrollYProgress,
+    [0, 1],
+    prefersReducedMotion ? ["0%", "0%"] : ["0%", "18%"]
+  );
 
-  // Filter and sort products
+  useEffect(() => {
+    setActiveCategory(selectedCategory || "all");
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    if (initialSort) setSortBy(initialSort);
+  }, [initialSort]);
+
+  const syncUrl = (category: string, sort: string) => {
+    const params = new URLSearchParams();
+    if (category && category !== "all") params.set("category", category);
+    if (sort && sort !== "featured") params.set("sort", sort);
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  };
+
   const filteredProducts = useMemo(() => {
     let filtered = [...products];
+    const needle = query.trim().toLowerCase();
 
-    // Filter by category
     if (activeCategory && activeCategory !== "all") {
       filtered = filtered.filter(
         (p) => p.category.toLowerCase() === activeCategory.toLowerCase()
       );
     }
 
-    // Sort
+    if (needle) {
+      filtered = filtered.filter((p) => {
+        const haystack = [
+          p.name,
+          p.description,
+          p.category,
+          `${p.silverWeight}g`,
+          `${p.silverWeight}`,
+        ]
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(needle);
+      });
+    }
+
     switch (sortBy) {
       case "price-low":
         filtered.sort((a, b) => a.price - b.price);
@@ -73,18 +115,29 @@ export function ShopPageClient({
         filtered.sort((a, b) => b.price - a.price);
         break;
       case "newest":
-        // Already sorted by createdAt desc from server
-        break;
       case "featured":
       default:
-        // Already sorted by featured from server
         break;
     }
 
     return filtered;
-  }, [products, activeCategory, sortBy]);
+  }, [products, activeCategory, sortBy, query]);
+
+  const handleCategory = (category: string) => {
+    setActiveCategory(category);
+    syncUrl(category, sortBy);
+  };
+
+  const handleSort = (sort: string) => {
+    setSortBy(sort);
+    syncUrl(activeCategory, sort);
+  };
 
   const handleAddToCart = (product: Product) => {
+    if (product.stock <= 0) {
+      showToast("warning", "Yeh piece ab sold out hai.");
+      return;
+    }
     addItem({
       id: product.id,
       name: product.name,
@@ -92,6 +145,7 @@ export function ShopPageClient({
       price: product.price,
       image: product.images[0] || "",
     });
+    showToast("success", `${product.name} cart mein add ho gaya`);
   };
 
   const heroImage =
@@ -99,10 +153,6 @@ export function ShopPageClient({
 
   return (
     <div className="min-h-screen bg-ivory-50">
-      {/* The wrapper used to carry pt-24, which put an ivory band behind the
-          header and pushed this hero below it — so the bar sat transparent over
-          cream and vanished. The hero now runs to the top of the viewport and
-          its content clears the header instead. */}
       <section
         ref={heroRef}
         className="relative isolate min-h-[min(62vh,600px)] overflow-hidden border-b border-ivory-200/60"
@@ -149,158 +199,192 @@ export function ShopPageClient({
       </section>
 
       <div className="container-luxury py-12 md:py-16">
-        {/* Filters Bar */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
-          {/* Category Tabs */}
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setActiveCategory("all")}
-              className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
-                activeCategory === "all"
-                  ? "bg-charcoal-900 text-ivory-50"
-                  : "bg-ivory-100 text-charcoal-700 hover:bg-ivory-200"
-              }`}
-            >
-              All
-            </button>
-            {categories.map((category) => (
+        <div className="sticky top-20 z-20 mb-8 space-y-4 rounded-2xl border border-ivory-200/80 bg-ivory-50/95 p-4 shadow-sm backdrop-blur-md md:p-5">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-charcoal-400" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by name, category, or weight (e.g. kada, 25g)"
+              className="w-full rounded-xl border border-ivory-200 bg-white py-3 pl-10 pr-4 text-sm text-charcoal-900 placeholder:text-charcoal-400 focus:outline-none focus:ring-2 focus:ring-champagne-500"
+              aria-label="Search jewellery"
+            />
+          </div>
+
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap gap-2">
               <button
-                key={category}
-                onClick={() => setActiveCategory(category.toLowerCase())}
-                className={`px-4 py-2 text-sm font-medium rounded-full transition-all capitalize ${
-                  activeCategory === category.toLowerCase()
+                type="button"
+                onClick={() => handleCategory("all")}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                  activeCategory === "all"
                     ? "bg-charcoal-900 text-ivory-50"
                     : "bg-ivory-100 text-charcoal-700 hover:bg-ivory-200"
                 }`}
               >
-                {category}
+                All
               </button>
-            ))}
-          </div>
+              {categories.map((category) => (
+                <button
+                  type="button"
+                  key={category}
+                  onClick={() => handleCategory(category.toLowerCase())}
+                  className={`rounded-full px-4 py-2 text-sm font-medium capitalize transition-all ${
+                    activeCategory === category.toLowerCase()
+                      ? "bg-charcoal-900 text-ivory-50"
+                      : "bg-ivory-100 text-charcoal-700 hover:bg-ivory-200"
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
 
-          {/* Sort & Filter */}
-          <div className="flex items-center gap-4">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 bg-white border border-ivory-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-champagne-500"
-            >
-              <option value="featured">Featured</option>
-              <option value="newest">Newest First</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-            </select>
+            <div className="flex items-center gap-4">
+              <select
+                value={sortBy}
+                onChange={(e) => handleSort(e.target.value)}
+                className="rounded-lg border border-ivory-200 bg-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-champagne-500"
+              >
+                <option value="featured">Featured</option>
+                <option value="newest">Newest First</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+              </select>
 
-            <span className="text-sm text-charcoal-500">
-              {filteredProducts.length} product{filteredProducts.length !== 1 ? "s" : ""}
-            </span>
+              <span className="text-sm text-charcoal-500">
+                {filteredProducts.length} product{filteredProducts.length !== 1 ? "s" : ""}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Products Grid — no scroll-reveal wrapper.
-            StaggerReveal left these cards at opacity:0 on mobile because the
-            tall catalogue never met the old whileInView threshold, so the
-            count said "9 products" while the grid looked empty. */}
         {filteredProducts.length === 0 ? (
-          <div className="text-center py-20">
-            <Sparkles className="h-16 w-16 text-charcoal-300 mx-auto mb-4" />
-            <h3 className="text-xl font-heading text-charcoal-700 mb-2">
+          <div className="py-20 text-center">
+            <Sparkles className="mx-auto mb-4 h-16 w-16 text-charcoal-300" />
+            <h3 className="mb-2 font-heading text-xl text-charcoal-700">
               No products found
             </h3>
-            <p className="text-charcoal-500">
-              Try selecting a different category or check back soon for new arrivals.
+            <p className="mx-auto max-w-md text-charcoal-500">
+              {query.trim()
+                ? `“${query.trim()}” se match nahi mila. Dusra naam ya category try karein.`
+                : "Is category mein abhi kuch nahi hai — All pe jaakar poori collection dekhein."}
             </p>
+            {(query.trim() || activeCategory !== "all") && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery("");
+                  handleCategory("all");
+                }}
+                className="mt-6 inline-flex rounded-full bg-charcoal-900 px-6 py-3 text-sm uppercase tracking-[0.18em] text-ivory-50"
+              >
+                Clear filters
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredProducts.map((product) => (
-              <article key={product.id} className="group">
-                <Link href={`/product/${product.slug}`} className="block">
-                  <div className="relative mb-4 aspect-square overflow-hidden rounded-[1.25rem] border border-ivory-200/80 bg-ivory-100 shadow-[0_16px_45px_rgba(37,33,23,0.06)] transition-shadow duration-500 group-hover:shadow-[0_24px_60px_rgba(196,167,100,0.15)]">
-                    {product.images[0] ? (
-                      <Image
-                        src={product.images[0]}
-                        alt={product.name}
-                        fill
-                        className="object-contain p-4 transition-transform duration-700 group-hover:scale-105"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 40vw, 25vw"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center bg-gradient-to-br from-ivory-100 via-ivory-50 to-champagne-100/40 px-4 text-center text-sm text-charcoal-400">
-                        Photo jaldi add hogi
-                      </div>
-                    )}
+            {filteredProducts.map((product) => {
+              const thumb = product.images[0]
+                ? getOptimizedImageUrl(product.images[0], 600, 600, 80)
+                : "";
+              const soldOut = product.stock <= 0;
 
-                    <div className="absolute inset-0 bg-charcoal-900/0 transition-colors duration-300 group-hover:bg-charcoal-900/10" />
-
-                    <div className="absolute left-3 top-3 flex flex-col gap-2">
-                      {product.stock <= 0 ? (
-                        <span className="bg-charcoal-900 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-ivory-50">
-                          Sold Out
-                        </span>
-                      ) : product.isNew ? (
-                        <span className="bg-champagne-500 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-charcoal-900">
-                          New!
-                        </span>
-                      ) : null}
-                      {product.bestseller && product.stock > 0 && !product.isNew && (
-                        <span className="bg-champagne-500/90 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-charcoal-900">
-                          Bestseller
-                        </span>
+              return (
+                <article key={product.id} className="group">
+                  <Link href={`/product/${product.slug}`} className="block">
+                    <div className="relative mb-4 aspect-square overflow-hidden rounded-[1.25rem] border border-ivory-200/80 bg-ivory-100 shadow-[0_16px_45px_rgba(37,33,23,0.06)] transition-shadow duration-500 group-hover:shadow-[0_24px_60px_rgba(196,167,100,0.15)]">
+                      {thumb ? (
+                        <Image
+                          src={thumb}
+                          alt={product.name}
+                          fill
+                          className="object-contain p-4 transition-transform duration-700 group-hover:scale-105"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 40vw, 25vw"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center bg-gradient-to-br from-ivory-100 via-ivory-50 to-champagne-100/40 px-4 text-center text-sm text-charcoal-400">
+                          Photo jaldi add hogi
+                        </div>
                       )}
-                      {product.featured &&
-                        !product.bestseller &&
-                        !product.isNew &&
-                        product.stock > 0 && (
+
+                      <div className="absolute inset-0 bg-charcoal-900/0 transition-colors duration-300 group-hover:bg-charcoal-900/10" />
+
+                      <div className="absolute left-3 top-3 flex flex-col gap-2">
+                        {soldOut ? (
                           <span className="bg-charcoal-900 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-ivory-50">
-                            Featured
+                            Sold Out
+                          </span>
+                        ) : product.isNew ? (
+                          <span className="bg-champagne-500 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-charcoal-900">
+                            New!
+                          </span>
+                        ) : null}
+                        {product.bestseller && !soldOut && !product.isNew && (
+                          <span className="bg-champagne-500/90 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-charcoal-900">
+                            Bestseller
                           </span>
                         )}
-                    </div>
+                        {product.featured &&
+                          !product.bestseller &&
+                          !product.isNew &&
+                          !soldOut && (
+                            <span className="bg-charcoal-900 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-ivory-50">
+                              Featured
+                            </span>
+                          )}
+                      </div>
 
-                    <div className="absolute bottom-3 right-3 flex gap-2 transition-opacity duration-300 can-hover:opacity-0 can-hover:group-hover:opacity-100">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleAddToCart(product);
-                        }}
-                        className="flex h-10 w-10 items-center justify-center rounded-full bg-ivory-50 shadow-lg transition-colors hover:bg-champagne-500"
-                        aria-label={`Add ${product.name} to cart`}
-                      >
-                        <ShoppingCart className="h-4 w-4" />
-                      </button>
+                      <div className="absolute bottom-3 right-3 flex gap-2 transition-opacity duration-300 can-hover:opacity-0 can-hover:group-hover:opacity-100">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleAddToCart(product);
+                          }}
+                          disabled={soldOut}
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-ivory-50 shadow-lg transition-colors hover:bg-champagne-500 disabled:cursor-not-allowed disabled:bg-charcoal-200 disabled:opacity-70"
+                          aria-label={
+                            soldOut
+                              ? `${product.name} is sold out`
+                              : `Add ${product.name} to cart`
+                          }
+                        >
+                          <ShoppingCart className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-
-                <div>
-                  <p className="mb-1 text-[10px] uppercase tracking-wider text-champagne-600">
-                    {product.category}
-                  </p>
-                  <Link href={`/product/${product.slug}`}>
-                    <h3 className="mb-2 font-heading font-medium text-charcoal-900 transition-colors line-clamp-2 group-hover:text-champagne-600">
-                      {product.name}
-                    </h3>
                   </Link>
-                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                    <p className="text-lg font-medium text-charcoal-900">
-                      {formatPrice(product.price)}
+
+                  <div>
+                    <p className="mb-1 text-[10px] uppercase tracking-wider text-champagne-600">
+                      {product.category}
                     </p>
-                    <p className="text-xs font-medium text-champagne-700">
-                      {priceTypeLabel(product.fixedPrice)}
-                    </p>
-                    <p className="text-xs text-charcoal-400">
-                      · {product.silverWeight}g Silver
-                    </p>
+                    <Link href={`/product/${product.slug}`}>
+                      <h3 className="mb-2 line-clamp-2 font-heading font-medium text-charcoal-900 transition-colors group-hover:text-champagne-600">
+                        {product.name}
+                      </h3>
+                    </Link>
+                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                      <p className="text-lg font-medium text-charcoal-900">
+                        {formatPrice(product.price)}
+                      </p>
+                      <p className="text-xs font-medium text-champagne-700">
+                        {priceTypeLabel(product.fixedPrice)}
+                      </p>
+                      <p className="text-xs text-charcoal-400">
+                        · {product.silverWeight}g Silver
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         )}
 
-        {/* SEO Content */}
         <section className="section-padding luxury-mesh mt-12 border-t border-ivory-200/80">
           <div className="max-w-3xl">
             <Reveal>
@@ -324,4 +408,3 @@ export function ShopPageClient({
     </div>
   );
 }
-

@@ -99,6 +99,7 @@ export default async function ShopPage({
       categories={categories}
       silverRate={silverRate.ratePerGram}
       selectedCategory={category}
+      initialSort={searchParams.sort}
     />
   );
 }

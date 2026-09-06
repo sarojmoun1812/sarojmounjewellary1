@@ -183,6 +183,27 @@ export default async function OrderDetailPage({
               {order.customer.email && (
                 <p className="text-sm text-gray-600">{order.customer.email}</p>
               )}
+              <div className="flex flex-wrap gap-2 pt-3">
+                <a
+                  href={`https://wa.me/${(() => {
+                    let digits = order.customer.phone.replace(/\D/g, "");
+                    if (digits.startsWith("0")) digits = digits.slice(1);
+                    if (digits.length === 10) digits = `91${digits}`;
+                    return digits;
+                  })()}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium text-white hover:bg-emerald-700"
+                >
+                  WhatsApp kholo
+                </a>
+                <a
+                  href={`tel:${order.customer.phone}`}
+                  className="inline-flex items-center rounded-lg border border-gray-200 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Call karein
+                </a>
+              </div>
             </div>
           </div>
 

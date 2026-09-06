@@ -3,10 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { ShoppingCart, Heart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { formatPrice, priceTypeLabel } from "@/lib/pricing";
-import { useState } from "react";
+import { useToast } from "@/components/toast";
+import { getOptimizedImageUrl } from "@/lib/cloudinary";
 
 interface ProductCardProps {
   id: string;
@@ -16,6 +17,8 @@ interface ProductCardProps {
   image: string;
   badge?: string;
   fixedPrice?: number | null;
+  /** When 0 or omitted with badge Sold Out, cart add is blocked. */
+  stock?: number;
 }
 
 export function ProductCard({
@@ -26,15 +29,23 @@ export function ProductCard({
   image,
   badge,
   fixedPrice = null,
+  stock,
 }: ProductCardProps) {
   const addItem = useCart((state) => state.addItem);
-  const [liked, setLiked] = useState(false);
+  const { showToast } = useToast();
   const prefersReducedMotion = useReducedMotion();
+  const soldOut = badge === "Sold Out" || (typeof stock === "number" && stock <= 0);
+  const displayImage = image ? getOptimizedImageUrl(image, 600, 600, 80) : "";
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (soldOut) {
+      showToast("warning", "Yeh piece ab sold out hai.");
+      return;
+    }
     addItem({ id, name, slug, price, image: image || "" });
+    showToast("success", `${name} cart mein add ho gaya`);
   };
 
   return (
@@ -45,9 +56,9 @@ export function ProductCard({
     >
       <Link href={`/product/${slug}`} className="block rounded-[1.7rem] bg-ivory-50/90 p-3">
         <div className="relative mb-4 aspect-square overflow-hidden rounded-[1.25rem] border border-ivory-200/70 bg-ivory-100 transition-shadow duration-500 group-hover:shadow-[0_22px_55px_rgba(196,167,100,0.22)]">
-          {image ? (
+          {displayImage ? (
             <Image
-              src={image}
+              src={displayImage}
               alt={name}
               fill
               className="object-contain p-4 transition-transform duration-700 group-hover:scale-105"
@@ -67,27 +78,15 @@ export function ProductCard({
             </span>
           )}
 
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setLiked(!liked);
-            }}
-            className="absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm transition-all duration-300 hover:bg-white can-hover:opacity-0 can-hover:group-hover:opacity-100"
-            aria-label={liked ? `Remove ${name} from wishlist` : `Add ${name} to wishlist`}
-          >
-            <Heart
-              className={`h-4 w-4 transition-colors ${liked ? "fill-champagne-600 text-champagne-600" : "text-charcoal-600"}`}
-            />
-          </button>
-
           <div className="absolute bottom-0 left-0 right-0 transition-transform duration-300 can-hover:translate-y-full can-hover:group-hover:translate-y-0">
             <button
+              type="button"
               onClick={handleAddToCart}
-              className="flex w-full items-center justify-center gap-2 bg-charcoal-900/90 py-3.5 text-xs font-medium uppercase tracking-wider text-ivory-50 backdrop-blur-sm transition-colors hover:bg-charcoal-900"
+              disabled={soldOut}
+              className="flex w-full items-center justify-center gap-2 bg-charcoal-900/90 py-3.5 text-xs font-medium uppercase tracking-wider text-ivory-50 backdrop-blur-sm transition-colors hover:bg-charcoal-900 disabled:cursor-not-allowed disabled:bg-charcoal-400/80"
             >
               <ShoppingCart className="h-4 w-4" />
-              Add to Cart
+              {soldOut ? "Sold Out" : "Add to Cart"}
             </button>
           </div>
         </div>
