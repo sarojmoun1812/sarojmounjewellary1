@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 
 // Note: This is a client component, dynamic rendering handled by API calls
 import { useRouter } from "next/navigation";
-import { Save, Loader2 } from "lucide-react";
+import { Save, Loader2, Lock } from "lucide-react";
 
 interface Settings {
   siteName: string;
@@ -34,6 +34,15 @@ export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const [passwordFields, setPasswordFields] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
 
   const [settings, setSettings] = useState<Settings>({
     siteName: "Saroj Moun Jewellery",
@@ -137,6 +146,51 @@ export default function SettingsPage() {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError("");
+    setPasswordSuccess("");
+
+    if (passwordFields.newPassword.length < 12) {
+      setPasswordError("Naya password kam se kam 12 letters ka rakhein.");
+      return;
+    }
+    if (passwordFields.newPassword !== passwordFields.confirmPassword) {
+      setPasswordError("Dono naye password ek jaise nahi hain.");
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      const res = await fetch("/api/admin/auth", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          currentPassword: passwordFields.currentPassword,
+          newPassword: passwordFields.newPassword,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || "Password nahi badla.");
+      }
+
+      setPasswordSuccess("Password badal gaya. Baaki sab jagah se logout ho gaya.");
+      setPasswordFields({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (err) {
+      setPasswordError(
+        err instanceof Error ? err.message : "Password nahi badla."
+      );
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -541,6 +595,124 @@ export default function SettingsPage() {
           </button>
         </div>
       </form>
+
+      {/* Password — a separate form because it posts to a different endpoint and
+          must never be swept up in the settings save. */}
+      <div className="mt-8 bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex items-center gap-2">
+          <Lock className="h-5 w-5 text-gray-500" />
+          <h2 className="text-lg font-semibold text-gray-900">
+            Password badlein
+          </h2>
+        </div>
+        <p className="mt-1 text-sm text-gray-600">
+          Login ka password yahan badlein. Naya password kam se kam 12 letters ka
+          ho. Badalne par baaki sab devices se logout ho jayega.
+        </p>
+
+        {passwordError && (
+          <div className="mt-4 bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">
+            {passwordError}
+          </div>
+        )}
+        {passwordSuccess && (
+          <div className="mt-4 bg-green-50 text-green-600 px-4 py-3 rounded-lg text-sm">
+            {passwordSuccess}
+          </div>
+        )}
+
+        <form onSubmit={handleChangePassword} className="mt-4 space-y-4">
+          <div>
+            <label
+              htmlFor="current-password"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Abhi ka password
+            </label>
+            <input
+              id="current-password"
+              type="password"
+              autoComplete="current-password"
+              value={passwordFields.currentPassword}
+              onChange={(e) =>
+                setPasswordFields({
+                  ...passwordFields,
+                  currentPassword: e.target.value,
+                })
+              }
+              required
+              className="w-full max-w-md px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md md:max-w-2xl">
+            <div>
+              <label
+                htmlFor="new-password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Naya password
+              </label>
+              <input
+                id="new-password"
+                type="password"
+                autoComplete="new-password"
+                value={passwordFields.newPassword}
+                onChange={(e) =>
+                  setPasswordFields({
+                    ...passwordFields,
+                    newPassword: e.target.value,
+                  })
+                }
+                required
+                minLength={12}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="confirm-password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Naya password dobara
+              </label>
+              <input
+                id="confirm-password"
+                type="password"
+                autoComplete="new-password"
+                value={passwordFields.confirmPassword}
+                onChange={(e) =>
+                  setPasswordFields({
+                    ...passwordFields,
+                    confirmPassword: e.target.value,
+                  })
+                }
+                required
+                minLength={12}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={isChangingPassword}
+              className="inline-flex items-center gap-2 px-6 py-2 bg-charcoal-900 text-white rounded-lg hover:bg-charcoal-800 transition-colors font-medium disabled:opacity-50"
+            >
+              {isChangingPassword ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Badal raha hai...
+                </>
+              ) : (
+                <>
+                  <Lock className="h-4 w-4" />
+                  Password badlein
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
