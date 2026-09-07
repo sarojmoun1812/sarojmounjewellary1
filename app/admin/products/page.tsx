@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Eye, EyeOff, ImageOff, Pencil, Plus, Search } from "lucide-react";
+import { AlertTriangle, Eye, EyeOff, ImageOff, Pencil, Plus, Search } from "lucide-react";
 import { DeleteProductButton } from "@/components/admin/delete-product-button";
 import { getCurrentAdmin } from "@/lib/auth";
 import { containsInsensitive, prisma } from "@/lib/db";
@@ -74,6 +74,13 @@ export default async function ProductsPage({
 
   const isFiltered = Boolean(searchParams.search || searchParams.category);
 
+  // Live pieces with no photo still show on the shop as a "photo coming soon"
+  // placeholder, which looks unfinished. Surface the count so she knows what to
+  // fix rather than having to scan every card.
+  const photolessLive = products.filter(
+    (product) => product.isActive && product.images.length === 0
+  ).length;
+
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -92,6 +99,18 @@ export default async function ProductsPage({
           Naya item jodein
         </Link>
       </div>
+
+      {photolessLive > 0 && !isFiltered && (
+        <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+          <p className="text-sm text-amber-800">
+            <span className="font-semibold">{photolessLive} saaman</span> bina
+            photo ke website par live hain — customer ko sirf &quot;photo jaldi
+            add hogi&quot; dikhta hai. Har item &quot;Badlein&quot; kholkar
+            uski asli photo add karein.
+          </p>
+        </div>
+      )}
 
       <form className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row">
         <div className="relative flex-1">
