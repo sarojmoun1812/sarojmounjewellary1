@@ -59,7 +59,7 @@ export function ProductCard({
           {displayImage ? (
             <Image
               src={displayImage}
-              alt={name}
+              alt={`${name} – 925 silver jewellery`}
               fill
               className="object-contain p-4 transition-transform duration-700 group-hover:scale-105"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 45vw, 25vw"

@@ -161,7 +161,7 @@ export function ProductDetailClient({
                   >
                     <Image
                       src={images[selectedImageIndex]}
-                      alt={product.name}
+                      alt={`${product.name} – ${product.material} ${product.category}`}
                       fill
                       className="object-contain p-3 sm:p-5"
                       priority
@@ -476,7 +476,7 @@ export function ProductDetailClient({
                       {relatedProduct.images[0] ? (
                         <Image
                           src={relatedProduct.images[0]}
-                          alt={relatedProduct.name}
+                          alt={`${relatedProduct.name} – 925 silver ${relatedProduct.category}`}
                           fill
                           className="object-contain p-3 transition-transform duration-500 group-hover:scale-105"
                           sizes="(max-width: 768px) 45vw, 20vw"
