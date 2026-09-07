@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Phone, User, Send, Loader2, CheckCircle, Gift } from "lucide-react";
+import { X, Phone, User, Loader2, CheckCircle, MessageCircle } from "lucide-react";
 import { markLeadCaptured } from "@/lib/lead-capture";
 
 interface LeadCapturePopupProps {
@@ -98,7 +98,7 @@ export function LeadCapturePopup({
           {/* Header with gradient */}
           <div className="bg-gradient-to-br from-charcoal-900 to-charcoal-800 px-6 pt-10 pb-8 text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-2xl mb-4">
-              <Gift className="h-8 w-8 text-white" />
+              <MessageCircle className="h-8 w-8 text-white" />
             </div>
             <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
             <p className="text-ivory-100/80">{description}</p>
@@ -112,10 +112,10 @@ export function LeadCapturePopup({
                   <CheckCircle className="h-6 w-6 text-green-600" />
                 </div>
                 <h4 className="text-lg font-bold text-gray-900 mb-1">
-                  Thank You!
+                  Shukriya!
                 </h4>
                 <p className="text-gray-600 text-sm">
-                  We&apos;ll send you exclusive offers soon!
+                  Saroj aapko WhatsApp par jaldi message karengi.
                 </p>
               </div>
             ) : (
@@ -167,19 +167,19 @@ export function LeadCapturePopup({
                     {isLoading ? (
                       <>
                         <Loader2 className="h-5 w-5 animate-spin" />
-                        Submitting...
+                        Bhej rahe hain...
                       </>
                     ) : (
                       <>
-                        <Gift className="h-5 w-5" />
-                        Get My Offer
+                        <MessageCircle className="h-5 w-5" />
+                        Baat karein
                       </>
                     )}
                   </button>
                 </form>
 
                 <p className="text-xs text-gray-500 text-center mt-4">
-                  No spam, we promise. Unsubscribe anytime.
+                  Sirf aapki madad ke liye. Koi spam nahi.
                 </p>
               </>
             )}
