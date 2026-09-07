@@ -130,8 +130,19 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setSubmitError("");
+
+    // Mirror the server's rule (lib is z.string → last 10 digits, /^[6-9]\d{9}$/)
+    // so a mistyped number is caught before a network round-trip.
+    const phoneDigits = form.phone.replace(/\D/g, "").slice(-10);
+    if (!/^[6-9]\d{9}$/.test(phoneDigits)) {
+      setSubmitError(
+        "Sahi 10 digit ka mobile number daaliye (6, 7, 8 ya 9 se shuru)."
+      );
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
       const hasAddress =
