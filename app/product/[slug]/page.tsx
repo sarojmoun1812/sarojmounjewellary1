@@ -5,6 +5,7 @@ import { normalizeProduct, normalizeProducts, isNewArrival } from "@/lib/product
 import { getCurrentSilverRate } from "@/lib/silver-rate";
 import { calculateProductPrice } from "@/lib/pricing";
 import { getGstSettings } from "@/lib/orders";
+import { getWhatsAppNumber } from "@/lib/whatsapp";
 import { ProductDetailClient } from "./product-client";
 import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import { SITE_URL } from "@/lib/site";
@@ -84,10 +85,11 @@ async function getRelatedProducts(category: string, currentId: string) {
 }
 
 export default async function ProductPage({ params }: Props) {
-  const [product, silverRateInfo, gst] = await Promise.all([
+  const [product, silverRateInfo, gst, whatsappNumber] = await Promise.all([
     getProduct(params.slug),
     getCurrentSilverRate(),
     getGstSettings(),
+    getWhatsAppNumber(),
   ]);
 
   if (!product) {
@@ -149,6 +151,7 @@ export default async function ProductPage({ params }: Props) {
         }
         breakdown={breakdown}
         gst={gst}
+        whatsappNumber={whatsappNumber}
         relatedProducts={relatedWithPrices as any}
       />
     </>

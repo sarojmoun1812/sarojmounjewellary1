@@ -56,6 +56,8 @@ interface ProductDetailClientProps {
   product: Product;
   breakdown: PriceBreakdown;
   gst: GstSettings;
+  /** Resolved from admin settings on the server; falls back to the constant. */
+  whatsappNumber?: string;
   relatedProducts: RelatedProduct[];
 }
 
@@ -63,6 +65,7 @@ export function ProductDetailClient({
   product,
   breakdown: priceBreakdown,
   gst,
+  whatsappNumber = WHATSAPP_NUMBER,
   relatedProducts,
 }: ProductDetailClientProps) {
   const router = useRouter();
@@ -384,7 +387,7 @@ export function ProductDetailClient({
                 </button>
 
                 <a
-                  href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`}
+                  href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="py-3 bg-green-500 text-white font-medium tracking-wider uppercase hover:bg-green-600 transition-colors flex items-center justify-center gap-2 text-sm"
