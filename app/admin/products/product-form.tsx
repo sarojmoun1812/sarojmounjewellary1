@@ -132,9 +132,43 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
     return calculateProductPrice({ silverWeight: weight }, silverRate, labourPerGram);
   }, [values.silverWeight, values.fixedPrice, silverRate, labourPerGram]);
 
+  /** Shrink large phone photos so they fit Vercel's ~4.5 MB request limit. */
+  const prepareImageForUpload = async (file: File): Promise<File> => {
+    const maxBytes = 3.5 * 1024 * 1024;
+    const looksLikeImage =
+      file.type.startsWith("image/") ||
+      /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name);
+    if (!looksLikeImage || file.size <= maxBytes) return file;
+
+    try {
+      const bitmap = await createImageBitmap(file);
+      const scale = Math.min(1, 2000 / Math.max(bitmap.width, bitmap.height));
+      const width = Math.max(1, Math.round(bitmap.width * scale));
+      const height = Math.max(1, Math.round(bitmap.height * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return file;
+      ctx.drawImage(bitmap, 0, 0, width, height);
+      bitmap.close();
+
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, "image/jpeg", 0.85)
+      );
+      if (!blob || blob.size >= file.size) return file;
+
+      const base = file.name.replace(/\.[^.]+$/, "") || "photo";
+      return new File([blob], `${base}.jpg`, { type: "image/jpeg" });
+    } catch {
+      return file;
+    }
+  };
+
   const uploadFile = async (file: File): Promise<string> => {
+    const prepared = await prepareImageForUpload(file);
     const body = new FormData();
-    body.append("file", file);
+    body.append("file", prepared);
     const res = await fetch("/api/admin/upload", { method: "POST", body });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -155,12 +189,14 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
     // count can tick up as each photo lands.
     const uploaded: string[] = [];
     let failed = 0;
+    let firstError = "";
 
     for (const file of list) {
       try {
         uploaded.push(await uploadFile(file));
-      } catch {
+      } catch (err) {
         failed += 1;
+        if (!firstError && err instanceof Error) firstError = err.message;
       }
       setUploadProgress((prev) =>
         prev ? { ...prev, done: prev.done + 1 } : prev
@@ -175,7 +211,8 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
     }
     if (failed > 0) {
       setError(
-        `${uploaded.length} photo add ho gayi, ${failed} nahi hui. Internet check karke baaki dobara try karein.`
+        firstError ||
+          `${uploaded.length} photo add ho gayi, ${failed} nahi hui. Internet check karke baaki dobara try karein.`
       );
     }
 

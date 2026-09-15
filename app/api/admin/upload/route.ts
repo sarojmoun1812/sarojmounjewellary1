@@ -21,6 +21,17 @@ const ALLOWED_VIDEO_TYPES = new Set([
   "video/quicktime",
 ]);
 
+/** Phones often send HEIC with a blank MIME type; fall back to the filename. */
+function isImageFile(file: File): boolean {
+  if (file.type.startsWith("image/")) return true;
+  return /\.(jpe?g|png|webp|gif|heic|heif)$/i.test(file.name);
+}
+
+function isVideoFile(file: File): boolean {
+  if (ALLOWED_VIDEO_TYPES.has(file.type)) return true;
+  return /\.(mp4|webm|mov)$/i.test(file.name);
+}
+
 export async function POST(request: NextRequest) {
   try {
     const admin = await getCurrentAdmin();
@@ -38,8 +49,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const isImage = file.type.startsWith("image/");
-    const isVideo = ALLOWED_VIDEO_TYPES.has(file.type);
+    const isImage = isImageFile(file);
+    const isVideo = isVideoFile(file);
 
     if (!isImage && !isVideo) {
       return NextResponse.json(
