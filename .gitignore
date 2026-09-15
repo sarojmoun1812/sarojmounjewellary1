@@ -22,6 +22,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# scratch logs from local dev/build runs
+dev-log.txt
+build-out.txt
+
 # local env files
 .env*.local
 .env
