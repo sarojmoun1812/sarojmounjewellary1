@@ -108,11 +108,16 @@ async function uploadToCloudinary(
   file: File,
   isVideo: boolean
 ): Promise<string | null> {
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  // Fall back to the public cloud name so only one cloud-name variable has to be
+  // set. The upload also needs the key/secret, which are server-only.
+  const cloudName =
+    process.env.CLOUDINARY_CLOUD_NAME ||
+    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const apiKey = process.env.CLOUDINARY_API_KEY;
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
-  if (!cloudName || !apiKey || !apiSecret) return null;
+  // "demo" is Cloudinary's shared sandbox; uploading there would fail or leak.
+  if (!cloudName || cloudName === "demo" || !apiKey || !apiSecret) return null;
 
   const buffer = Buffer.from(await file.arrayBuffer());
   const dataUri = `data:${file.type};base64,${buffer.toString("base64")}`;

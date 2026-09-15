@@ -14,11 +14,13 @@ export async function uploadToCloudinary(
   file: File,
   folder: string = "products"
 ): Promise<CloudinaryUploadResult> {
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const cloudName =
+    process.env.CLOUDINARY_CLOUD_NAME ||
+    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const apiKey = process.env.CLOUDINARY_API_KEY;
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
-  if (!cloudName || !apiKey || !apiSecret) {
+  if (!cloudName || cloudName === "demo" || !apiKey || !apiSecret) {
     throw new Error("Cloudinary credentials not configured");
   }
 
@@ -62,11 +64,13 @@ export async function uploadToCloudinary(
 }
 
 export async function deleteFromCloudinary(publicId: string): Promise<boolean> {
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const cloudName =
+    process.env.CLOUDINARY_CLOUD_NAME ||
+    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const apiKey = process.env.CLOUDINARY_API_KEY;
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
-  if (!cloudName || !apiKey || !apiSecret) {
+  if (!cloudName || cloudName === "demo" || !apiKey || !apiSecret) {
     throw new Error("Cloudinary credentials not configured");
   }
 
