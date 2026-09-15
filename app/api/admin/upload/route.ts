@@ -67,28 +67,45 @@ export async function POST(request: NextRequest) {
 
     const folder = isVideo ? "products/videos" : "products";
 
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
-      const blob = await put(`${folder}/${file.name}`, file, {
-        access: "public",
-        addRandomSuffix: true,
-        contentType: file.type,
-      });
-
-      return NextResponse.json({ url: blob.url, kind: isVideo ? "video" : "image" });
+    // Cloudinary is the store the shop uses now, so it is tried first. It returns
+    // null when unconfigured and throws on a genuine failure; both are handled so
+    // the request can still fall through to Blob.
+    try {
+      const cloudinaryUrl = await uploadToCloudinary(file, isVideo);
+      if (cloudinaryUrl) {
+        return NextResponse.json({
+          url: cloudinaryUrl,
+          kind: isVideo ? "video" : "image",
+        });
+      }
+    } catch (cloudinaryError) {
+      console.error("[upload] Cloudinary failed, trying Blob:", cloudinaryError);
     }
 
-    const cloudinaryUrl = await uploadToCloudinary(file, isVideo);
-    if (cloudinaryUrl) {
-      return NextResponse.json({
-        url: cloudinaryUrl,
-        kind: isVideo ? "video" : "image",
-      });
+    // Blob is only a fallback. An expired or revoked token must never hard-fail
+    // the upload — that is what silently lost photos when the store expired, so
+    // a failure here falls through to the clear 503 below instead of a 500.
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        const blob = await put(`${folder}/${file.name}`, file, {
+          access: "public",
+          addRandomSuffix: true,
+          contentType: file.type,
+        });
+
+        return NextResponse.json({
+          url: blob.url,
+          kind: isVideo ? "video" : "image",
+        });
+      } catch (blobError) {
+        console.error("[upload] Blob upload failed:", blobError);
+      }
     }
 
     return NextResponse.json(
       {
         error:
-          "Photo/video save karne ki jagah set nahi hai. Vercel par Blob store jodna hoga, ya Cloudinary keys set karein.",
+          "Photo/video save nahi ho payi. Cloudinary keys check karein (ya Vercel par purana Blob token hata dein).",
       },
       { status: 503 }
     );
