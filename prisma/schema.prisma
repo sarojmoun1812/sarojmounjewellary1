@@ -207,7 +207,7 @@ model SiteSettings {
   // The feed reports spot (about Rs 179/g), while she actually buys at around
   // Rs 235/g, so spot alone would underprice every piece by roughly a quarter.
   // Calibrated to reproduce Rs 235/g from spot at the time of writing.
-  silverRatePremiumPercent Float @default(31)
+  silverRatePremiumPercent Float @default(28)
   shippingCharge  Int      @default(0)
   freeShippingMin Int?     // minimum order for free shipping in paise
   socialFacebook  String?

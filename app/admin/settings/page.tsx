@@ -44,6 +44,11 @@ export default function SettingsPage() {
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
 
+  const [storedSilverRate, setStoredSilverRate] = useState<number | null>(null);
+  const [manualSilverRate, setManualSilverRate] = useState("");
+  const [isUpdatingSilverRate, setIsUpdatingSilverRate] = useState(false);
+  const [silverRateMessage, setSilverRateMessage] = useState("");
+
   const [settings, setSettings] = useState<Settings>({
     siteName: "Saroj Moun Jewellery",
     tagline: "",
@@ -55,7 +60,7 @@ export default function SettingsPage() {
     gstRate: "0",
     gstInclusive: false,
     labourPerGram: "130",
-    silverRatePremiumPercent: "31",
+    silverRatePremiumPercent: "28",
     shippingCharge: "0",
     freeShippingMin: "",
     socialFacebook: "",
@@ -91,7 +96,7 @@ export default function SettingsPage() {
             silverRatePremiumPercent:
               data.settings.silverRatePremiumPercent != null
                 ? String(data.settings.silverRatePremiumPercent)
-                : "31",
+                : "28",
             shippingCharge: data.settings.shippingCharge
               ? (data.settings.shippingCharge / 100).toString()
               : "0",
@@ -109,7 +114,49 @@ export default function SettingsPage() {
       })
       .catch(() => {})
       .finally(() => setIsLoading(false));
+
+    fetch("/api/silver-rate")
+      .then((res) => res.json())
+      .then((data) => {
+        if (typeof data.ratePerGram === "number") {
+          setStoredSilverRate(data.ratePerGram);
+          setManualSilverRate(String(Math.round(data.ratePerGram)));
+        }
+      })
+      .catch(() => {});
   }, []);
+
+  const handleUpdateSilverRate = async () => {
+    setSilverRateMessage("");
+    const rate = parseFloat(manualSilverRate);
+    if (!Number.isFinite(rate) || rate < 50 || rate > 5000) {
+      setSilverRateMessage("₹50 se ₹5000 ke beech sahi rate daalein.");
+      return;
+    }
+
+    setIsUpdatingSilverRate(true);
+    try {
+      const res = await fetch("/api/silver-rate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ratePerGram: rate }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Rate update nahi hua.");
+
+      setStoredSilverRate(rate);
+      setSilverRateMessage(
+        `Chandi ka rate ₹${rate}/gram set ho gaya — saare prices ab isi par hain.`
+      );
+      router.refresh();
+    } catch (err) {
+      setSilverRateMessage(
+        err instanceof Error ? err.message : "Rate update nahi hua."
+      );
+    } finally {
+      setIsUpdatingSilverRate(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,7 +173,7 @@ export default function SettingsPage() {
           gstRate: parseFloat(settings.gstRate || "0") || 0,
           labourPerGram: parseFloat(settings.labourPerGram || "130") || 130,
           silverRatePremiumPercent:
-            parseFloat(settings.silverRatePremiumPercent || "31") || 0,
+            parseFloat(settings.silverRatePremiumPercent || "28") || 0,
           shippingCharge: Math.round(parseFloat(settings.shippingCharge || "0") * 100),
           freeShippingMin: settings.freeShippingMin
             ? Math.round(parseFloat(settings.freeShippingMin) * 100)
@@ -232,8 +279,69 @@ export default function SettingsPage() {
           </h2>
           <p className="mt-1 text-sm text-gray-600">
             Har item ka price = chandi ka weight × (chandi ka rate + majoori).
-            Chandi ka rate roz apne aap update hota hai.
+            Rate roz API se aata hai, lekin Jind ke asli bhaav ke liye neeche
+            manually bhi set kar sakte hain.
           </p>
+
+          <div className="mt-5 rounded-xl border border-emerald-300/60 bg-white/80 p-4">
+            <p className="text-sm font-medium text-gray-900">
+              Aaj ka chaandi bhaav (₹/gram)
+            </p>
+            {storedSilverRate != null && (
+              <p className="mt-1 text-xs text-gray-500">
+                Abhi website par:{" "}
+                <span className="font-semibold text-emerald-700">
+                  ₹{storedSilverRate.toFixed(2)}/gram
+                </span>
+              </p>
+            )}
+            <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
+              <div className="flex-1">
+                <input
+                  id="manual-silver-rate"
+                  type="number"
+                  inputMode="decimal"
+                  step="0.5"
+                  min="50"
+                  max="5000"
+                  value={manualSilverRate}
+                  onChange={(e) => setManualSilverRate(e.target.value)}
+                  placeholder="Jaise 250"
+                  className="w-full rounded-lg border border-gray-200 px-4 py-3 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+                <p className="mt-1.5 text-xs text-gray-500">
+                  Jind / Haryana mein jo rate aap khareedte hain wahi daalein
+                  (abhi zyada tar sheher ~₹245–250/g).
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleUpdateSilverRate}
+                disabled={isUpdatingSilverRate}
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+              >
+                {isUpdatingSilverRate ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Ho raha hai…
+                  </>
+                ) : (
+                  "Rate update karein"
+                )}
+              </button>
+            </div>
+            {silverRateMessage && (
+              <p
+                className={`mt-3 text-sm ${
+                  silverRateMessage.includes("set ho gaya")
+                    ? "text-emerald-700"
+                    : "text-red-600"
+                }`}
+              >
+                {silverRateMessage}
+              </p>
+            )}
+          </div>
 
           <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
@@ -285,9 +393,9 @@ export default function SettingsPage() {
                 className="w-full rounded-lg border border-gray-200 px-4 py-3 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
               <p className="mt-1.5 text-xs text-gray-500">
-                International rate se aapka kharidne ka rate itna zyada hota hai
-                (duty, GST, dealer margin). Agar website ka rate aapke asli rate
-                se kam ya zyada lage, to yahi number thoda badlein.
+                Sirf tab jab auto-rate galat lage. International spot (~₹195/g)
+                par duty + margin lag kar India mein ~₹245–250/g banta hai — 28%
+                iske kareeb rehta hai. Upar wale manual rate ko prefer karein.
               </p>
             </div>
           </div>

@@ -20,8 +20,10 @@ import { isPlausibleRate } from "./pricing";
 
 const GRAMS_PER_TROY_OUNCE = 31.1035;
 
-/** Applied when no setting is stored. Reproduces ~Rs 235/g from ~Rs 179/g spot. */
-export const DEFAULT_SILVER_PREMIUM_PERCENT = 31;
+/** Applied when no setting is stored. Calibrated for Indian retail (~₹250/g in
+ *  tier-2 cities when international spot is ~₹195/g). Override in admin
+ *  Settings, or set the rate manually when you know today's Jind bhaav. */
+export const DEFAULT_SILVER_PREMIUM_PERCENT = 28;
 
 export type RefreshResult = {
   ratePerGram: number;

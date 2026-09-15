@@ -10,9 +10,9 @@
  * Used only when no rate has ever been recorded. Every product price derives
  * from the rate, so a value that is too low sells stock below the cost of its
  * own metal — review this against the market when it changes materially.
- * Indian retail silver, reviewed 3 Aug 2026 (~₹235/g across metros).
+ * Indian retail silver when no rate is stored (~₹245–250/g in metros / Jind).
  */
-export const FALLBACK_SILVER_RATE_PER_GRAM = 235;
+export const FALLBACK_SILVER_RATE_PER_GRAM = 250;
 
 /** A rate outside this band is treated as a bad feed, not a market move. */
 export const PLAUSIBLE_MIN_RATE_PER_GRAM = 50;
