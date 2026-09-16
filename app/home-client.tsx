@@ -20,6 +20,7 @@ import {
   revealLeft,
   revealRight,
 } from "@/lib/motion";
+import { getOptimizedImageUrl } from "@/lib/cloudinary";
 
 interface HomeClientProps {
   featuredProducts: HomeProduct[];
@@ -171,11 +172,11 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
               <div className="media-frame relative aspect-[4/5] overflow-hidden rounded-[2rem]">
                 {featuredProducts[0]?.image ? (
                   <Image
-                    src={featuredProducts[0].image}
+                    src={getOptimizedImageUrl(featuredProducts[0].image, 1000, 1250, 85)}
                     alt={featuredProducts[0].name}
                     fill
                     priority
-                    className="object-cover"
+                    className="object-cover object-center"
                     sizes="(max-width: 1280px) 100vw, 45vw"
                   />
                 ) : (
@@ -306,10 +307,10 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
                   >
                     {category.image ? (
                       <Image
-                        src={category.image}
+                        src={getOptimizedImageUrl(category.image, 800, 1067, 82)}
                         alt={category.name}
                         fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                        className="object-cover object-center transition-transform duration-700 group-hover:scale-110"
                         sizes="(max-width: 768px) 50vw, 25vw"
                       />
                     ) : (

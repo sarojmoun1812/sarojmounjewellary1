@@ -183,11 +183,11 @@ export default async function ProductsPage({
               <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100">
                 {product.images[0] ? (
                   <Image
-                    src={getOptimizedImageUrl(product.images[0], 200, 200, 75)}
+                    src={getOptimizedImageUrl(product.images[0], 240, 240, 78)}
                     alt={product.name}
                     fill
                     sizes="80px"
-                    className="object-cover"
+                    className="object-cover object-center"
                   />
                 ) : (
                   <div className="flex h-full flex-col items-center justify-center gap-1 text-slate-400">

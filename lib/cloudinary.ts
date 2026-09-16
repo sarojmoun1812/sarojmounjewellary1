@@ -104,7 +104,8 @@ export async function deleteFromCloudinary(publicId: string): Promise<boolean> {
   return result.result === "ok";
 }
 
-// Generate optimized image URL
+// Generate optimized image URL for jewellery photos.
+// c_fill + g_auto crops to the requested ratio with the piece centred.
 export function getOptimizedImageUrl(
   url: string,
   width?: number,
@@ -113,16 +114,13 @@ export function getOptimizedImageUrl(
 ): string {
   if (!url.includes("cloudinary.com")) return url;
 
-  // Add transformation parameters
   const parts = url.split("/upload/");
   if (parts.length !== 2) return url;
 
-  const transforms = [];
+  const transforms: string[] = [];
   if (width) transforms.push(`w_${width}`);
   if (height) transforms.push(`h_${height}`);
-  transforms.push(`q_${quality}`);
-  transforms.push("f_auto");
-  transforms.push("c_fill");
+  transforms.push(`q_${quality}`, "f_auto", "c_fill", "g_auto:subject");
 
   return `${parts[0]}/upload/${transforms.join(",")}/${parts[1]}`;
 }

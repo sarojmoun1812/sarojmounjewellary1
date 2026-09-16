@@ -118,68 +118,68 @@ export function ProductDetailClient({
 
   return (
     <div className="min-h-screen bg-ivory-50 pt-24">
-      <div className="container-luxury py-8 md:py-12">
+      <div className="container-luxury py-6 md:py-12">
         {/* Breadcrumb */}
-        <nav className="mb-8 text-sm">
+        <nav className="mb-6 text-sm md:mb-8">
           <ol className="flex items-center gap-2 text-charcoal-500">
             <li>
-              <Link href="/" className="hover:text-champagne-600 transition-colors">
+              <Link href="/" className="transition-colors hover:text-champagne-700">
                 Home
               </Link>
             </li>
-            <li>/</li>
+            <li className="text-charcoal-300">/</li>
             <li>
-              <Link href="/shop" className="hover:text-champagne-600 transition-colors">
+              <Link href="/shop" className="transition-colors hover:text-champagne-700">
                 Shop
               </Link>
             </li>
-            <li>/</li>
+            <li className="text-charcoal-300">/</li>
             <li>
               <Link
                 href={`/shop?category=${product.category.toLowerCase()}`}
-                className="hover:text-champagne-600 transition-colors capitalize"
+                className="capitalize transition-colors hover:text-champagne-700"
               >
                 {product.category}
               </Link>
             </li>
-            <li>/</li>
-            <li className="text-charcoal-900 font-medium truncate max-w-[200px]">
+            <li className="text-charcoal-300">/</li>
+            <li className="max-w-[160px] truncate font-medium text-charcoal-900 sm:max-w-[240px]">
               {product.name}
             </li>
           </ol>
         </nav>
 
-        <div className="grid gap-12 lg:grid-cols-2">
+        <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-14">
           {/* Image / video gallery */}
-          <Reveal variants={revealLeft}>
-            <div className="media-frame relative mb-4 aspect-square overflow-hidden rounded-[2rem] bg-ivory-100">
+          <Reveal variants={revealLeft} className="lg:sticky lg:top-28">
+            <div className="product-media relative mb-3 aspect-[4/5] sm:mb-4">
               {images.length > 0 ? (
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={selectedImageIndex}
-                    initial={{ opacity: 0 }}
+                    initial={{ opacity: 0.2 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="relative h-full w-full"
+                    transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                    className="absolute inset-0"
                   >
                     <Image
                       src={getOptimizedImageUrl(
                         images[selectedImageIndex],
                         1200,
-                        1200,
-                        85
+                        1500,
+                        88
                       )}
                       alt={`${product.name} – ${product.material} ${product.category}`}
                       fill
-                      className="object-contain p-3 sm:p-5"
+                      className="object-cover object-center"
                       priority
-                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      sizes="(max-width: 1024px) 100vw, 48vw"
                     />
                   </motion.div>
                 </AnimatePresence>
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-ivory-100 to-ivory-200 px-8 text-center">
+                <div className="flex h-full w-full items-center justify-center px-8 text-center">
                   <p className="text-sm tracking-wide text-charcoal-400">
                     Photo coming soon
                   </p>
@@ -189,55 +189,78 @@ export function ProductDetailClient({
               {images.length > 1 && (
                 <>
                   <button
+                    type="button"
                     onClick={prevImage}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-ivory-50/90 p-3 transition-all hover:bg-ivory-50"
+                    aria-label="Previous photo"
+                    className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-ivory-200/80 bg-ivory-50/90 text-charcoal-900 shadow-md backdrop-blur-md transition hover:bg-white sm:left-4 sm:h-11 sm:w-11"
                   >
-                    <ChevronLeft className="h-5 w-5 text-charcoal-900" />
+                    <ChevronLeft className="h-5 w-5" />
                   </button>
                   <button
+                    type="button"
                     onClick={nextImage}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-ivory-50/90 p-3 transition-all hover:bg-ivory-50"
+                    aria-label="Next photo"
+                    className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-ivory-200/80 bg-ivory-50/90 text-charcoal-900 shadow-md backdrop-blur-md transition hover:bg-white sm:right-4 sm:h-11 sm:w-11"
                   >
-                    <ChevronRight className="h-5 w-5 text-charcoal-900" />
+                    <ChevronRight className="h-5 w-5" />
                   </button>
                 </>
               )}
 
-              <div className="absolute left-4 top-4 flex flex-col gap-2">
+              <div className="absolute left-3 top-3 z-10 flex flex-col gap-2 sm:left-4 sm:top-4">
                 {product.stock <= 0 ? (
-                  <span className="bg-charcoal-900 px-3 py-1 text-xs font-medium uppercase tracking-wider text-ivory-50">
+                  <span className="rounded-full bg-charcoal-950/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-ivory-50 backdrop-blur-sm">
                     Sold Out
                   </span>
                 ) : product.isNew ? (
-                  <span className="bg-champagne-500 px-3 py-1 text-xs font-medium uppercase tracking-wider text-charcoal-900">
-                    New!
+                  <span className="rounded-full bg-champagne-500 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-charcoal-900 shadow-sm">
+                    New
                   </span>
                 ) : null}
                 {product.bestseller && product.stock > 0 && !product.isNew && (
-                  <span className="bg-champagne-500 px-3 py-1 text-xs font-medium uppercase tracking-wider text-charcoal-900">
+                  <span className="rounded-full bg-champagne-500/95 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-charcoal-900 shadow-sm">
                     Bestseller
                   </span>
                 )}
               </div>
+
+              {images.length > 1 && (
+                <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 rounded-full bg-charcoal-950/35 px-2.5 py-1.5 backdrop-blur-md">
+                  {images.map((_, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      aria-label={`Photo ${index + 1}`}
+                      onClick={() => setSelectedImageIndex(index)}
+                      className={`h-1.5 rounded-full transition-all ${
+                        selectedImageIndex === index
+                          ? "w-4 bg-champagne-400"
+                          : "w-1.5 bg-ivory-50/55"
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             {images.length > 1 && (
-              <div className="mb-4 grid grid-cols-4 gap-3">
+              <div className="mb-4 grid grid-cols-4 gap-2 sm:gap-2.5">
                 {images.map((image, index) => (
                   <button
                     key={image}
+                    type="button"
                     onClick={() => setSelectedImageIndex(index)}
-                    className={`relative aspect-square overflow-hidden rounded-xl border border-ivory-200 bg-ivory-50 transition-all ${
+                    className={`product-media relative aspect-[4/5] overflow-hidden transition-all duration-200 ${
                       selectedImageIndex === index
-                        ? "ring-2 ring-champagne-500"
-                        : "opacity-70 hover:opacity-100"
+                        ? "ring-2 ring-champagne-500 ring-offset-2 ring-offset-ivory-50"
+                        : "opacity-75 hover:opacity-100"
                     }`}
                   >
                     <Image
-                      src={getOptimizedImageUrl(image, 300, 300, 75)}
+                      src={getOptimizedImageUrl(image, 320, 400, 78)}
                       alt={`${product.name} ${index + 1}`}
                       fill
-                      className="object-contain p-1.5"
+                      className="object-cover object-center"
                       sizes="120px"
                     />
                   </button>
@@ -246,7 +269,7 @@ export function ProductDetailClient({
             )}
 
             {product.videoUrl && (
-              <div className="overflow-hidden rounded-[1.5rem] border border-ivory-200 bg-charcoal-950">
+              <div className="overflow-hidden rounded-2xl border border-ivory-200 bg-charcoal-950 shadow-sm">
                 <video
                   src={product.videoUrl}
                   controls
@@ -267,64 +290,66 @@ export function ProductDetailClient({
           </Reveal>
 
           {/* Product Info */}
-          <Reveal variants={revealRight} className="space-y-6">
+          <Reveal variants={revealRight} className="space-y-7">
             <div>
-              <p className="text-[10px] tracking-[0.3em] uppercase text-champagne-600 mb-2">
+              <p className="mb-2 text-[10px] uppercase tracking-[0.28em] text-champagne-700">
                 {product.category}
               </p>
-              <h1 className="text-3xl md:text-4xl font-heading font-light text-charcoal-900 mb-4">
+              <h1 className="mb-4 font-heading text-3xl font-light leading-tight text-charcoal-950 md:text-[2.65rem]">
                 {product.name}
               </h1>
-              <p className="text-charcoal-600 leading-relaxed">{product.description}</p>
+              <p className="max-w-xl text-[0.98rem] leading-relaxed text-charcoal-600">
+                {product.description}
+              </p>
             </div>
 
-            {/* Price Section
-                One all-inclusive figure, with no split into silver cost and
-                making charges. The weight is still shown in the details below,
-                which is what a buyer checks; itemising the labour margin only
-                invites haggling over it. */}
-            <div className="bg-ivory-100 p-6 space-y-3">
+            {/* Price Section */}
+            <div className="rounded-2xl border border-ivory-200/90 bg-gradient-to-br from-white to-ivory-100/80 p-5 shadow-[0_12px_40px_rgba(37,33,23,0.05)] sm:p-6">
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="text-3xl font-heading font-medium text-charcoal-900">
+                <span className="font-heading text-3xl font-medium tracking-tight text-charcoal-950 md:text-4xl">
                   {formatPrice(priceBreakdown.finalPrice)}
                 </span>
-                <span className="text-sm font-medium text-champagne-700">
+                <span className="text-xs font-semibold uppercase tracking-[0.14em] text-champagne-700">
                   {priceTypeLabel(product.fixedPrice)}
                 </span>
               </div>
 
-              <p className="text-xs text-charcoal-500 italic">
+              <p className="mt-2 text-xs leading-relaxed text-charcoal-500">
                 {product.fixedPrice
-                  ? "* Special piece — fixed price"
-                  : "* Wholesale prices follow the live silver rate"}
+                  ? "Special piece — fixed price"
+                  : "Wholesale price based on today's silver rate"}
                 {gst.gstRate > 0
                   ? gst.gstInclusive
-                    ? ` and include ${gst.gstRate}% GST`
-                    : `. ${gst.gstRate}% GST is added at checkout`
+                    ? ` · includes ${gst.gstRate}% GST`
+                    : ` · ${gst.gstRate}% GST added at checkout`
                   : ""}
               </p>
             </div>
 
             {/* Quantity Selector */}
             <div>
-              <label className="block text-sm font-medium text-charcoal-700 mb-3">
+              <label className="mb-2.5 block text-xs font-medium uppercase tracking-[0.16em] text-charcoal-600">
                 Quantity
               </label>
-              <div className="inline-flex items-center gap-4 bg-ivory-100 p-2">
+              <div className="inline-flex items-center gap-1 rounded-full border border-ivory-200 bg-white p-1.5 shadow-sm">
                 <button
+                  type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 flex items-center justify-center hover:bg-ivory-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-ivory-100 disabled:cursor-not-allowed disabled:opacity-40"
                   disabled={quantity <= 1}
                   aria-label="Decrease quantity"
                 >
                   <Minus className="h-4 w-4" />
                 </button>
-                <span className="w-12 text-center font-medium text-lg">{quantity}</span>
+                <span className="w-10 text-center text-lg font-medium tabular-nums text-charcoal-900">
+                  {quantity}
+                </span>
                 <button
+                  type="button"
                   onClick={() =>
                     setQuantity(Math.min(product.stock, quantity + 1))
                   }
-                  className="w-10 h-10 flex items-center justify-center hover:bg-ivory-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-ivory-100 disabled:cursor-not-allowed disabled:opacity-40"
                   disabled={quantity >= product.stock}
                   aria-label="Increase quantity"
                 >
@@ -332,7 +357,7 @@ export function ProductDetailClient({
                 </button>
               </div>
               {product.stock > 0 && quantity >= product.stock && (
-                <p className="text-xs text-amber-700 mt-2">
+                <p className="mt-2 text-xs text-amber-700">
                   Maximum available quantity selected.
                 </p>
               )}
@@ -340,53 +365,50 @@ export function ProductDetailClient({
 
             {/* Action Buttons */}
             <div className="space-y-3">
-              {/* Both buttons are disabled when nothing is left. They used to
-                  stay active, so a sold-out piece could be added to the cart and
-                  ordered — the shortfall only surfaced when she read the
-                  WhatsApp message and had to go back and apologise. */}
               <button
+                type="button"
                 onClick={handleBuyNow}
                 disabled={product.stock <= 0}
-                className="w-full bg-charcoal-900 text-ivory-50 py-4 font-medium tracking-wider uppercase transition-colors flex items-center justify-center gap-2 hover:bg-charcoal-800 disabled:cursor-not-allowed disabled:bg-charcoal-300"
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-charcoal-950 py-4 text-sm font-medium uppercase tracking-[0.18em] text-ivory-50 transition-colors hover:bg-charcoal-800 disabled:cursor-not-allowed disabled:bg-charcoal-300"
               >
-                <Zap className="h-5 w-5" />
+                <Zap className="h-4 w-4" />
                 {product.stock > 0 ? "Order Now" : "Out of Stock"}
               </button>
 
               <button
+                type="button"
                 onClick={handleAddToCart}
                 disabled={product.stock <= 0}
-                className={`w-full border py-4 font-medium tracking-wider uppercase transition-all flex items-center justify-center gap-2 disabled:cursor-not-allowed disabled:border-charcoal-200 disabled:text-charcoal-300 ${
+                className={`flex w-full items-center justify-center gap-2 rounded-full border py-4 text-sm font-medium uppercase tracking-[0.18em] transition-all disabled:cursor-not-allowed disabled:border-charcoal-200 disabled:text-charcoal-300 ${
                   addedToCart
-                    ? "bg-green-500 text-white border-green-500"
+                    ? "border-emerald-600 bg-emerald-600 text-white"
                     : "border-charcoal-900 text-charcoal-900 can-hover:hover:bg-charcoal-900 can-hover:hover:text-ivory-50"
                 }`}
               >
                 {addedToCart ? (
                   <>
-                    <Check className="h-5 w-5" />
-                    Added to Cart!
+                    <Check className="h-4 w-4" />
+                    Added to Cart
                   </>
                 ) : (
                   <>
-                    <ShoppingCart className="h-5 w-5" />
+                    <ShoppingCart className="h-4 w-4" />
                     Add to Cart
                   </>
                 )}
               </button>
 
-              {/* Says so here rather than only at checkout: a first-time visitor
-                  otherwise expects a card form and abandons at the last step. */}
               <p className="text-center text-xs text-charcoal-500">
                 {product.stock > 0
                   ? "After checkout, pay by scanning the UPI QR — confirmation on WhatsApp."
                   : "This piece is out of stock. Ask on WhatsApp — we may make it again."}
               </p>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2.5 pt-1">
                 <button
+                  type="button"
                   onClick={() => setShowInquiryForm(true)}
-                  className="py-3 bg-champagne-500 text-charcoal-900 font-medium tracking-wider uppercase hover:bg-champagne-600 transition-colors flex items-center justify-center gap-2 text-sm"
+                  className="flex items-center justify-center gap-2 rounded-full bg-champagne-500 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-charcoal-950 transition-colors hover:bg-champagne-400"
                 >
                   <MessageCircle className="h-4 w-4" />
                   Inquire
@@ -396,7 +418,7 @@ export function ProductDetailClient({
                   href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="py-3 bg-green-500 text-white font-medium tracking-wider uppercase hover:bg-green-600 transition-colors flex items-center justify-center gap-2 text-sm"
+                  className="flex items-center justify-center gap-2 rounded-full bg-[#25D366] py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#1ebe57]"
                 >
                   <Phone className="h-4 w-4" />
                   WhatsApp
@@ -405,57 +427,60 @@ export function ProductDetailClient({
             </div>
 
             {/* Trust Indicators */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-ivory-200">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-ivory-100 flex items-center justify-center mx-auto mb-2">
-                  <Truck className="h-5 w-5 text-champagne-600" />
+            <div className="grid grid-cols-3 gap-3 border-t border-ivory-200 pt-6">
+              {[
+                {
+                  icon: Truck,
+                  title: "Free Shipping",
+                  sub: "Above ₹2999",
+                },
+                {
+                  icon: Shield,
+                  title: "Wholesale",
+                  sub: "Fair pricing",
+                },
+                {
+                  icon: Award,
+                  title: "Hallmarked",
+                  sub: "925 Sterling",
+                },
+              ].map((item) => (
+                <div key={item.title} className="text-center">
+                  <div className="mx-auto mb-2 flex h-11 w-11 items-center justify-center rounded-full bg-ivory-100">
+                    <item.icon className="h-4 w-4 text-champagne-700" strokeWidth={1.5} />
+                  </div>
+                  <p className="text-[11px] font-semibold text-charcoal-800">{item.title}</p>
+                  <p className="text-[10px] text-charcoal-500">{item.sub}</p>
                 </div>
-                <p className="text-xs font-medium text-charcoal-700">Free Shipping</p>
-                <p className="text-xs text-charcoal-500">Above ₹2999</p>
-              </div>
-
-              <div className="text-center">
-                <div className="w-12 h-12 bg-ivory-100 flex items-center justify-center mx-auto mb-2">
-                  <Shield className="h-5 w-5 text-champagne-600" />
-                </div>
-                <p className="text-xs font-medium text-charcoal-700">Wholesale prices</p>
-                <p className="text-xs text-charcoal-500">Fair &amp; transparent</p>
-              </div>
-
-              <div className="text-center">
-                <div className="w-12 h-12 bg-ivory-100 flex items-center justify-center mx-auto mb-2">
-                  <Award className="h-5 w-5 text-champagne-600" />
-                </div>
-                <p className="text-xs font-medium text-charcoal-700">Hallmarked</p>
-                <p className="text-xs text-charcoal-500">925 Sterling</p>
-              </div>
+              ))}
             </div>
 
             {/* Product Details */}
-            <div className="elevated-card space-y-4 rounded-[1.5rem] p-6 md:p-8">
-              <h3 className="text-lg font-heading font-medium text-charcoal-900">
+            <div className="rounded-2xl border border-ivory-200/90 bg-white/90 p-5 shadow-[0_12px_40px_rgba(37,33,23,0.04)] sm:p-6">
+              <h3 className="mb-4 font-heading text-lg font-medium text-charcoal-950">
                 Product Details
               </h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between py-2 border-b border-ivory-100">
-                  <span className="text-charcoal-500">Metal Purity</span>
-                  <span className="font-medium text-charcoal-900">{product.material}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-ivory-100">
-                  <span className="text-charcoal-500">Weight</span>
-                  <span className="font-medium text-charcoal-900">{product.silverWeight}g</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-ivory-100">
-                  <span className="text-charcoal-500">Category</span>
-                  <span className="font-medium text-charcoal-900 capitalize">{product.category}</span>
-                </div>
-                {/* No "Hallmark Certified" row here. Every piece is hallmarked
-                    92.5 sterling, so it is a fact about the shop rather than
-                    about one product — the badge above states it once, and
-                    Metal Purity already carries the material. */}
-                <div className="flex justify-between py-2">
+              <div className="space-y-0 text-sm">
+                {[
+                  { label: "Metal Purity", value: product.material },
+                  { label: "Weight", value: `${product.silverWeight}g` },
+                  { label: "Category", value: product.category },
+                ].map((row) => (
+                  <div
+                    key={row.label}
+                    className="flex justify-between gap-4 border-b border-ivory-100 py-3 capitalize"
+                  >
+                    <span className="text-charcoal-500">{row.label}</span>
+                    <span className="font-medium text-charcoal-900">{row.value}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between gap-4 py-3">
                   <span className="text-charcoal-500">Availability</span>
-                  <span className={`font-medium ${product.stock > 0 ? "text-green-600" : "text-red-600"}`}>
+                  <span
+                    className={`font-medium ${
+                      product.stock > 0 ? "text-emerald-700" : "text-red-600"
+                    }`}
+                  >
                     {product.stock > 0 ? "In Stock" : "Out of Stock"}
                   </span>
                 </div>
@@ -473,44 +498,44 @@ export function ProductDetailClient({
                 You May Also Like
               </h2>
             </Reveal>
-            <StaggerReveal className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
+            <StaggerReveal className="grid grid-cols-2 gap-5 md:grid-cols-4 md:gap-7">
               {relatedProducts.map((relatedProduct) => {
                 return (
                   <StaggerItem key={relatedProduct.id}>
-                  <Link
-                    href={`/product/${relatedProduct.slug}`}
-                    className="group block"
-                  >
-                    <div className="relative mb-3 aspect-square overflow-hidden rounded-[1.15rem] border border-ivory-200/80 bg-ivory-100 shadow-sm transition-shadow duration-300 group-hover:shadow-md">
-                      {relatedProduct.images[0] ? (
-                        <Image
-                          src={getOptimizedImageUrl(
-                            relatedProduct.images[0],
-                            600,
-                            600,
-                            80
-                          )}
-                          alt={`${relatedProduct.name} – 925 silver ${relatedProduct.category}`}
-                          fill
-                          className="object-contain p-3 transition-transform duration-500 group-hover:scale-105"
-                          sizes="(max-width: 768px) 45vw, 20vw"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center bg-gradient-to-br from-ivory-100 to-ivory-200 text-xs text-charcoal-400">
-                          Photo soon
-                        </div>
-                      )}
-                    </div>
-                    <h3 className="font-heading text-charcoal-900 group-hover:text-champagne-600 transition-colors line-clamp-2 mb-1">
-                      {relatedProduct.name}
-                    </h3>
-                    <p className="text-charcoal-600">
-                      {formatPrice(relatedProduct.price)}{" "}
-                      <span className="text-xs text-champagne-700">
-                        {priceTypeLabel(relatedProduct.fixedPrice)}
-                      </span>
-                    </p>
-                  </Link>
+                    <Link
+                      href={`/product/${relatedProduct.slug}`}
+                      className="group block"
+                    >
+                      <div className="product-media relative mb-3 aspect-[4/5] transition-shadow duration-300 group-hover:shadow-[0_18px_40px_rgba(196,167,100,0.16)]">
+                        {relatedProduct.images[0] ? (
+                          <Image
+                            src={getOptimizedImageUrl(
+                              relatedProduct.images[0],
+                              700,
+                              875,
+                              82
+                            )}
+                            alt={`${relatedProduct.name} – 925 silver ${relatedProduct.category}`}
+                            fill
+                            className="object-cover object-center transition-transform duration-600 ease-out group-hover:scale-[1.04]"
+                            sizes="(max-width: 768px) 45vw, 20vw"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-xs text-charcoal-400">
+                            Photo soon
+                          </div>
+                        )}
+                      </div>
+                      <h3 className="mb-1 line-clamp-2 font-heading text-sm font-medium text-charcoal-900 transition-colors group-hover:text-champagne-700 md:text-base">
+                        {relatedProduct.name}
+                      </h3>
+                      <p className="text-sm font-semibold text-charcoal-900">
+                        {formatPrice(relatedProduct.price)}{" "}
+                        <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-champagne-700">
+                          {priceTypeLabel(relatedProduct.fixedPrice)}
+                        </span>
+                      </p>
+                    </Link>
                   </StaggerItem>
                 );
               })}

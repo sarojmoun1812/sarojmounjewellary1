@@ -236,6 +236,14 @@
     box-shadow: 0 30px 80px rgba(17, 18, 22, 0.28);
   }
 
+  /* Soft studio frame for product photos — light, image-first. */
+  .product-media {
+    @apply relative overflow-hidden rounded-[1.15rem] border border-ivory-200/70 bg-ivory-100;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.65) inset,
+      0 14px 40px rgba(37, 33, 23, 0.07);
+  }
+
   .elevated-card {
     @apply relative overflow-hidden rounded-[1.75rem] border border-ivory-200/70 bg-white/90 backdrop-blur;
     box-shadow: 0 24px 70px rgba(37, 33, 23, 0.08);

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Minus, Plus, Trash2, ShoppingBag, Loader2 } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/utils";
+import { getOptimizedImageUrl } from "@/lib/cloudinary";
 
 type QuoteLine = {
   productId: string;
@@ -127,19 +128,19 @@ export default function CartPage() {
           {(quote?.lines ?? []).map((line) => (
             <div
               key={line.productId}
-              className="flex gap-5 border border-ivory-200 bg-white p-5 transition-shadow can-hover:hover:shadow-[0_12px_40px_rgba(17,18,22,0.06)]"
+              className="flex gap-5 rounded-2xl border border-ivory-200/80 bg-white p-5 shadow-[0_10px_36px_rgba(37,33,23,0.04)] transition-shadow can-hover:hover:shadow-[0_16px_48px_rgba(37,33,23,0.07)]"
             >
               <Link
                 href={`/product/${line.slug}`}
-                className="relative h-28 w-28 flex-shrink-0 overflow-hidden bg-ivory-100"
+                className="product-media relative h-28 w-[5.6rem] flex-shrink-0"
               >
                 {line.image && (
                   <Image
-                    src={line.image}
+                    src={getOptimizedImageUrl(line.image, 280, 350, 78)}
                     alt={line.name}
                     fill
                     sizes="112px"
-                    className="object-cover"
+                    className="object-cover object-center"
                   />
                 )}
               </Link>

@@ -148,8 +148,11 @@ export function ShopPageClient({
     showToast("success", `${product.name} added to cart`);
   };
 
-  const heroImage =
+  const heroImageRaw =
     products.find((product) => product.images[0])?.images[0] ?? null;
+  const heroImage = heroImageRaw
+    ? getOptimizedImageUrl(heroImageRaw, 1920, 1080, 82)
+    : null;
 
   return (
     <div className="min-h-screen bg-ivory-50">
@@ -199,16 +202,16 @@ export function ShopPageClient({
       </section>
 
       <div className="container-luxury py-6 md:py-16">
-        <div className="z-20 mb-4 space-y-2 rounded-xl border border-ivory-200/80 bg-ivory-50/95 p-2.5 shadow-sm backdrop-blur-md md:sticky md:top-20 md:mb-8 md:space-y-3 md:rounded-2xl md:p-5">
-          <div className="flex items-center gap-2">
+        <div className="z-20 mb-5 space-y-2.5 rounded-2xl border border-ivory-200/70 bg-white/80 p-3 shadow-[0_12px_40px_rgba(37,33,23,0.05)] backdrop-blur-xl md:sticky md:top-20 md:mb-9 md:space-y-3.5 md:rounded-[1.35rem] md:p-5">
+          <div className="flex items-center gap-2.5">
             <div className="relative min-w-0 flex-1">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-charcoal-400 md:left-3 md:h-4 md:w-4" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-charcoal-400 md:left-3.5 md:h-4 md:w-4" />
               <input
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search name, category, weight…"
-                className="w-full rounded-lg border border-ivory-200 bg-white py-2 pl-8 pr-3 text-sm text-charcoal-900 placeholder:text-charcoal-400 focus:outline-none focus:ring-2 focus:ring-champagne-500 md:rounded-xl md:py-2.5 md:pl-10 md:pr-4"
+                className="w-full rounded-xl border border-ivory-200/90 bg-ivory-50/80 py-2.5 pl-9 pr-3 text-sm text-charcoal-900 placeholder:text-charcoal-400 transition focus:border-champagne-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-champagne-500/40 md:py-3 md:pl-11 md:pr-4"
                 aria-label="Search jewellery"
               />
             </div>
@@ -216,7 +219,7 @@ export function ShopPageClient({
             <select
               value={sortBy}
               onChange={(e) => handleSort(e.target.value)}
-              className="shrink-0 rounded-lg border border-ivory-200 bg-white px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-champagne-500 md:px-4 md:text-sm"
+              className="shrink-0 rounded-xl border border-ivory-200/90 bg-ivory-50/80 px-2.5 py-2.5 text-xs text-charcoal-800 transition focus:border-champagne-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-champagne-500/40 md:px-4 md:py-3 md:text-sm"
               aria-label="Sort products"
             >
               <option value="featured">Featured</option>
@@ -226,15 +229,15 @@ export function ShopPageClient({
             </select>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <button
                 type="button"
                 onClick={() => handleCategory("all")}
-                className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-all md:px-4 md:py-1.5 md:text-sm ${
+                className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium tracking-wide transition-all duration-200 md:px-4 md:py-2 md:text-sm ${
                   activeCategory === "all"
-                    ? "bg-charcoal-900 text-ivory-50"
-                    : "bg-ivory-100 text-charcoal-700 hover:bg-ivory-200"
+                    ? "bg-charcoal-950 text-ivory-50 shadow-sm"
+                    : "bg-ivory-100/90 text-charcoal-700 hover:bg-ivory-200"
                 }`}
               >
                 All
@@ -244,10 +247,10 @@ export function ShopPageClient({
                   type="button"
                   key={category}
                   onClick={() => handleCategory(category.toLowerCase())}
-                  className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium capitalize transition-all md:px-4 md:py-1.5 md:text-sm ${
+                  className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium capitalize tracking-wide transition-all duration-200 md:px-4 md:py-2 md:text-sm ${
                     activeCategory === category.toLowerCase()
-                      ? "bg-charcoal-900 text-ivory-50"
-                      : "bg-ivory-100 text-charcoal-700 hover:bg-ivory-200"
+                      ? "bg-charcoal-950 text-ivory-50 shadow-sm"
+                      : "bg-ivory-100/90 text-charcoal-700 hover:bg-ivory-200"
                   }`}
                 >
                   {category}
@@ -255,7 +258,7 @@ export function ShopPageClient({
               ))}
             </div>
 
-            <span className="shrink-0 text-xs text-charcoal-500 md:text-sm">
+            <span className="shrink-0 rounded-full bg-ivory-100 px-2.5 py-1 text-[11px] font-medium tabular-nums text-charcoal-500 md:text-xs">
               {filteredProducts.length}
             </span>
           </div>
@@ -286,45 +289,43 @@ export function ShopPageClient({
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4 xl:gap-7">
             {filteredProducts.map((product) => {
               const thumb = product.images[0]
-                ? getOptimizedImageUrl(product.images[0], 600, 600, 80)
+                ? getOptimizedImageUrl(product.images[0], 800, 1000, 82)
                 : "";
               const soldOut = product.stock <= 0;
 
               return (
                 <article key={product.id} className="group">
                   <Link href={`/product/${product.slug}`} className="block">
-                    <div className="relative mb-4 aspect-square overflow-hidden rounded-[1.25rem] border border-ivory-200/80 bg-ivory-100 shadow-[0_16px_45px_rgba(37,33,23,0.06)] transition-shadow duration-500 group-hover:shadow-[0_24px_60px_rgba(196,167,100,0.15)]">
+                    <div className="product-media relative mb-3 aspect-[4/5] transition-shadow duration-500 group-hover:shadow-[0_22px_55px_rgba(196,167,100,0.16)]">
                       {thumb ? (
                         <Image
                           src={thumb}
                           alt={product.name}
                           fill
-                          className="object-contain p-4 transition-transform duration-700 group-hover:scale-105"
-                          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 40vw, 25vw"
+                          className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                          sizes="(max-width: 640px) 50vw, (max-width: 1280px) 33vw, 25vw"
                         />
                       ) : (
-                        <div className="flex h-full items-center justify-center bg-gradient-to-br from-ivory-100 via-ivory-50 to-champagne-100/40 px-4 text-center text-sm text-charcoal-400">
+                        <div className="flex h-full items-center justify-center px-4 text-center text-sm text-charcoal-400">
                           Photo coming soon
                         </div>
                       )}
 
-                      <div className="absolute inset-0 bg-charcoal-900/0 transition-colors duration-300 group-hover:bg-charcoal-900/10" />
-
-                      <div className="absolute left-3 top-3 flex flex-col gap-2">
+                      <div className="absolute left-2.5 top-2.5 flex flex-col gap-1.5 sm:left-3 sm:top-3">
                         {soldOut ? (
-                          <span className="bg-charcoal-900 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-ivory-50">
+                          <span className="rounded-full bg-charcoal-950/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-ivory-50 backdrop-blur-sm">
                             Sold Out
                           </span>
                         ) : product.isNew ? (
-                          <span className="bg-champagne-500 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-charcoal-900">
-                            New!
+                          <span className="rounded-full bg-champagne-500 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-charcoal-900 shadow-sm">
+                            New
                           </span>
                         ) : null}
                         {product.bestseller && !soldOut && !product.isNew && (
-                          <span className="bg-champagne-500/90 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-charcoal-900">
+                          <span className="rounded-full bg-champagne-500/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-charcoal-900 shadow-sm">
                             Bestseller
                           </span>
                         )}
@@ -332,13 +333,13 @@ export function ShopPageClient({
                           !product.bestseller &&
                           !product.isNew &&
                           !soldOut && (
-                            <span className="bg-charcoal-900 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-ivory-50">
+                            <span className="rounded-full bg-charcoal-950/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-ivory-50 backdrop-blur-sm">
                               Featured
                             </span>
                           )}
                       </div>
 
-                      <div className="absolute bottom-3 right-3 flex gap-2 transition-opacity duration-300 can-hover:opacity-0 can-hover:group-hover:opacity-100">
+                      <div className="absolute bottom-2.5 right-2.5 opacity-100 transition-opacity duration-300 can-hover:opacity-0 can-hover:group-hover:opacity-100 sm:bottom-3 sm:right-3">
                         <button
                           type="button"
                           onClick={(e) => {
@@ -346,7 +347,7 @@ export function ShopPageClient({
                             handleAddToCart(product);
                           }}
                           disabled={soldOut}
-                          className="flex h-10 w-10 items-center justify-center rounded-full bg-ivory-50 shadow-lg transition-colors hover:bg-champagne-500 disabled:cursor-not-allowed disabled:bg-charcoal-200 disabled:opacity-70"
+                          className="flex h-10 w-10 items-center justify-center rounded-full border border-ivory-200/80 bg-ivory-50/95 text-charcoal-900 shadow-md backdrop-blur-md transition-colors hover:bg-champagne-500 disabled:cursor-not-allowed disabled:bg-charcoal-200 disabled:opacity-70"
                           aria-label={
                             soldOut
                               ? `${product.name} is sold out`
@@ -359,24 +360,24 @@ export function ShopPageClient({
                     </div>
                   </Link>
 
-                  <div>
-                    <p className="mb-1 text-[10px] uppercase tracking-wider text-champagne-600">
+                  <div className="px-0.5">
+                    <p className="mb-1 text-[10px] uppercase tracking-[0.16em] text-champagne-700">
                       {product.category}
                     </p>
                     <Link href={`/product/${product.slug}`}>
-                      <h3 className="mb-2 line-clamp-2 font-heading font-medium text-charcoal-900 transition-colors group-hover:text-champagne-600">
+                      <h3 className="mb-1.5 line-clamp-2 font-heading text-sm font-medium leading-snug text-charcoal-950 transition-colors group-hover:text-champagne-700 sm:text-base">
                         {product.name}
                       </h3>
                     </Link>
-                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                      <p className="text-lg font-medium text-charcoal-900">
+                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                      <p className="text-base font-semibold tracking-tight text-charcoal-950 sm:text-lg">
                         {formatPrice(product.price)}
                       </p>
-                      <p className="text-xs font-medium text-champagne-700">
+                      <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-champagne-700 sm:text-xs">
                         {priceTypeLabel(product.fixedPrice)}
                       </p>
                       <p className="text-xs text-charcoal-400">
-                        · {product.silverWeight}g Silver
+                        · {product.silverWeight}g
                       </p>
                     </div>
                   </div>

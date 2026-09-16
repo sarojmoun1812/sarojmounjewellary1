@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/pricing";
+import { getOptimizedImageUrl } from "@/lib/cloudinary";
 
 type QuoteLine = {
   productId: string;
@@ -561,14 +562,14 @@ export default function CheckoutPage() {
                 <div className="mt-6 space-y-4 border-b border-ivory-300 pb-6">
                   {quote.lines.map((line) => (
                     <div key={line.productId} className="flex gap-3">
-                      <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden bg-ivory-200">
+                      <div className="product-media relative h-16 w-[3.2rem] flex-shrink-0 rounded-lg">
                         {line.image && (
                           <Image
-                            src={line.image}
+                            src={getOptimizedImageUrl(line.image, 160, 200, 75)}
                             alt={line.name}
                             fill
                             sizes="64px"
-                            className="object-cover"
+                            className="object-cover object-center"
                           />
                         )}
                       </div>

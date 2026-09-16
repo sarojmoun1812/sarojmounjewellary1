@@ -391,7 +391,7 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
                   alt={`Photo ${index + 1}`}
                   fill
                   sizes="150px"
-                  className="object-cover"
+                  className="object-cover object-center"
                 />
 
                 {index === 0 ? (
