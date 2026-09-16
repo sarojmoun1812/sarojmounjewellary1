@@ -155,7 +155,7 @@ export function ShopPageClient({
     <div className="min-h-screen bg-ivory-50">
       <section
         ref={heroRef}
-        className="relative isolate min-h-[min(62vh,600px)] overflow-hidden border-b border-ivory-200/60"
+        className="relative isolate min-h-[min(34vh,260px)] overflow-hidden border-b border-ivory-200/60 sm:min-h-[min(48vh,420px)] md:min-h-[min(62vh,600px)]"
       >
         <motion.div className="absolute inset-0 h-[115%] w-full" style={{ y: heroY }}>
           {heroImage ? (
@@ -173,22 +173,22 @@ export function ShopPageClient({
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(17,18,22,0.15),rgba(17,18,22,0.78)),linear-gradient(110deg,rgba(17,18,22,0.88)_0%,rgba(17,18,22,0.5)_50%,rgba(17,18,22,0.85)_100%)]" />
           <div className="noise-overlay absolute inset-0" />
         </motion.div>
-        <div className="pt-below-header relative z-10 flex min-h-[min(62vh,600px)] items-center px-6 pb-16">
+        <div className="pt-below-header relative z-10 flex min-h-[min(34vh,260px)] items-center px-4 pb-8 sm:min-h-[min(48vh,420px)] sm:px-6 sm:pb-12 md:min-h-[min(62vh,600px)] md:pb-16">
           <div className="container-luxury w-full">
             <Reveal variants={revealLeft} className="mx-auto max-w-3xl text-center md:text-left">
-              <div className="glass-dark gradient-border inline-block rounded-[2rem] px-8 py-10 md:px-12 md:py-12">
+              <div className="glass-dark gradient-border inline-block rounded-2xl px-5 py-6 sm:rounded-[2rem] sm:px-8 sm:py-10 md:px-12 md:py-12">
                 <p className="section-kicker text-champagne-300">Our Collection</p>
-                <h1 className="mt-4 font-heading text-4xl font-light text-ivory-50 md:text-5xl lg:text-6xl">
+                <h1 className="mt-2 font-heading text-2xl font-light text-ivory-50 sm:mt-4 sm:text-4xl md:text-5xl lg:text-6xl">
                   Shop Silver Jewellery
                 </h1>
-                <p className="mx-auto mt-5 max-w-xl text-ivory-100/75 md:mx-0">
+                <p className="mx-auto mt-3 hidden max-w-xl text-sm text-ivory-100/75 sm:mt-5 sm:block md:mx-0 md:text-base">
                   Handcrafted 925 sterling silver — hallmark-certified, thoughtfully priced, and styled for everyday
                   shine.
                 </p>
-                <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-champagne-400/30 bg-charcoal-950/40 px-5 py-2.5 text-sm text-champagne-200 backdrop-blur-md">
-                  <Sparkles className="h-4 w-4 text-champagne-300" />
+                <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-champagne-400/30 bg-charcoal-950/40 px-3 py-1.5 text-xs text-champagne-200 backdrop-blur-md sm:mt-8 sm:px-5 sm:py-2.5 sm:text-sm">
+                  <Sparkles className="h-3.5 w-3.5 text-champagne-300 sm:h-4 sm:w-4" />
                   <span>
-                    Today&apos;s Silver Rate:{" "}
+                    Silver:{" "}
                     <strong className="text-champagne-200">₹{silverRate.toFixed(2)}/g</strong>
                   </span>
                 </div>
@@ -198,26 +198,40 @@ export function ShopPageClient({
         </div>
       </section>
 
-      <div className="container-luxury py-12 md:py-16">
-        <div className="sticky top-20 z-20 mb-8 space-y-4 rounded-2xl border border-ivory-200/80 bg-ivory-50/95 p-4 shadow-sm backdrop-blur-md md:p-5">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-charcoal-400" />
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by name, category, or weight (e.g. kada, 25g)"
-              className="w-full rounded-xl border border-ivory-200 bg-white py-3 pl-10 pr-4 text-sm text-charcoal-900 placeholder:text-charcoal-400 focus:outline-none focus:ring-2 focus:ring-champagne-500"
-              aria-label="Search jewellery"
-            />
+      <div className="container-luxury py-6 md:py-16">
+        <div className="z-20 mb-4 space-y-2 rounded-xl border border-ivory-200/80 bg-ivory-50/95 p-2.5 shadow-sm backdrop-blur-md md:sticky md:top-20 md:mb-8 md:space-y-3 md:rounded-2xl md:p-5">
+          <div className="flex items-center gap-2">
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-charcoal-400 md:left-3 md:h-4 md:w-4" />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search name, category, weight…"
+                className="w-full rounded-lg border border-ivory-200 bg-white py-2 pl-8 pr-3 text-sm text-charcoal-900 placeholder:text-charcoal-400 focus:outline-none focus:ring-2 focus:ring-champagne-500 md:rounded-xl md:py-2.5 md:pl-10 md:pr-4"
+                aria-label="Search jewellery"
+              />
+            </div>
+
+            <select
+              value={sortBy}
+              onChange={(e) => handleSort(e.target.value)}
+              className="shrink-0 rounded-lg border border-ivory-200 bg-white px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-champagne-500 md:px-4 md:text-sm"
+              aria-label="Sort products"
+            >
+              <option value="featured">Featured</option>
+              <option value="newest">Newest</option>
+              <option value="price-low">Price ↑</option>
+              <option value="price-high">Price ↓</option>
+            </select>
           </div>
 
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <button
                 type="button"
                 onClick={() => handleCategory("all")}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-all md:px-4 md:py-1.5 md:text-sm ${
                   activeCategory === "all"
                     ? "bg-charcoal-900 text-ivory-50"
                     : "bg-ivory-100 text-charcoal-700 hover:bg-ivory-200"
@@ -230,7 +244,7 @@ export function ShopPageClient({
                   type="button"
                   key={category}
                   onClick={() => handleCategory(category.toLowerCase())}
-                  className={`rounded-full px-4 py-2 text-sm font-medium capitalize transition-all ${
+                  className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium capitalize transition-all md:px-4 md:py-1.5 md:text-sm ${
                     activeCategory === category.toLowerCase()
                       ? "bg-charcoal-900 text-ivory-50"
                       : "bg-ivory-100 text-charcoal-700 hover:bg-ivory-200"
@@ -241,22 +255,9 @@ export function ShopPageClient({
               ))}
             </div>
 
-            <div className="flex items-center gap-4">
-              <select
-                value={sortBy}
-                onChange={(e) => handleSort(e.target.value)}
-                className="rounded-lg border border-ivory-200 bg-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-champagne-500"
-              >
-                <option value="featured">Featured</option>
-                <option value="newest">Newest First</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-              </select>
-
-              <span className="text-sm text-charcoal-500">
-                {filteredProducts.length} product{filteredProducts.length !== 1 ? "s" : ""}
-              </span>
-            </div>
+            <span className="shrink-0 text-xs text-charcoal-500 md:text-sm">
+              {filteredProducts.length}
+            </span>
           </div>
         </div>
 
