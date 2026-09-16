@@ -8,6 +8,7 @@ import { containsInsensitive, prisma } from "@/lib/db";
 import { calculateProductPrice, formatPrice } from "@/lib/pricing";
 import { normalizeProducts } from "@/lib/products";
 import { getCurrentSilverRate } from "@/lib/silver-rate";
+import { getOptimizedImageUrl } from "@/lib/cloudinary";
 
 export const dynamic = "force-dynamic";
 
@@ -182,7 +183,7 @@ export default async function ProductsPage({
               <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100">
                 {product.images[0] ? (
                   <Image
-                    src={product.images[0]}
+                    src={getOptimizedImageUrl(product.images[0], 200, 200, 75)}
                     alt={product.name}
                     fill
                     sizes="80px"

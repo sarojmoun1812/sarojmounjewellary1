@@ -8,9 +8,14 @@ const nextConfig = {
     serverComponentsExternalPackages: ["@vercel/blob"],
   },
   images: {
-    // Vercel Blob URLs vary by store id (xxx.public.blob.vercel-storage.com).
-    // A single wildcard + the bare host keeps uploaded photos rendering in
-    // next/image instead of failing silently as broken thumbnails.
+    // Vercel Image Optimization returns HTTP 402
+    // (OPTIMIZED_IMAGE_REQUEST_PAYMENT_REQUIRED) once the free quota is used
+    // up — every next/Image then shows a broken icon even though Cloudinary
+    // still has the file. Photos already live on Cloudinary (and Blob), so we
+    // skip Vercel's optimizer and load the CDN URL directly.
+    unoptimized: true,
+    // Still listed so next/image accepts these hosts if optimization is
+    // turned back on later.
     remotePatterns: [
       {
         protocol: "https",

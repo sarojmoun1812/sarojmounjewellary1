@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { getOptimizedImageUrl } from "@/lib/cloudinary";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -386,7 +387,7 @@ export function ProductForm({ mode, productId, initialValues }: Props) {
                 className="group relative aspect-square overflow-hidden rounded-xl border border-gray-200 bg-gray-100"
               >
                 <Image
-                  src={url}
+                  src={getOptimizedImageUrl(url, 400, 400, 80)}
                   alt={`Photo ${index + 1}`}
                   fill
                   sizes="150px"

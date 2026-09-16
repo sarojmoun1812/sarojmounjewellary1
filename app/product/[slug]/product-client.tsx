@@ -27,6 +27,7 @@ import { ProductInquiryForm } from "@/components/product-inquiry-form";
 import { Reveal, StaggerItem, StaggerReveal } from "@/components/reveal";
 import { revealLeft, revealRight } from "@/lib/motion";
 import { WHATSAPP_NUMBER } from "@/lib/constants";
+import { getOptimizedImageUrl } from "@/lib/cloudinary";
 
 interface Product {
   id: string;
@@ -163,7 +164,12 @@ export function ProductDetailClient({
                     className="relative h-full w-full"
                   >
                     <Image
-                      src={images[selectedImageIndex]}
+                      src={getOptimizedImageUrl(
+                        images[selectedImageIndex],
+                        1200,
+                        1200,
+                        85
+                      )}
                       alt={`${product.name} – ${product.material} ${product.category}`}
                       fill
                       className="object-contain p-3 sm:p-5"
@@ -228,7 +234,7 @@ export function ProductDetailClient({
                     }`}
                   >
                     <Image
-                      src={image}
+                      src={getOptimizedImageUrl(image, 300, 300, 75)}
                       alt={`${product.name} ${index + 1}`}
                       fill
                       className="object-contain p-1.5"
@@ -478,7 +484,12 @@ export function ProductDetailClient({
                     <div className="relative mb-3 aspect-square overflow-hidden rounded-[1.15rem] border border-ivory-200/80 bg-ivory-100 shadow-sm transition-shadow duration-300 group-hover:shadow-md">
                       {relatedProduct.images[0] ? (
                         <Image
-                          src={relatedProduct.images[0]}
+                          src={getOptimizedImageUrl(
+                            relatedProduct.images[0],
+                            600,
+                            600,
+                            80
+                          )}
                           alt={`${relatedProduct.name} – 925 silver ${relatedProduct.category}`}
                           fill
                           className="object-contain p-3 transition-transform duration-500 group-hover:scale-105"
