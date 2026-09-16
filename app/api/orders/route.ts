@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
           }),
         },
         helpWhatsAppUrl: `https://wa.me/${helpWhatsApp}?text=${encodeURIComponent(
-          `Namaste! Order ${order.orderNumber} ke baare mein sawal hai.`
+          `Hi! I have a question about order ${order.orderNumber}.`
         )}`,
       },
       { status: 201 }

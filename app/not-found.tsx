@@ -42,11 +42,11 @@ export default function NotFound() {
           transition={{ delay: 0.4, duration: 0.6 }}
         >
           <h2 className="font-heading text-3xl font-light text-charcoal-900 md:text-4xl">
-            Ye page nahi mila
+            Page not found
           </h2>
           <p className="mx-auto mt-4 max-w-md text-charcoal-500">
-            Jo aap dhoondh rahe hain wo yahan nahi hai. Hamari collection dekhiye
-            — kuch pasand aa jayega.
+            What you&apos;re looking for isn&apos;t here. Browse our collection —
+            you may find something you like.
           </p>
         </motion.div>
 
@@ -61,7 +61,7 @@ export default function NotFound() {
             className="inline-flex items-center justify-center gap-2 bg-charcoal-900 px-10 py-4 text-sm font-medium uppercase tracking-[0.18em] text-ivory-50 transition-colors can-hover:hover:bg-charcoal-800"
           >
             <ShoppingBag className="h-4 w-4" />
-            Collection Dekhein
+            Browse collection
           </Link>
 
           <Link
@@ -79,7 +79,7 @@ export default function NotFound() {
           transition={{ delay: 0.8, duration: 0.6 }}
           className="mt-16"
         >
-          <p className="section-kicker text-charcoal-400">Aur dekhein</p>
+          <p className="section-kicker text-charcoal-400">Also see</p>
           <div className="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
             {POPULAR_LINKS.map((link) => (
               <Link

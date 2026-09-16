@@ -112,10 +112,10 @@ export function LeadCapturePopup({
                   <CheckCircle className="h-6 w-6 text-green-600" />
                 </div>
                 <h4 className="text-lg font-bold text-gray-900 mb-1">
-                  Shukriya!
+                  Thank you!
                 </h4>
                 <p className="text-gray-600 text-sm">
-                  Saroj aapko WhatsApp par jaldi message karengi.
+                  Saroj will message you soon on WhatsApp.
                 </p>
               </div>
             ) : (
@@ -167,19 +167,19 @@ export function LeadCapturePopup({
                     {isLoading ? (
                       <>
                         <Loader2 className="h-5 w-5 animate-spin" />
-                        Bhej rahe hain...
+                        Sending...
                       </>
                     ) : (
                       <>
                         <MessageCircle className="h-5 w-5" />
-                        Baat karein
+                        Let&apos;s talk
                       </>
                     )}
                   </button>
                 </form>
 
                 <p className="text-xs text-gray-500 text-center mt-4">
-                  Sirf aapki madad ke liye. Koi spam nahi.
+                  Only to help you. No spam.
                 </p>
               </>
             )}

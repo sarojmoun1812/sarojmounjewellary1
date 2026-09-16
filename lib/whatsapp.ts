@@ -174,7 +174,7 @@ export function buildWhatsAppInvoiceMessage({
   const parts: string[] = [
     forAdmin
       ? `Payment received — invoice copy`
-      : `Namaste ${customerName}! Aapka payment mil gaya.`,
+      : `Hi ${customerName}! We've received your payment.`,
     ``,
     `Saroj Moun Jewellery — Invoice`,
     `Order: ${orderNumber}`,

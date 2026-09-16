@@ -41,11 +41,11 @@ export function ProductCard({
     e.preventDefault();
     e.stopPropagation();
     if (soldOut) {
-      showToast("warning", "Yeh piece ab sold out hai.");
+      showToast("warning", "This piece is sold out.");
       return;
     }
     addItem({ id, name, slug, price, image: image || "" });
-    showToast("success", `${name} cart mein add ho gaya`);
+    showToast("success", `${name} added to cart`);
   };
 
   return (

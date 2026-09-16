@@ -16,7 +16,8 @@ export function Footer() {
           <div className="space-y-5 md:pr-4">
             <h3 className="text-2xl font-heading font-light tracking-wide text-charcoal-900">Saroj Moun</h3>
             <p className="max-w-xs text-sm leading-relaxed text-charcoal-600">
-              Haathon se bani 925 chaandi ki jewellery — har Indian aurat ke liye khaas. Shaadi, tyohaar ya roz ke liye.
+              Handcrafted 925 silver jewellery — made for every Indian woman. For
+              weddings, festivals, or everyday wear.
             </p>
             <div className="flex space-x-4 mt-4">
               <a href="https://instagram.com/sarojmounfashion" target="_blank" rel="noopener noreferrer" className="text-champagne-600 hover:text-charcoal-900 transition-colors">

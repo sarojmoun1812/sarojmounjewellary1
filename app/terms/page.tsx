@@ -32,7 +32,7 @@ export default function TermsPage() {
           </li>
           <li>We reserve the right to modify prices without prior notice</li>
           <li>
-            The final price is confirmed when we accept your order on WhatsApp
+            The final price is shown at checkout and paid via UPI
           </li>
         </ul>
       </PolicySection>
@@ -44,20 +44,26 @@ export default function TermsPage() {
         <ul>
           <li>All orders are subject to availability and confirmation</li>
           <li>We reserve the right to refuse or cancel any order</li>
-          <li>Orders are placed and confirmed over WhatsApp</li>
+          <li>
+            Orders are placed on this website and confirmed after UPI payment is
+            received
+          </li>
         </ul>
         <p>
           <strong>Payment:</strong>
         </p>
         <ul>
-          <li>No payment is taken on this website</li>
           <li>
-            Once we confirm your order on WhatsApp, we will agree the payment
-            method and amount with you directly
+            Pay the exact amount by scanning our UPI QR (or using our UPI ID) at
+            checkout
           </li>
           <li>
-            Prices shown are based on the current silver rate and are confirmed
-            at the time we accept your order
+            Confirmation and invoice are shared on WhatsApp after we verify the
+            payment
+          </li>
+          <li>
+            Prices shown are based on the current silver rate at the time of
+            order
           </li>
         </ul>
       </PolicySection>

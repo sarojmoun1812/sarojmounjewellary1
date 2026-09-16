@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { enforceRateLimit } from "@/lib/rate-limit";
 
 /**
- * Customer tapped "Maine pay kar diya" after scanning the UPI QR.
+ * Customer tapped "I've paid" after scanning the UPI QR.
  * Does not mark the order PAID — admin confirms when money arrives.
  */
 export async function POST(
@@ -14,7 +14,7 @@ export async function POST(
     const limited = enforceRateLimit(request, "payment-claimed", {
       limit: 10,
       windowMs: 10 * 60 * 1000,
-      message: "Thoda rukein, phir try karein.",
+      message: "Please wait a moment, then try again.",
     });
     if (limited) return limited;
 
@@ -26,7 +26,7 @@ export async function POST(
     });
 
     if (!order) {
-      return NextResponse.json({ error: "Order nahi mila" }, { status: 404 });
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
     if (order.paymentStatus === "PAID") {
@@ -46,7 +46,7 @@ export async function POST(
   } catch (error) {
     console.error("Payment claimed error:", error);
     return NextResponse.json(
-      { error: "Update nahi ho paaya. Dobara try karein." },
+      { error: "Could not update. Please try again." },
       { status: 500 }
     );
   }

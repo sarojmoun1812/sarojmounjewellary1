@@ -28,11 +28,11 @@ export default function Error({
         </div>
 
         <h1 className="font-heading text-3xl font-light text-charcoal-900 md:text-4xl">
-          Kuch gadbad ho gayi
+          Something went wrong
         </h1>
         <p className="mx-auto mt-4 max-w-md text-charcoal-500">
-          Page load karne mein dikkat aa gayi. Thoda ruk kar dobara try kariye —
-          agar phir bhi na chale to hamein WhatsApp par bata dijiye.
+          This page couldn&apos;t load. Please wait a moment and try again — if
+          it still doesn&apos;t work, message us on WhatsApp.
         </p>
 
         <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
@@ -41,7 +41,7 @@ export default function Error({
             className="inline-flex items-center justify-center gap-2 bg-charcoal-900 px-10 py-4 text-sm font-medium uppercase tracking-[0.18em] text-ivory-50 transition-colors can-hover:hover:bg-charcoal-800"
           >
             <RotateCcw className="h-4 w-4" />
-            Dobara Try Karein
+            Try again
           </button>
 
           <Link

@@ -86,15 +86,14 @@ export default function CartPage() {
       <div className="container-luxury py-24 text-center">
         <ShoppingBag className="mx-auto mb-6 h-14 w-14 text-champagne-400" strokeWidth={1} />
         <h1 className="font-heading text-3xl font-light text-charcoal-900">
-          Aapka cart khaali hai
+          Your cart is empty
         </h1>
         <p className="mx-auto mt-3 max-w-md text-charcoal-500">
-          Hamari handcrafted 925 silver collection dekhiye aur apni pasand ka
-          piece chuniye.
+          Browse our handcrafted 925 silver collection and pick a piece you love.
         </p>
         <Link href="/shop" className="mt-10 inline-block">
           <span className="inline-flex items-center justify-center bg-charcoal-900 px-10 py-4 text-sm font-medium uppercase tracking-[0.18em] text-ivory-50 transition-colors can-hover:hover:bg-charcoal-800">
-            Collection Dekhein
+            Browse collection
           </span>
         </Link>
       </div>
@@ -184,7 +183,7 @@ export default function CartPage() {
 
                 {line.quantity >= line.availableStock && (
                   <p className="mt-2 text-xs text-amber-700">
-                    Sirf {line.availableStock} bache hain.
+                    Only {line.availableStock} left.
                   </p>
                 )}
               </div>
@@ -215,7 +214,7 @@ export default function CartPage() {
             {isLoading || !quote ? (
               <div className="flex items-center gap-2 py-8 text-sm text-charcoal-500">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Aaj ke daam check kar rahe hain…
+                Checking today&apos;s prices…
               </div>
             ) : (
               <div className="mt-6 space-y-3">
@@ -283,7 +282,8 @@ export default function CartPage() {
             {/* Set the expectation here rather than at the last step, where a
                 customer looking for a card form would simply leave. */}
             <p className="mt-3 text-center text-xs text-charcoal-500">
-              Checkout ke baad UPI QR se pay karein — confirmation WhatsApp par.
+              After checkout, pay by scanning the UPI QR — confirmation on
+              WhatsApp.
             </p>
 
             <Link href="/shop" className="mt-4 block">

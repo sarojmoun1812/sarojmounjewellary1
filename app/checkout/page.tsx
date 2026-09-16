@@ -45,7 +45,6 @@ type PlacedOrder = {
     upiId: string;
     payeeName: string;
     qrUrl: string;
-    payUrl: string;
   };
   helpWhatsAppUrl: string;
 };
@@ -148,7 +147,7 @@ export default function CheckoutPage() {
     const phoneDigits = form.phone.replace(/\D/g, "").slice(-10);
     if (!/^[6-9]\d{9}$/.test(phoneDigits)) {
       setSubmitError(
-        "Sahi 10 digit ka mobile number daaliye (6, 7, 8 ya 9 se shuru)."
+        "Please enter a valid 10-digit mobile number (starting with 6, 7, 8 or 9)."
       );
       return;
     }
@@ -214,7 +213,7 @@ export default function CheckoutPage() {
       setUpiCopied(true);
       setTimeout(() => setUpiCopied(false), 2000);
     } catch {
-      setSubmitError("UPI ID copy nahi hui — manually select karein.");
+      setSubmitError("Could not copy UPI ID — please select it manually.");
     }
   };
 
@@ -227,11 +226,11 @@ export default function CheckoutPage() {
         { method: "POST" }
       );
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "Update nahi hua");
+      if (!res.ok) throw new Error(data.error || "Could not update");
       setPaymentClaimed(true);
     } catch (err) {
       setSubmitError(
-        err instanceof Error ? err.message : "Update nahi ho paaya"
+        err instanceof Error ? err.message : "Could not update. Please try again."
       );
     } finally {
       setIsClaimingPayment(false);
@@ -246,14 +245,15 @@ export default function CheckoutPage() {
             <Check className="h-7 w-7 text-champagne-600 sm:h-8 sm:w-8" strokeWidth={1.5} />
           </div>
           <h1 className="font-heading text-2xl font-light text-charcoal-900 sm:text-3xl">
-            Order save ho gaya — ab UPI se pay karein
+            Order saved — please pay by scanning the QR
           </h1>
           <p className="mt-3 text-sm text-charcoal-500 sm:mt-4 sm:text-base">
             Order{" "}
             <span className="font-medium text-charcoal-900">
               {placedOrder.orderNumber}
             </span>
-            . Neeche QR scan karein ya Pay Now dabayein.
+            . Open GPay / PhonePe / Paytm, tap <strong>Scan QR</strong>, and pay
+            the exact amount below.
           </p>
 
           <p className="mt-6 font-heading text-3xl text-charcoal-900">
@@ -263,14 +263,18 @@ export default function CheckoutPage() {
             Pay to {placedOrder.upi.payeeName}
           </p>
 
-          <div className="mx-auto mt-6 w-full max-w-[260px] rounded-2xl border border-ivory-200 bg-ivory-50 p-3">
+          <div className="mx-auto mt-6 w-full max-w-[280px] rounded-2xl border border-ivory-200 bg-ivory-50 p-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={placedOrder.upi.qrUrl}
-              alt={`${placedOrder.upi.payeeName} UPI QR`}
+              alt={`${placedOrder.upi.payeeName} UPI QR — scan with any UPI app`}
               className="mx-auto h-auto w-full object-contain"
             />
           </div>
+          <p className="mt-3 text-xs text-charcoal-500">
+            Tip: Use <strong>Scan QR</strong> in your UPI app. Avoid “Pay to UPI
+            ID / contact” links — banks sometimes block those.
+          </p>
 
           <div className="mt-5 flex items-center justify-center gap-2 rounded-lg border border-ivory-200 bg-ivory-50 px-3 py-2.5 text-sm text-charcoal-800">
             <span className="truncate font-medium">{placedOrder.upi.upiId}</span>
@@ -280,42 +284,39 @@ export default function CheckoutPage() {
               className="inline-flex shrink-0 items-center gap-1 rounded-md border border-ivory-300 bg-white px-2 py-1 text-xs text-charcoal-700"
             >
               <Copy className="h-3.5 w-3.5" />
-              {upiCopied ? "Copied" : "Copy"}
+              {upiCopied ? "Copied" : "Copy UPI ID"}
             </button>
           </div>
-
-          <a
-            href={placedOrder.upi.payUrl}
-            className="mt-6 flex w-full items-center justify-center gap-2 bg-charcoal-900 px-6 py-4 text-sm font-medium uppercase tracking-[0.18em] text-ivory-50 transition-colors can-hover:hover:bg-charcoal-800"
-          >
-            Pay Now (UPI app)
-          </a>
+          <p className="mt-2 text-xs text-charcoal-400">
+            Or paste this UPI ID in your app and enter{" "}
+            <strong>{formatPrice(placedOrder.total)}</strong> yourself.
+          </p>
 
           <button
             type="button"
             onClick={handleClaimPayment}
             disabled={paymentClaimed || isClaimingPayment}
-            className="mt-3 flex w-full items-center justify-center gap-2 border border-champagne-500 bg-champagne-50 px-6 py-3.5 text-sm font-medium uppercase tracking-[0.14em] text-charcoal-900 transition-colors disabled:cursor-default disabled:opacity-80"
+            className="mt-6 flex w-full items-center justify-center gap-2 bg-charcoal-900 px-6 py-4 text-sm font-medium uppercase tracking-[0.14em] text-ivory-50 transition-colors can-hover:hover:bg-charcoal-800 disabled:cursor-default disabled:opacity-80"
           >
             {isClaimingPayment ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Save ho raha hai…
+                Saving…
               </>
             ) : paymentClaimed ? (
               <>
-                <Check className="h-4 w-4 text-champagne-700" />
-                Pay claim mil gaya — hum check karenge
+                <Check className="h-4 w-4 text-champagne-300" />
+                Got it — we&apos;ll verify your payment
               </>
             ) : (
-              "Maine pay kar diya"
+              "I've paid"
             )}
           </button>
 
           {paymentClaimed && (
             <p className="mt-3 text-xs text-charcoal-500">
-              Bank mein paisa dikhte hi aapko WhatsApp par invoice / confirmation
-              mil jayega.
+              Once we see the payment, you&apos;ll get the invoice / confirmation
+              on WhatsApp.
             </p>
           )}
 
@@ -326,7 +327,7 @@ export default function CheckoutPage() {
             className="mt-6 inline-flex items-center gap-2 text-sm text-charcoal-600 underline-offset-4 can-hover:hover:underline"
           >
             <MessageCircle className="h-4 w-4" />
-            Sawal hai? WhatsApp
+            Questions? WhatsApp us
           </a>
 
           <button
@@ -334,7 +335,7 @@ export default function CheckoutPage() {
             onClick={() => router.push("/shop")}
             className="mt-4 w-full border border-charcoal-900 px-6 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-charcoal-900 transition-colors can-hover:hover:bg-charcoal-900 can-hover:hover:text-ivory-50"
           >
-            Aur Dekhein
+            Keep shopping
           </button>
         </div>
       </div>
@@ -346,14 +347,14 @@ export default function CheckoutPage() {
       <div className="container-luxury py-24 text-center">
         <ShoppingBag className="mx-auto mb-6 h-14 w-14 text-champagne-400" strokeWidth={1} />
         <h1 className="font-heading text-3xl font-light text-charcoal-900">
-          Aapka cart khaali hai
+          Your cart is empty
         </h1>
         <p className="mx-auto mt-3 max-w-md text-charcoal-500">
-          Apni pasand ka piece chuniye, baaki hum sambhaal lenge.
+          Pick a piece you love — we&apos;ll take care of the rest.
         </p>
         <Link href="/shop" className="mt-10 inline-block">
           <span className="inline-flex items-center justify-center bg-charcoal-900 px-10 py-4 text-sm font-medium uppercase tracking-[0.18em] text-ivory-50 transition-colors can-hover:hover:bg-charcoal-800">
-            Collection Dekhein
+            Browse collection
           </span>
         </Link>
       </div>
@@ -368,7 +369,7 @@ export default function CheckoutPage() {
           Complete your order
         </h1>
         <p className="mx-auto mt-3 max-w-lg text-charcoal-500">
-          Details bhariye, order confirm karein, phir UPI QR se pay karein.
+          Enter your details, confirm the order, then pay by scanning our UPI QR.
         </p>
       </div>
 
@@ -385,7 +386,7 @@ export default function CheckoutPage() {
 
             <div>
               <label htmlFor="fullName" className={labelClass}>
-                Poora naam *
+                Full name *
               </label>
               <input
                 id="fullName"
@@ -395,7 +396,7 @@ export default function CheckoutPage() {
                 value={form.fullName}
                 onChange={handleChange}
                 className={fieldClass}
-                placeholder="Aapka naam"
+                placeholder="Your name"
               />
             </div>
 
@@ -439,7 +440,7 @@ export default function CheckoutPage() {
                 Delivery address
               </h3>
               <p className="mb-4 mt-1 text-xs text-charcoal-500">
-                Optional — baad mein WhatsApp par bhi bata sakte hain.
+                Optional — you can also share this later on WhatsApp.
               </p>
 
               <div className="space-y-4">
@@ -449,7 +450,7 @@ export default function CheckoutPage() {
                   value={form.address}
                   onChange={handleChange}
                   className={`${fieldClass} resize-none`}
-                  placeholder="Ghar no., gali, area"
+                  placeholder="House no., street, area"
                   aria-label="Street address"
                 />
 
@@ -460,7 +461,7 @@ export default function CheckoutPage() {
                     value={form.city}
                     onChange={handleChange}
                     className={fieldClass}
-                    placeholder="Sheher"
+                    placeholder="City"
                     aria-label="City"
                   />
                   <input
@@ -469,7 +470,7 @@ export default function CheckoutPage() {
                     value={form.state}
                     onChange={handleChange}
                     className={fieldClass}
-                    placeholder="Rajya"
+                    placeholder="State"
                     aria-label="State"
                   />
                   <input
@@ -488,7 +489,7 @@ export default function CheckoutPage() {
 
             <div>
               <label htmlFor="notes" className={labelClass}>
-                Kuch aur batana chahte hain? (optional)
+                Anything else to tell us? (optional)
               </label>
               <textarea
                 id="notes"
@@ -497,7 +498,7 @@ export default function CheckoutPage() {
                 value={form.notes}
                 onChange={handleChange}
                 className={`${fieldClass} resize-none`}
-                placeholder="Size, gift wrap, delivery ka time…"
+                placeholder="Size, gift wrap, preferred delivery time…"
               />
             </div>
 
@@ -516,19 +517,19 @@ export default function CheckoutPage() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  Order confirm ho raha hai…
+                  Confirming your order…
                 </>
               ) : (
                 <>
                   <Check className="h-5 w-5" />
-                  Order Confirm Karein
+                  Confirm order
                 </>
               )}
             </button>
 
             <p className="text-center text-xs text-charcoal-500">
-              Next step: mummy ke UPI QR se exact amount pay karein. Paisa milne
-              ke baad WhatsApp par confirmation milega.
+              Next: scan our UPI QR and pay the exact amount. After payment is
+              received, you&apos;ll get confirmation on WhatsApp.
             </p>
           </form>
         </div>
@@ -542,7 +543,7 @@ export default function CheckoutPage() {
             {isQuoting ? (
               <div className="flex items-center gap-2 py-8 text-sm text-charcoal-500">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Aaj ke daam check kar rahe hain…
+                Checking today&apos;s prices…
               </div>
             ) : quoteError ? (
               <div className="mt-5 text-sm text-red-600">{quoteError}</div>
@@ -634,8 +635,8 @@ export default function CheckoutPage() {
                 )}
 
                 <p className="mt-4 text-xs text-charcoal-500">
-                  Aaj ke chaandi bhaav par. Pay UPI se hoga; confirmation WhatsApp
-                  par aayega.
+                  Priced on today&apos;s silver rate. Pay by scanning the UPI QR;
+                  confirmation comes on WhatsApp.
                 </p>
               </>
             ) : null}

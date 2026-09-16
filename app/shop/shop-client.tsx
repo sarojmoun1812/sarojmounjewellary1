@@ -135,7 +135,7 @@ export function ShopPageClient({
 
   const handleAddToCart = (product: Product) => {
     if (product.stock <= 0) {
-      showToast("warning", "Yeh piece ab sold out hai.");
+      showToast("warning", "This piece is sold out.");
       return;
     }
     addItem({
@@ -145,7 +145,7 @@ export function ShopPageClient({
       price: product.price,
       image: product.images[0] || "",
     });
-    showToast("success", `${product.name} cart mein add ho gaya`);
+    showToast("success", `${product.name} added to cart`);
   };
 
   const heroImage =
@@ -269,8 +269,8 @@ export function ShopPageClient({
             </h3>
             <p className="mx-auto max-w-md text-charcoal-500">
               {query.trim()
-                ? `“${query.trim()}” se match nahi mila. Dusra naam ya category try karein.`
-                : "Is category mein abhi kuch nahi hai — All pe jaakar poori collection dekhein."}
+                ? `No matches for “${query.trim()}”. Try another name or category.`
+                : "Nothing in this category yet — tap All to see the full collection."}
             </p>
             {(query.trim() || activeCategory !== "all") && (
               <button
@@ -307,7 +307,7 @@ export function ShopPageClient({
                         />
                       ) : (
                         <div className="flex h-full items-center justify-center bg-gradient-to-br from-ivory-100 via-ivory-50 to-champagne-100/40 px-4 text-center text-sm text-charcoal-400">
-                          Photo jaldi add hogi
+                          Photo coming soon
                         </div>
                       )}
 

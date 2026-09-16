@@ -43,7 +43,7 @@ export default function GlobalError({
               margin: "0 0 1rem",
             }}
           >
-            Kuch gadbad ho gayi
+            Something went wrong
           </h1>
           <p
             style={{
@@ -53,8 +53,7 @@ export default function GlobalError({
               lineHeight: 1.6,
             }}
           >
-            Website load karne mein dikkat aa gayi. Thoda ruk kar dobara try
-            kariye.
+            The website couldn&apos;t load. Please wait a moment and try again.
           </p>
           <button
             onClick={reset}
@@ -70,7 +69,7 @@ export default function GlobalError({
               letterSpacing: "0.18em",
             }}
           >
-            Dobara Try Karein
+            Try again
           </button>
           {error.digest && (
             <p style={{ marginTop: "2rem", fontSize: "0.75rem", color: "#9a9a9a" }}>

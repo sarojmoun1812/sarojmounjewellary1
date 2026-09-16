@@ -29,7 +29,7 @@ export function NewsletterSignup() {
       }
 
       setStatus("success");
-      setMessage("Shukriya! Aap subscribe ho gaye hain.");
+      setMessage("Thank you! You're subscribed.");
       setEmail("");
       
       setTimeout(() => {
@@ -82,7 +82,7 @@ export function NewsletterSignup() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="aapka@email.com"
+                placeholder="you@email.com"
                 required
                 aria-label="Email address"
                 className="w-full border border-ivory-300 bg-white py-3.5 pl-11 pr-4 text-charcoal-900 placeholder:text-charcoal-300 focus:border-charcoal-900 focus:outline-none focus:ring-1 focus:ring-charcoal-900"
@@ -117,7 +117,7 @@ export function NewsletterSignup() {
       )}
 
       <p className="mt-4 text-xs text-charcoal-500">
-        Koi spam nahi. Jab chahein unsubscribe kar sakte hain.
+        No spam. Unsubscribe anytime.
       </p>
     </div>
   );

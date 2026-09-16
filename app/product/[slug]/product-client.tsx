@@ -82,7 +82,7 @@ export function ProductDetailClient({
 
   const handleAddToCart = () => {
     if (product.stock <= 0) {
-      showToast("warning", "Yeh piece ab sold out hai.");
+      showToast("warning", "This piece is sold out.");
       return;
     }
     addItem(
@@ -96,7 +96,7 @@ export function ProductDetailClient({
       quantity
     );
     setAddedToCart(true);
-    showToast("success", `${product.name} cart mein add ho gaya`);
+    showToast("success", `${product.name} added to cart`);
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
@@ -175,7 +175,7 @@ export function ProductDetailClient({
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-ivory-100 to-ivory-200 px-8 text-center">
                   <p className="text-sm tracking-wide text-charcoal-400">
-                    Photo jaldi add hogi
+                    Photo coming soon
                   </p>
                 </div>
               )}
@@ -248,14 +248,14 @@ export function ProductDetailClient({
                   preload="metadata"
                   className="aspect-video w-full"
                 >
-                  Aapka browser video play nahi kar pata.
+                  Your browser can&apos;t play this video.
                 </video>
               </div>
             )}
 
             {!hasMedia && (
               <p className="mt-3 text-sm text-charcoal-500">
-                Is item ki photo/video abhi upload nahi hui.
+                Photos/video for this item aren&apos;t uploaded yet.
               </p>
             )}
           </Reveal>
@@ -373,8 +373,8 @@ export function ProductDetailClient({
                   otherwise expects a card form and abandons at the last step. */}
               <p className="text-center text-xs text-charcoal-500">
                 {product.stock > 0
-                  ? "Checkout ke baad UPI QR se pay karein — confirmation WhatsApp par."
-                  : "Ye piece abhi khatam hai. WhatsApp par poochhein, dobara ban sakta hai."}
+                  ? "After checkout, pay by scanning the UPI QR — confirmation on WhatsApp."
+                  : "This piece is out of stock. Ask on WhatsApp — we may make it again."}
               </p>
 
               <div className="grid grid-cols-2 gap-3">

@@ -65,23 +65,23 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
               className="max-w-3xl"
             >
               <motion.p variants={fadeIn} className="section-kicker mb-6 text-champagne-300">
-                Haathon Ki Karigari, Jind Se
+                Handmade craft from Jind
               </motion.p>
               <motion.h1
                 variants={fadeUp}
                 className="max-w-3xl text-5xl font-heading font-light leading-[1.02] text-ivory-50 md:text-7xl"
               >
-                Chaandi Ka Husn,
+                The beauty of silver,
                 <br />
-                <span className="text-gradient-gold italic">Aapke Liye.</span>
+                <span className="text-gradient-gold italic">made for you.</span>
               </motion.h1>
               <motion.p
                 variants={fadeUp}
                 className="mt-7 max-w-2xl text-lg leading-relaxed text-ivory-100/75 md:text-xl"
               >
-                Jaipur aur Udaipur ke karigaron ke haathon se bane, hallmarked 92.5
-                pure silver ke gehne. Har piece ka daam aaj ke chaandi ke bhaav par,
-                bilkul saaf-saaf. Jind, Haryana se poore India tak.
+                Handcrafted by artisans in Jaipur and Udaipur in hallmarked 92.5
+                pure silver. Every piece is priced clearly on today&apos;s silver
+                rate. From Jind, Haryana to all of India.
               </motion.p>
               <motion.p
                 variants={fadeUp}
@@ -101,7 +101,7 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
                   <div className="inline-flex items-center gap-2 rounded-full border border-champagne-400/30 bg-charcoal-950/40 px-5 py-2.5 text-sm text-champagne-200 backdrop-blur-md">
                     <Sparkles className="h-4 w-4 text-champagne-300" />
                     <span>
-                      Aaj ka chaandi bhaav:{" "}
+                      Today&apos;s silver rate:{" "}
                       <strong className="text-champagne-200">
                         ₹{silverRate.toFixed(2)}/gram
                       </strong>
@@ -134,7 +134,7 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
               <motion.div variants={fadeUp} className="mt-10 grid gap-4 md:grid-cols-3">
                 {[
                   { value: "92.5", label: "Hallmarked silver" },
-                  { value: "Handmade", label: "Jaipur & Udaipur karigars" },
+                  { value: "Handmade", label: "Jaipur & Udaipur artisans" },
                   { value: "Jind", label: "Haryana, India" },
                 ].map((item) => (
                   <div key={item.label} className="glass-dark gradient-border rounded-[1.5rem] p-5">
@@ -186,9 +186,9 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
                   <div className="glass-dark rounded-[1.6rem] p-5">
                     <p className="section-kicker text-champagne-300">Temple Work</p>
                     <p className="mt-3 max-w-xs text-sm leading-relaxed text-ivory-100/75">
-                      Oxidised silver, hand-set stones, aur ghungroo detailing —
-                      Jaipur aur Udaipur ki traditional karigari jo peedhiyon se
-                      chali aa rahi hai.
+                      Oxidised silver, hand-set stones, and ghungroo detailing —
+                      traditional craft from Jaipur and Udaipur, passed down for
+                      generations.
                     </p>
                   </div>
                 </div>
@@ -242,18 +242,18 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
             </Reveal>
 
             <Reveal variants={revealRight}>
-              <p className="section-kicker text-champagne-700">Hamari Pehchaan</p>
+              <p className="section-kicker text-champagne-700">Our story</p>
               <h2 className="mt-5 text-4xl font-heading font-light leading-tight text-charcoal-950 md:text-6xl">
                 Handcrafted 925 silver jewellery from Jind, Haryana
               </h2>
               <p className="mt-4 max-w-2xl text-xl font-heading font-light leading-snug text-charcoal-700 md:text-2xl">
-                Peedhiyon Ki Virasat,{" "}
-                <span className="text-gradient-gold italic">Aaj Ki Presentation.</span>
+                Heritage across generations,{" "}
+                <span className="text-gradient-gold italic">presented for today.</span>
               </p>
               <p className="mt-6 max-w-2xl text-base leading-8 text-charcoal-600 md:text-lg">
                 Saroj Moun Jewellery crafts hallmark-certified 925 sterling silver
                 jewellery in Jind, Haryana — necklaces, earrings, rings, kadas and
-                oxidized temple pieces made by Jaipur and Udaipur karigars, priced
+                oxidized temple pieces made by Jaipur and Udaipur artisans, priced
                 fairly on the day&apos;s live silver rate.
               </p>
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
@@ -381,14 +381,15 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
         <div className="noise-overlay absolute inset-0" />
         <div className="absolute inset-0 flex items-center justify-center px-6 py-16">
           <Reveal className="glass-dark gradient-border max-w-3xl rounded-[2rem] px-8 py-10 text-center md:px-14 md:py-12">
-            <p className="section-kicker text-champagne-300">Naye Designs</p>
+            <p className="section-kicker text-champagne-300">New designs</p>
             <h2 className="mt-5 text-4xl font-heading font-light text-ivory-50 md:text-6xl">
-              Chaandi Ki
+              The art of
               <br />
-              <span className="text-gradient-gold italic">Kala</span>
+              <span className="text-gradient-gold italic">silver</span>
             </h2>
             <p className="mx-auto mt-6 max-w-lg text-sm leading-relaxed text-ivory-100/70 md:text-base">
-              Bridal sets, roz ke staples, aur order par banaye gaye designs — sab ek jagah.
+              Bridal sets, everyday staples, and made-to-order designs — all in one
+              place.
             </p>
             <div className="mt-10">
               <Link href="/shop">
@@ -405,7 +406,7 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
       <section className="section-padding luxury-mesh section-divider">
         <div className="container-luxury">
           <Reveal className="mb-12 text-center">
-            <p className="section-kicker text-champagne-700">Bharosa</p>
+            <p className="section-kicker text-champagne-700">Trust</p>
             <h2 className="mt-4 text-3xl font-heading font-light text-charcoal-950 md:text-4xl">
               Quality &amp; care, clearly stated
             </h2>
@@ -425,7 +426,7 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
               {
                 icon: MessageCircle,
                 title: "UPI Payment",
-                desc: "Pay securely via UPI QR — confirmation and invoice on WhatsApp",
+                desc: "Pay by scanning our UPI QR — confirmation and invoice on WhatsApp",
               },
             ].map((item) => (
               <StaggerItem key={item.title}>
@@ -446,13 +447,13 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
       <section className="section-padding bg-charcoal-950 text-ivory-50">
         <div className="container-luxury">
           <Reveal className="mx-auto max-w-xl text-center">
-            <p className="section-kicker text-champagne-300">Humse Judiye</p>
+            <p className="section-kicker text-champagne-300">Connect with us</p>
             <h2 className="mt-4 text-4xl font-heading font-light md:text-5xl">
               @sarojmounfashion
             </h2>
             <p className="mx-auto mt-4 max-w-md text-ivory-100/60">
-              Nayi designs, behind-the-scenes karigari, aur customer orders —
-              sab Instagram par.
+              New designs, behind-the-scenes craft, and customer orders — all on
+              Instagram.
             </p>
             <a
               href="https://instagram.com/sarojmounfashion"
@@ -472,13 +473,13 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
         <div className="container-luxury max-w-2xl text-center">
           <Reveal>
             <div className="elevated-card gradient-border rounded-[2rem] px-6 py-10 md:px-12 md:py-12">
-              <p className="section-kicker text-champagne-700">Judi Rahiye</p>
+              <p className="section-kicker text-champagne-700">Stay connected</p>
               <h2 className="mt-4 text-3xl font-heading font-light text-charcoal-950 md:text-4xl">
-                Nayi Collection Ki Pehli Jhalak
+                First look at new collections
               </h2>
               <p className="mt-6 text-charcoal-600">
-                Subscribe karein aur paayein silver rate updates aur nayi collections ki
-                pehli jhalak, seedhe aapke inbox mein.
+                Subscribe for silver rate updates and early looks at new
+                collections, straight to your inbox.
               </p>
               <div className="mt-10">
                 <NewsletterSignup />
@@ -492,8 +493,8 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
       <LeadCapturePopup
         isOpen={showLeadPopup}
         onClose={() => setShowLeadPopup(false)}
-        title="Kuch Khaas Dhoondh Rahe Hain?"
-        description="Apna number chhodein — Saroj aapko WhatsApp par help karengi."
+        title="Looking for something special?"
+        description="Leave your number — Saroj will help you on WhatsApp."
         source="HOMEPAGE_POPUP"
       />
     </div>

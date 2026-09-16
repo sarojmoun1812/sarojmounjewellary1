@@ -105,11 +105,10 @@ export function ProductInquiryForm({
                 <CheckCircle className="h-7 w-7 text-champagne-600" strokeWidth={1.5} />
               </div>
               <h3 className="font-heading text-xl font-light text-charcoal-900">
-                Aapka sawaal mil gaya
+                We&apos;ve got your question
               </h3>
               <p className="mt-2 text-charcoal-500">
-                &quot;{productName}&quot; ke baare mein hum aapse jaldi baat
-                karenge.
+                We&apos;ll get back to you soon about &quot;{productName}&quot;.
               </p>
             </div>
           ) : (
@@ -120,7 +119,7 @@ export function ProductInquiryForm({
                   <MessageSquare className="h-5 w-5 text-champagne-600" strokeWidth={1.5} />
                 </div>
                 <h3 className="font-heading text-xl font-light text-charcoal-900">
-                  Is piece ke baare mein poochhein
+                  Ask about this piece
                 </h3>
                 <p className="mt-1 text-sm text-charcoal-500">{productName}</p>
               </div>
@@ -134,7 +133,7 @@ export function ProductInquiryForm({
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label htmlFor="inquiry-name" className={inquiryLabelClass}>
-                    Aapka naam *
+                    Your name *
                   </label>
                   <input
                     id="inquiry-name"
@@ -145,7 +144,7 @@ export function ProductInquiryForm({
                       setFormData({ ...formData, name: e.target.value })
                     }
                     className={inquiryFieldClass}
-                    placeholder="Aapka naam"
+                    placeholder="Your name"
                   />
                 </div>
 
@@ -201,7 +200,7 @@ export function ProductInquiryForm({
                       setFormData({ ...formData, message: e.target.value })
                     }
                     className={`${inquiryFieldClass} resize-none`}
-                    placeholder="Size, design ya koi aur sawaal?"
+                    placeholder="Size, design, or any other question?"
                   />
                 </div>
 
@@ -213,12 +212,12 @@ export function ProductInquiryForm({
                   {isLoading ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Bheja ja raha hai…
+                      Sending…
                     </>
                   ) : (
                     <>
                       <Send className="h-4 w-4" />
-                      Sawaal Bhejein
+                      Send question
                     </>
                   )}
                 </button>
@@ -227,7 +226,7 @@ export function ProductInquiryForm({
               {/* Says "soon" rather than a fixed window: this is a one-person
                   shop and nothing here enforces a 24-hour reply. */}
               <p className="mt-4 text-center text-xs text-charcoal-500">
-                Hum aapse WhatsApp par jaldi sampark karenge.
+                We&apos;ll contact you soon on WhatsApp.
               </p>
             </>
           )}
