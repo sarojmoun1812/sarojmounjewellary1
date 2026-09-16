@@ -34,7 +34,7 @@ const ORDER_STATUS: Record<string, StatusLabel> = {
 };
 
 const PAYMENT_STATUS: Record<string, StatusLabel> = {
-  PENDING: { label: "WhatsApp pe confirm / paisa aana hai", className: "bg-amber-100 text-amber-800" },
+  PENDING: { label: "UPI / paisa aana hai", className: "bg-amber-100 text-amber-800" },
   PAID: { label: "Paisa mil gaya", className: "bg-green-100 text-green-800" },
   FAILED: { label: "Payment fail", className: "bg-red-100 text-red-800" },
   REFUNDED: { label: "Paisa wapas kiya", className: "bg-charcoal-100 text-charcoal-700" },
@@ -57,7 +57,7 @@ const LEAD_SOURCE: Record<string, string> = {
   NEWSLETTER: "Newsletter",
   CALLBACK_REQUEST: "Call back maanga",
   WHATSAPP: "WhatsApp order",
-  WEBSITE: "Website",
+  WEBSITE: "Website UPI order",
 };
 
 const PAYMENT_METHOD: Record<string, string> = {
@@ -119,4 +119,13 @@ export const LEAD_SOURCE_OPTIONS = [
   "CALLBACK_REQUEST",
   "NEWSLETTER",
   "WHATSAPP",
+  "WEBSITE",
 ] as const;
+
+/** When customer claimed UPI payment but admin has not marked PAID yet. */
+export function paymentClaimedLabel(): StatusLabel {
+  return {
+    label: "Customer ne pay claim kiya — bank check karein",
+    className: "bg-orange-100 text-orange-800",
+  };
+}

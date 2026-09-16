@@ -73,8 +73,11 @@ model Order {
   shipping        Int         @default(0)
   total           Int
   status          String      @default("PENDING") // PENDING, CONFIRMED, PROCESSING, SHIPPED, DELIVERED, CANCELLED
-  paymentMethod   String      // WHATSAPP, COD
+  paymentMethod   String      // UPI, WHATSAPP, COD
   paymentStatus   String      @default("PENDING") // PENDING, PAID, FAILED, REFUNDED
+  // Customer tapped "Maine pay kar diya" after scanning the UPI QR. Admin still
+  // confirms PAID after the money lands; this just flags claimed payments.
+  paymentClaimedAt DateTime?
   shippingAddress String      // JSON string: { name, phone, address, city, state, pincode }
   notes           String?
   createdAt       DateTime    @default(now())
@@ -188,6 +191,10 @@ model SiteSettings {
   tagline         String?
   phone           String?
   whatsapp        String?
+  // UPI collect details shown on checkout after an order is placed.
+  upiId           String?
+  upiPayeeName    String?  @default("Saroj Moun")
+  upiQrUrl        String?  // Cloudinary URL or /upi-qr.png
   email           String?
   address         String?
   gst             String?  // GSTIN, shown on invoices and in the footer

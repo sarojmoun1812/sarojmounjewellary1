@@ -5,8 +5,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { parseStringArray } from "@/lib/products";
-import { paymentMethodLabel, paymentStatusLabel } from "@/lib/admin-labels";
+import {
+  paymentClaimedLabel,
+  paymentMethodLabel,
+  paymentStatusLabel,
+} from "@/lib/admin-labels";
+import { buildWhatsAppInvoiceUrl, getWhatsAppNumber } from "@/lib/whatsapp";
+import { getUpiDetails } from "@/lib/upi";
 import OrderStatusUpdate from "./order-status-update";
+import OrderInvoiceButtons from "./order-invoice-buttons";
 
 // Force dynamic rendering
 export const dynamic = "force-dynamic";
@@ -23,6 +30,30 @@ async function getOrder(id: string) {
   });
 }
 
+function parseShippingAddress(raw: string) {
+  try {
+    return JSON.parse(raw) as {
+      name?: string;
+      phone?: string;
+      address?: string;
+      city?: string;
+      state?: string;
+      pincode?: string;
+      landmark?: string;
+    };
+  } catch {
+    return {} as {
+      name?: string;
+      phone?: string;
+      address?: string;
+      city?: string;
+      state?: string;
+      pincode?: string;
+      landmark?: string;
+    };
+  }
+}
+
 export default async function OrderDetailPage({
   params,
 }: {
@@ -32,7 +63,11 @@ export default async function OrderDetailPage({
   if (!admin) redirect("/admin/login");
 
   const { id } = await params;
-  const order = await getOrder(id);
+  const [order, shopWhatsApp, upi] = await Promise.all([
+    getOrder(id),
+    getWhatsAppNumber(),
+    getUpiDetails(),
+  ]);
 
   if (!order) {
     notFound();
@@ -56,7 +91,36 @@ export default async function OrderDetailPage({
     }).format(new Date(date));
   };
 
-  const shippingAddress = order.shippingAddress as any;
+  const shippingAddress = parseShippingAddress(order.shippingAddress);
+
+  const invoiceInput = {
+    orderNumber: order.orderNumber,
+    customerName: order.customer.name,
+    customerPhone: order.customer.phone,
+    lines: order.items.map((item) => ({
+      name: item.product.name,
+      silverWeight: item.product.silverWeight,
+      quantity: item.quantity,
+      lineTotal: item.price * item.quantity,
+    })),
+    subtotal: order.subtotal,
+    shipping: order.shipping,
+    tax: order.tax,
+    taxRate: order.taxRate,
+    total: order.total,
+    upiId: upi.upiId,
+    shippingAddress,
+    notes: order.notes,
+  };
+
+  const customerInvoiceUrl = buildWhatsAppInvoiceUrl(
+    order.customer.phone,
+    invoiceInput
+  );
+  const adminInvoiceUrl = buildWhatsAppInvoiceUrl(shopWhatsApp, {
+    ...invoiceInput,
+    forAdmin: true,
+  });
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -85,9 +149,6 @@ export default async function OrderDetailPage({
             </h2>
             <div className="divide-y divide-gray-100">
               {order.items.map((item) => {
-                // images is a JSON string in the database. Indexing it directly
-                // yielded "[", so every row asked the browser for /[ and showed
-                // a broken thumbnail.
                 const thumbnail = parseStringArray(item.product.images).filter(
                   (url) =>
                     !url.toLowerCase().includes("peacock-jewellery") &&
@@ -117,6 +178,9 @@ export default async function OrderDetailPage({
                       </p>
                       <p className="text-sm text-gray-500">
                         Kitne: {item.quantity}
+                        {item.product.silverWeight
+                          ? ` · ${item.product.silverWeight}g`
+                          : ""}
                       </p>
                     </div>
                     <div className="text-right">
@@ -132,12 +196,17 @@ export default async function OrderDetailPage({
               })}
             </div>
 
-            {/* Order Summary */}
             <div className="border-t border-gray-200 pt-4 mt-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Saaman ka daam</span>
                 <span className="text-gray-900">{formatPrice(order.subtotal)}</span>
               </div>
+              {order.tax > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">GST ({order.taxRate}%)</span>
+                  <span className="text-gray-900">{formatPrice(order.tax)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Delivery kharcha</span>
                 <span className="text-gray-900">
@@ -151,7 +220,6 @@ export default async function OrderDetailPage({
             </div>
           </div>
 
-          {/* Notes */}
           {order.notes && (
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
@@ -164,10 +232,15 @@ export default async function OrderDetailPage({
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Status Update */}
           <OrderStatusUpdate order={order} />
 
-          {/* Customer Info */}
+          {order.paymentStatus === "PAID" && (
+            <OrderInvoiceButtons
+              customerInvoiceUrl={customerInvoiceUrl}
+              adminInvoiceUrl={adminInvoiceUrl}
+            />
+          )}
+
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Kisne order kiya
@@ -207,27 +280,35 @@ export default async function OrderDetailPage({
             </div>
           </div>
 
-          {/* Shipping Address */}
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Kahan bhejna hai
             </h2>
             <div className="text-sm text-gray-600 space-y-1">
-              <p className="font-medium text-gray-900">{shippingAddress.name}</p>
-              <p>{shippingAddress.address}</p>
-              <p>
-                {shippingAddress.city}, {shippingAddress.state} -{" "}
-                {shippingAddress.pincode}
+              <p className="font-medium text-gray-900">
+                {shippingAddress.name || order.customer.name}
               </p>
-              <p>Phone: {shippingAddress.phone}</p>
+              {shippingAddress.address ? (
+                <>
+                  <p>{shippingAddress.address}</p>
+                  <p>
+                    {[shippingAddress.city, shippingAddress.state]
+                      .filter(Boolean)
+                      .join(", ")}
+                    {shippingAddress.pincode
+                      ? ` - ${shippingAddress.pincode}`
+                      : ""}
+                  </p>
+                </>
+              ) : (
+                <p className="text-amber-700">Address abhi nahi diya</p>
+              )}
+              <p>Phone: {shippingAddress.phone || order.customer.phone}</p>
             </div>
           </div>
 
-          {/* Payment Info */}
           <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Paisa
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Paisa</h2>
             <div className="space-y-2">
               <div className="flex justify-between gap-3">
                 <span className="text-sm text-gray-600">Kaise</span>
@@ -239,12 +320,22 @@ export default async function OrderDetailPage({
                 <span className="text-sm text-gray-600">Status</span>
                 <span
                   className={`text-xs px-2 py-1 rounded-full ${
-                    paymentStatusLabel(order.paymentStatus).className
+                    order.paymentClaimedAt && order.paymentStatus === "PENDING"
+                      ? paymentClaimedLabel().className
+                      : paymentStatusLabel(order.paymentStatus).className
                   }`}
                 >
-                  {paymentStatusLabel(order.paymentStatus).label}
+                  {order.paymentClaimedAt && order.paymentStatus === "PENDING"
+                    ? paymentClaimedLabel().label
+                    : paymentStatusLabel(order.paymentStatus).label}
                 </span>
               </div>
+              {order.paymentClaimedAt && (
+                <p className="pt-1 text-xs text-orange-700">
+                  Customer ne {formatDate(order.paymentClaimedAt)} ko “Maine pay
+                  kar diya” dabaya. Bank / UPI app check karke PAID mark karein.
+                </p>
+              )}
             </div>
           </div>
         </div>

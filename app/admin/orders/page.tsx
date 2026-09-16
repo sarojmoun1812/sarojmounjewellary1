@@ -9,6 +9,7 @@ import { Search } from "lucide-react";
 import {
   ORDER_STATUS_OPTIONS,
   orderStatusLabel,
+  paymentClaimedLabel,
   paymentMethodLabel,
   paymentStatusLabel,
 } from "@/lib/admin-labels";
@@ -135,7 +136,10 @@ export default async function OrdersPage({
         <div className="space-y-3">
           {orders.map((order) => {
             const status = orderStatusLabel(order.status);
-            const payment = paymentStatusLabel(order.paymentStatus);
+            const payment =
+              order.paymentClaimedAt && order.paymentStatus === "PENDING"
+                ? paymentClaimedLabel()
+                : paymentStatusLabel(order.paymentStatus);
 
             return (
               <Link

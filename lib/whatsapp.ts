@@ -124,3 +124,114 @@ export function buildWhatsAppOrderUrl({
 
   return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 }
+
+type InvoiceLine = {
+  name: string;
+  silverWeight?: number | null;
+  quantity: number;
+  lineTotal: number;
+};
+
+type InvoiceMessageInput = {
+  orderNumber: string;
+  customerName: string;
+  customerPhone: string;
+  lines: InvoiceLine[];
+  subtotal: number;
+  shipping: number;
+  tax?: number;
+  taxRate?: number;
+  total: number;
+  upiId?: string | null;
+  shippingAddress?: {
+    address?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
+    landmark?: string;
+  } | null;
+  notes?: string | null;
+  /** When true, wording is for mummy's own chat copy. */
+  forAdmin?: boolean;
+};
+
+/** Invoice text after UPI payment is confirmed in admin. */
+export function buildWhatsAppInvoiceMessage({
+  orderNumber,
+  customerName,
+  customerPhone,
+  lines,
+  subtotal,
+  shipping,
+  tax = 0,
+  taxRate = 0,
+  total,
+  upiId,
+  shippingAddress,
+  notes,
+  forAdmin = false,
+}: InvoiceMessageInput): string {
+  const parts: string[] = [
+    forAdmin
+      ? `Payment received — invoice copy`
+      : `Namaste ${customerName}! Aapka payment mil gaya.`,
+    ``,
+    `Saroj Moun Jewellery — Invoice`,
+    `Order: ${orderNumber}`,
+    `Name: ${customerName}`,
+    `Phone: ${customerPhone}`,
+    ``,
+    `Items:`,
+  ];
+
+  for (const [index, line] of lines.entries()) {
+    const weight =
+      line.silverWeight != null && line.silverWeight > 0
+        ? ` · ${line.silverWeight}g`
+        : "";
+    parts.push(
+      `${index + 1}. ${line.name}${weight} × ${line.quantity} — ${formatPrice(line.lineTotal)}`
+    );
+  }
+
+  parts.push(``, `Subtotal: ${formatPrice(subtotal)}`);
+  if (tax > 0) {
+    parts.push(`GST (${taxRate}%): ${formatPrice(tax)}`);
+  }
+  parts.push(shipping === 0 ? `Shipping: Free` : `Shipping: ${formatPrice(shipping)}`);
+  parts.push(`Total paid: ${formatPrice(total)}`);
+  parts.push(
+    upiId ? `Paid via UPI (${upiId})` : `Paid via UPI`
+  );
+
+  if (shippingAddress?.address) {
+    parts.push(
+      ``,
+      `Delivery:`,
+      shippingAddress.address,
+      shippingAddress.landmark ? `Near ${shippingAddress.landmark}` : "",
+      [shippingAddress.city, shippingAddress.state, shippingAddress.pincode]
+        .filter(Boolean)
+        .join(", ")
+    );
+  }
+
+  if (notes) {
+    parts.push(``, `Note: ${notes}`);
+  }
+
+  if (!forAdmin) {
+    parts.push(``, `Dhanyavaad — Saroj Moun Jewellery, Jind`);
+  }
+
+  return parts.filter((part) => part !== "").join("\n");
+}
+
+export function buildWhatsAppInvoiceUrl(
+  phoneNumber: string,
+  input: InvoiceMessageInput
+): string {
+  const normalized = normalizeWhatsAppNumber(phoneNumber) ?? phoneNumber.replace(/\D/g, "");
+  const message = buildWhatsAppInvoiceMessage(input);
+  return `https://wa.me/${normalized}?text=${encodeURIComponent(message)}`;
+}

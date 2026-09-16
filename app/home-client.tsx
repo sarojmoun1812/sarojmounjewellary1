@@ -424,8 +424,8 @@ export function HomeClient({ featuredProducts, categories }: HomeClientProps) {
               },
               {
                 icon: MessageCircle,
-                title: "WhatsApp Orders",
-                desc: "Wholesale prices and fixed-price pieces — order confirmed on WhatsApp",
+                title: "UPI Payment",
+                desc: "Pay securely via UPI QR — confirmation and invoice on WhatsApp",
               },
             ].map((item) => (
               <StaggerItem key={item.title}>

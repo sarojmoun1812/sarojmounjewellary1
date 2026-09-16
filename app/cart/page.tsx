@@ -283,7 +283,7 @@ export default function CartPage() {
             {/* Set the expectation here rather than at the last step, where a
                 customer looking for a card form would simply leave. */}
             <p className="mt-3 text-center text-xs text-charcoal-500">
-              Koi online payment nahi — order WhatsApp par confirm hoga.
+              Checkout ke baad UPI QR se pay karein — confirmation WhatsApp par.
             </p>
 
             <Link href="/shop" className="mt-4 block">

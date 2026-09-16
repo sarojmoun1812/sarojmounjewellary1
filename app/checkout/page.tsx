@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import {
   AlertCircle,
   Check,
+  Copy,
   Loader2,
   MapPin,
   MessageCircle,
@@ -37,9 +38,16 @@ type Quote = {
 };
 
 type PlacedOrder = {
+  orderId: string;
   orderNumber: string;
   total: number;
-  whatsappUrl: string;
+  upi: {
+    upiId: string;
+    payeeName: string;
+    qrUrl: string;
+    payUrl: string;
+  };
+  helpWhatsAppUrl: string;
 };
 
 const fieldClass =
@@ -59,6 +67,9 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [placedOrder, setPlacedOrder] = useState<PlacedOrder | null>(null);
+  const [paymentClaimed, setPaymentClaimed] = useState(false);
+  const [isClaimingPayment, setIsClaimingPayment] = useState(false);
+  const [upiCopied, setUpiCopied] = useState(false);
 
   const [form, setForm] = useState({
     fullName: "",
@@ -180,14 +191,13 @@ export default function CheckoutPage() {
       if (!res.ok) throw new Error(data.error || "Could not place your order");
 
       setPlacedOrder({
+        orderId: data.orderId,
         orderNumber: data.orderNumber,
         total: data.total,
-        whatsappUrl: data.whatsappUrl,
+        upi: data.upi,
+        helpWhatsAppUrl: data.helpWhatsAppUrl,
       });
       clearCart();
-
-      // Open WhatsApp straight away; the confirmation screen keeps a manual link.
-      window.open(data.whatsappUrl, "_blank", "noopener,noreferrer");
     } catch (err) {
       setSubmitError(
         err instanceof Error ? err.message : "Could not place your order"
@@ -197,39 +207,132 @@ export default function CheckoutPage() {
     }
   };
 
+  const handleCopyUpi = async () => {
+    if (!placedOrder) return;
+    try {
+      await navigator.clipboard.writeText(placedOrder.upi.upiId);
+      setUpiCopied(true);
+      setTimeout(() => setUpiCopied(false), 2000);
+    } catch {
+      setSubmitError("UPI ID copy nahi hui — manually select karein.");
+    }
+  };
+
+  const handleClaimPayment = async () => {
+    if (!placedOrder || paymentClaimed) return;
+    setIsClaimingPayment(true);
+    try {
+      const res = await fetch(
+        `/api/orders/${placedOrder.orderId}/payment-claimed`,
+        { method: "POST" }
+      );
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Update nahi hua");
+      setPaymentClaimed(true);
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "Update nahi ho paaya"
+      );
+    } finally {
+      setIsClaimingPayment(false);
+    }
+  };
+
   if (placedOrder) {
     return (
-      <div className="container-luxury py-20">
-        <div className="mx-auto max-w-xl border border-ivory-200 bg-white p-10 text-center">
-          <div className="mx-auto mb-7 flex h-16 w-16 items-center justify-center rounded-full bg-champagne-100">
-            <Check className="h-8 w-8 text-champagne-600" strokeWidth={1.5} />
+      <div className="container-luxury py-12 sm:py-20">
+        <div className="mx-auto max-w-xl border border-ivory-200 bg-white p-6 text-center sm:p-10">
+          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-champagne-100 sm:mb-7 sm:h-16 sm:w-16">
+            <Check className="h-7 w-7 text-champagne-600 sm:h-8 sm:w-8" strokeWidth={1.5} />
           </div>
-          <h1 className="font-heading text-3xl font-light text-charcoal-900">
-            Bas ek kadam aur — message bhej dijiye
+          <h1 className="font-heading text-2xl font-light text-charcoal-900 sm:text-3xl">
+            Order save ho gaya — ab UPI se pay karein
           </h1>
-          <p className="mt-4 text-charcoal-500">
-            Aapka order{" "}
+          <p className="mt-3 text-sm text-charcoal-500 sm:mt-4 sm:text-base">
+            Order{" "}
             <span className="font-medium text-charcoal-900">
               {placedOrder.orderNumber}
-            </span>{" "}
-            save ho gaya hai. WhatsApp naye tab mein khul gaya hoga — message
-            bhejiye aur hum wahin order aur delivery confirm kar denge.
+            </span>
+            . Neeche QR scan karein ya Pay Now dabayein.
           </p>
 
-          {/* Green only at the literal handoff, where the WhatsApp cue helps. */}
+          <p className="mt-6 font-heading text-3xl text-charcoal-900">
+            {formatPrice(placedOrder.total)}
+          </p>
+          <p className="mt-1 text-xs uppercase tracking-[0.14em] text-charcoal-500">
+            Pay to {placedOrder.upi.payeeName}
+          </p>
+
+          <div className="mx-auto mt-6 w-full max-w-[260px] rounded-2xl border border-ivory-200 bg-ivory-50 p-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={placedOrder.upi.qrUrl}
+              alt={`${placedOrder.upi.payeeName} UPI QR`}
+              className="mx-auto h-auto w-full object-contain"
+            />
+          </div>
+
+          <div className="mt-5 flex items-center justify-center gap-2 rounded-lg border border-ivory-200 bg-ivory-50 px-3 py-2.5 text-sm text-charcoal-800">
+            <span className="truncate font-medium">{placedOrder.upi.upiId}</span>
+            <button
+              type="button"
+              onClick={handleCopyUpi}
+              className="inline-flex shrink-0 items-center gap-1 rounded-md border border-ivory-300 bg-white px-2 py-1 text-xs text-charcoal-700"
+            >
+              <Copy className="h-3.5 w-3.5" />
+              {upiCopied ? "Copied" : "Copy"}
+            </button>
+          </div>
+
           <a
-            href={placedOrder.whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-8 flex w-full items-center justify-center gap-2 bg-[#128C7E] px-6 py-4 text-sm font-medium uppercase tracking-[0.18em] text-white transition-colors can-hover:hover:bg-[#0e6f64]"
+            href={placedOrder.upi.payUrl}
+            className="mt-6 flex w-full items-center justify-center gap-2 bg-charcoal-900 px-6 py-4 text-sm font-medium uppercase tracking-[0.18em] text-ivory-50 transition-colors can-hover:hover:bg-charcoal-800"
           >
-            <MessageCircle className="h-5 w-5" />
-            WhatsApp Kholein
+            Pay Now (UPI app)
           </a>
 
           <button
+            type="button"
+            onClick={handleClaimPayment}
+            disabled={paymentClaimed || isClaimingPayment}
+            className="mt-3 flex w-full items-center justify-center gap-2 border border-champagne-500 bg-champagne-50 px-6 py-3.5 text-sm font-medium uppercase tracking-[0.14em] text-charcoal-900 transition-colors disabled:cursor-default disabled:opacity-80"
+          >
+            {isClaimingPayment ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Save ho raha hai…
+              </>
+            ) : paymentClaimed ? (
+              <>
+                <Check className="h-4 w-4 text-champagne-700" />
+                Pay claim mil gaya — hum check karenge
+              </>
+            ) : (
+              "Maine pay kar diya"
+            )}
+          </button>
+
+          {paymentClaimed && (
+            <p className="mt-3 text-xs text-charcoal-500">
+              Bank mein paisa dikhte hi aapko WhatsApp par invoice / confirmation
+              mil jayega.
+            </p>
+          )}
+
+          <a
+            href={placedOrder.helpWhatsAppUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-flex items-center gap-2 text-sm text-charcoal-600 underline-offset-4 can-hover:hover:underline"
+          >
+            <MessageCircle className="h-4 w-4" />
+            Sawal hai? WhatsApp
+          </a>
+
+          <button
+            type="button"
             onClick={() => router.push("/shop")}
-            className="mt-3 w-full border border-charcoal-900 px-6 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-charcoal-900 transition-colors can-hover:hover:bg-charcoal-900 can-hover:hover:text-ivory-50"
+            className="mt-4 w-full border border-charcoal-900 px-6 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-charcoal-900 transition-colors can-hover:hover:bg-charcoal-900 can-hover:hover:text-ivory-50"
           >
             Aur Dekhein
           </button>
@@ -265,8 +368,7 @@ export default function CheckoutPage() {
           Complete your order
         </h1>
         <p className="mx-auto mt-3 max-w-lg text-charcoal-500">
-          Apni details bhariye — baaki baat WhatsApp par hogi. Koi online
-          payment nahi.
+          Details bhariye, order confirm karein, phir UPI QR se pay karein.
         </p>
       </div>
 
@@ -337,7 +439,7 @@ export default function CheckoutPage() {
                 Delivery address
               </h3>
               <p className="mb-4 mt-1 text-xs text-charcoal-500">
-                Optional — WhatsApp par bhi bata sakte hain.
+                Optional — baad mein WhatsApp par bhi bata sakte hain.
               </p>
 
               <div className="space-y-4">
@@ -414,19 +516,19 @@ export default function CheckoutPage() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  Order bheja ja raha hai…
+                  Order confirm ho raha hai…
                 </>
               ) : (
                 <>
-                  <MessageCircle className="h-5 w-5" />
-                  WhatsApp Par Order Karein
+                  <Check className="h-5 w-5" />
+                  Order Confirm Karein
                 </>
               )}
             </button>
 
             <p className="text-center text-xs text-charcoal-500">
-              Hum aapka order save karke WhatsApp khol denge taaki aap message
-              bhej sakein. Online kuch charge nahi hoga.
+              Next step: mummy ke UPI QR se exact amount pay karein. Paisa milne
+              ke baad WhatsApp par confirmation milega.
             </p>
           </form>
         </div>
@@ -532,8 +634,8 @@ export default function CheckoutPage() {
                 )}
 
                 <p className="mt-4 text-xs text-charcoal-500">
-                  Aaj ke chaandi bhaav par. Final amount hum WhatsApp par confirm
-                  karenge.
+                  Aaj ke chaandi bhaav par. Pay UPI se hoga; confirmation WhatsApp
+                  par aayega.
                 </p>
               </>
             ) : null}

@@ -10,7 +10,7 @@ const marqueeItems = [
   "FREE SHIPPING OVER ₹2999",
   "HANDCRAFTED IN JIND, HARYANA",
   "7 DAY EASY RETURNS",
-  "ORDER ON WHATSAPP",
+  "PAY VIA UPI",
 ];
 
 export function MarqueeBanner() {

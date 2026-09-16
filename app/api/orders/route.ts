@@ -3,17 +3,14 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { cartSchema, quoteCart } from "@/lib/orders";
 import { formatPrice } from "@/lib/pricing";
-import { buildWhatsAppOrderUrl, getWhatsAppNumber } from "@/lib/whatsapp";
+import { getWhatsAppNumber } from "@/lib/whatsapp";
+import { buildUpiPayUrl, getUpiDetails } from "@/lib/upi";
 import { enforceRateLimit } from "@/lib/rate-limit";
 
 /**
- * Orders are placed over WhatsApp: this route records the order so she has it
- * in the admin panel, then hands back a prefilled WhatsApp link for the
- * customer to send. No payment is taken online.
- *
- * There is deliberately no GET handler — an unauthenticated one previously
- * returned every customer's name, phone and address. Order history lives
- * behind admin auth at /api/admin/orders.
+ * Orders are paid by UPI: this route records the order, then returns mummy's
+ * QR / UPI details so the customer can pay the exact amount. Payment is
+ * confirmed later in admin when the money lands.
  */
 
 const orderSchema = z.object({
@@ -80,6 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     const email = customer.email ? customer.email.toLowerCase() : null;
+    const upi = await getUpiDetails();
 
     const order = await prisma.$transaction(async (tx) => {
       const existingCustomer = await tx.customer.findUnique({
@@ -107,7 +105,7 @@ export async function POST(request: NextRequest) {
           shipping: quote.shipping,
           total: quote.total,
           status: "PENDING",
-          paymentMethod: "WHATSAPP",
+          paymentMethod: "UPI",
           paymentStatus: "PENDING",
           shippingAddress: JSON.stringify({
             name: customer.name,
@@ -125,16 +123,16 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // Stock is deliberately not decremented here. Orders are confirmed by
-      // hand over WhatsApp, and an unconfirmed submission reducing stock would
-      // let anyone empty the shop's inventory by filling in the form.
+      // Stock is deliberately not decremented here. Orders are confirmed after
+      // UPI payment is verified by hand, and an unconfirmed submission reducing
+      // stock would let anyone empty the shop's inventory by filling in the form.
       await tx.lead.create({
         data: {
           name: customer.name,
           email,
           phone: customer.phone,
-          source: "WHATSAPP",
-          message: `Order ${created.orderNumber} — ${quote.lines.length} item(s), ${formatPrice(
+          source: "WEBSITE",
+          message: `UPI order ${created.orderNumber} — ${quote.lines.length} item(s), ${formatPrice(
             quote.total
           )}`,
           status: "NEW",
@@ -144,28 +142,32 @@ export async function POST(request: NextRequest) {
       return created;
     });
 
+    const helpWhatsApp = await getWhatsAppNumber();
+
     return NextResponse.json(
       {
         success: true,
+        orderId: order.id,
         orderNumber: order.orderNumber,
         subtotal: quote.subtotal,
         gst: quote.gst,
         shipping: quote.shipping,
         total: quote.total,
         unavailable: quote.unavailable,
-        whatsappUrl: buildWhatsAppOrderUrl({
-          phoneNumber: await getWhatsAppNumber(),
-          orderNumber: order.orderNumber,
-          customerName: customer.name,
-          customerPhone: customer.phone,
-          lines: quote.lines,
-          subtotal: quote.subtotal,
-          shipping: quote.shipping,
-          gst: quote.gst,
-          total: quote.total,
-          shippingAddress,
-          notes,
-        }),
+        upi: {
+          upiId: upi.upiId,
+          payeeName: upi.payeeName,
+          qrUrl: upi.qrUrl,
+          payUrl: buildUpiPayUrl({
+            upiId: upi.upiId,
+            payeeName: upi.payeeName,
+            amountPaise: quote.total,
+            orderNumber: order.orderNumber,
+          }),
+        },
+        helpWhatsAppUrl: `https://wa.me/${helpWhatsApp}?text=${encodeURIComponent(
+          `Namaste! Order ${order.orderNumber} ke baare mein sawal hai.`
+        )}`,
       },
       { status: 201 }
     );

@@ -18,15 +18,15 @@ export default function PrivacyPolicyPage() {
           directly to us when you:
         </p>
         <ul>
-          <li>Place an order or send an enquiry over WhatsApp</li>
+          <li>Place an order on our website or send an enquiry over WhatsApp</li>
           <li>Contact us for customer support</li>
           <li>Subscribe to our newsletter</li>
         </ul>
         <p>
           <strong>Personal Information:</strong> Name, email address, phone
-          number and shipping address. We do not take card or online payments
-          through this website, so we never collect or store your card, UPI or
-          bank details.
+          number and shipping address. Payments are made via UPI to our shop
+          account (QR / UPI ID shown at checkout). We do not collect or store
+          your card, UPI PIN, or bank login details on this website.
         </p>
       </PolicySection>
 
@@ -50,8 +50,8 @@ export default function PrivacyPolicyPage() {
         </p>
         <ul>
           <li>
-            <strong>WhatsApp:</strong> Orders are placed and confirmed over
-            WhatsApp, which is operated by Meta
+            <strong>WhatsApp:</strong> Order confirmations and invoices may be
+            shared over WhatsApp (Meta)
           </li>
           <li>
             <strong>Shipping partners:</strong> Courier services for order

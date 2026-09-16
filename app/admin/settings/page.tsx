@@ -4,13 +4,16 @@ import { useState, useEffect } from "react";
 
 // Note: This is a client component, dynamic rendering handled by API calls
 import { useRouter } from "next/navigation";
-import { Save, Loader2, Lock } from "lucide-react";
+import { Save, Loader2, Lock, Upload } from "lucide-react";
 
 interface Settings {
   siteName: string;
   tagline: string;
   phone: string;
   whatsapp: string;
+  upiId: string;
+  upiPayeeName: string;
+  upiQrUrl: string;
   email: string;
   address: string;
   gst: string;
@@ -54,6 +57,9 @@ export default function SettingsPage() {
     tagline: "",
     phone: "",
     whatsapp: "",
+    upiId: "sarojmoun1812-1@okicici",
+    upiPayeeName: "Saroj Moun",
+    upiQrUrl: "/upi-qr.png",
     email: "",
     address: "",
     gst: "",
@@ -70,6 +76,7 @@ export default function SettingsPage() {
     metaTitle: "",
     metaDescription: "",
   });
+  const [isUploadingQr, setIsUploadingQr] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/settings")
@@ -81,6 +88,9 @@ export default function SettingsPage() {
             tagline: data.settings.tagline || "",
             phone: data.settings.phone || "",
             whatsapp: data.settings.whatsapp || "",
+            upiId: data.settings.upiId || "sarojmoun1812-1@okicici",
+            upiPayeeName: data.settings.upiPayeeName || "Saroj Moun",
+            upiQrUrl: data.settings.upiQrUrl || "/upi-qr.png",
             email: data.settings.email || "",
             address: data.settings.address || "",
             gst: data.settings.gst || "",
@@ -238,6 +248,29 @@ export default function SettingsPage() {
       );
     } finally {
       setIsChangingPassword(false);
+    }
+  };
+
+  const handleUploadQr = async (file: File | null) => {
+    if (!file) return;
+    setIsUploadingQr(true);
+    setError("");
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "QR upload nahi hua.");
+      if (!data.url) throw new Error("Upload URL nahi mili.");
+      setSettings((prev) => ({ ...prev, upiQrUrl: data.url }));
+      setSuccess("UPI QR upload ho gaya. Settings save karna mat bhoolna.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "QR upload nahi hua.");
+    } finally {
+      setIsUploadingQr(false);
     }
   };
 
@@ -550,6 +583,90 @@ export default function SettingsPage() {
                 }
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* UPI payment */}
+        <div className="rounded-xl border border-sky-200 bg-sky-50/40 p-6">
+          <h2 className="text-lg font-semibold text-gray-900">
+            UPI payment (checkout QR)
+          </h2>
+          <p className="mt-1 text-sm text-gray-600">
+            Customer order ke baad yeh QR / UPI ID se paisa bhejega. GPay se jo
+            QR hai wahi yahan rakhein.
+          </p>
+          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                UPI ID
+              </label>
+              <input
+                type="text"
+                value={settings.upiId}
+                onChange={(e) =>
+                  setSettings({ ...settings, upiId: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
+                placeholder="name@okicici"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Payee name (QR pe dikhega)
+              </label>
+              <input
+                type="text"
+                value={settings.upiPayeeName}
+                onChange={(e) =>
+                  setSettings({ ...settings, upiPayeeName: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
+                placeholder="Saroj Moun"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                QR image
+              </label>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                {settings.upiQrUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={settings.upiQrUrl}
+                    alt="UPI QR preview"
+                    className="h-40 w-40 rounded-lg border border-gray-200 bg-white object-contain p-2"
+                  />
+                ) : null}
+                <div className="flex-1 space-y-3">
+                  <input
+                    type="text"
+                    value={settings.upiQrUrl}
+                    onChange={(e) =>
+                      setSettings({ ...settings, upiQrUrl: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-champagne-500"
+                    placeholder="/upi-qr.png ya Cloudinary URL"
+                  />
+                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    {isUploadingQr ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                    {isUploadingQr ? "Upload ho raha hai…" : "Naya QR upload"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={isUploadingQr}
+                      onChange={(e) =>
+                        handleUploadQr(e.target.files?.[0] ?? null)
+                      }
+                    />
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
         </div>

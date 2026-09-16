@@ -373,7 +373,7 @@ export function ProductDetailClient({
                   otherwise expects a card form and abandons at the last step. */}
               <p className="text-center text-xs text-charcoal-500">
                 {product.stock > 0
-                  ? "Koi online payment nahi — order WhatsApp par confirm hoga."
+                  ? "Checkout ke baad UPI QR se pay karein — confirmation WhatsApp par."
                   : "Ye piece abhi khatam hai. WhatsApp par poochhein, dobara ban sakta hai."}
               </p>
 

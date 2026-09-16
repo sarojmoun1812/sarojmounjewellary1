@@ -4,7 +4,7 @@ import { BRAND_NAME_VARIANTS, pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "Contact Saroj Moun Jewellery in Jind, Haryana",
   description:
-    "Contact Saroj Moun Jewellery in Jind, Haryana for handcrafted 925 silver jewellery. Call, WhatsApp or visit B-90 Police Colony. Orders confirmed on WhatsApp.",
+    "Contact Saroj Moun Jewellery in Jind, Haryana for handcrafted 925 silver jewellery. Call, WhatsApp or visit B-90 Police Colony. Pay via UPI; confirmation on WhatsApp.",
   path: "/contact",
   keywords: [
     ...BRAND_NAME_VARIANTS,
